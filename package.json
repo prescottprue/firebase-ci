@@ -8,7 +8,9 @@
   },
   "files": [
     "src",
-    "lib"
+    "lib",
+    "bin",
+    "cmds"
   ],
   "scripts": {
     "clean": "rimraf lib coverage",
