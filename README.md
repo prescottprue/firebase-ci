@@ -3,75 +3,26 @@
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
-[![Code Climate][climate-image]][climate-url]
+<!-- [![Code Climate][climate-image]][climate-url] -->
 [![License][license-image]][license-url]
 [![Code Style][code-style-image]][code-style-url]
 
 > Simplified Firebase interaction for continuous integration
-
 
 ## Features
 * Skip For Pull Requests
 * Deploy to Different Firebase Instances based on Branch (such as `prod` and `stage`)
 * Optional Deploying of targets Functions, Hosting, Database (rules) and Storage (rules)
 
-## Getting Started
-
-1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
-1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
-1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
-1.. Add the following script to your CI config:
-
-  ```bash
-  firebase-ci deploy
-  ```
-
-For instance within a `travis.yml`:
-
-  ```yaml
-  after_success:
-    - firebase-ci deploy
-  ```
-
-3. Set different Firebase instances names to `.firebaserc` like so:
-```
-{
-  "projects": {
-    "prod": "prod-firebase",
-    "master": "dev-firebase",
-    "default": "dev-firebase"
-  }
-}
-```
-
-
 ### Coming Soon
 * Configuration of whitelisted branches
 * Deploying only a single function at a time
 * Support for Continuous Integration Tools other than Travis-CI
 
-## Use Case
+# Why?
+## What about [Travis's `firebase`](https://docs.travis-ci.com/user/deployment/firebase/) deploy option?
 
-Deploying Only On `prod` or `stage` branches when building on Travis CI
-
-Skips Pull Requests and non-build branches (currently `prod`, `stage`, and `master`).
-
-## Deploying Functions
-
-In order for Firebase Functions to successfully install, you will need to allow the dependencies to install by running `npm install --prefix ./functions`
-
-```
-after_success:
-  - npm install --prefix ./functions
-  - firebase-ci deploy --only functions
-```
-
-**NOTE** This will be included by default soon, and will no longer be necessary
-
-
-## Travis Has `firebase` deploy option?
-
-Using the built in travis deploy tool is actually a perfect solution if you want to do general deployment. You can even include the following to install stuff functions dependencies on Travis:
+Using the built in [travis firebase deploy tool](https://docs.travis-ci.com/user/deployment/firebase/) is actually a perfect solution if you want to do general deployment. You can even include the following to install stuff functions dependencies on Travis:
 
 ```yaml
 after_success:
@@ -89,10 +40,52 @@ This lets you deploy to whatever instance you want based on your branch (and con
 
 `firebase-ci` is for more advanced implementations including only deploying functions, hosting
 
-### Tests
+## Use Case
 
-`npm run test` - run tests
-`npm run test:cov` - run tests and generate coverage
+Deploying Only On `prod` or `stage` branches when building on Travis CI
+
+Skips Pull Requests and non-build branches (currently `prod`, `stage`, and `master`).
+
+## Getting Started
+
+1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
+1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
+1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
+1.. Add the following script to your CI config:
+
+  ```yaml
+  firebase-ci deploy
+  ```
+
+  For instance within a `travis.yml`:
+
+    ```yaml
+    after_success:
+      - firebase-ci deploy
+    ```
+
+1. Set different Firebase instances names to `.firebaserc` like so:
+```
+{
+  "projects": {
+    "prod": "prod-firebase",
+    "master": "dev-firebase",
+    "default": "dev-firebase"
+  }
+}
+```
+
+## Deploying Functions
+
+In order for Firebase Functions to successfully install, you will need to allow the dependencies to install by running `npm install --prefix ./functions`
+
+```yaml
+after_success:
+  - npm install --prefix ./functions
+  - firebase-ci deploy --only functions
+```
+
+**NOTE** This will be included by default soon, and will no longer be necessary
 
 ## [Documentation](https://prescottprue.github.com/firebase-ci)
 
