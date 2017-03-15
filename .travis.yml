@@ -1,0 +1,40 @@
+language: node_js
+
+node_js:
+  - "6"
+
+branches:
+  only:
+    - master
+    - release
+
+sudo: false
+
+cache:
+  directories:
+    - node_modules
+
+# before_install:
+#   - npm install # Install peer deps
+
+script:
+  - npm run test:cov
+  - npm run build
+
+# Publish To NPM if push to release branch
+deploy:
+  skip_cleanup: true
+  provider: npm
+  email: $NPM_EMAIL
+  api_key: $NPM_TOKEN
+  on:
+    branch: release
+
+addons:
+  code_climate:
+    repo_token: $CODE_CLIMATE
+
+after_success:
+  - npm install -g codeclimate-test-reporter
+  - codeclimate-test-reporter < coverage/lcov.info
+

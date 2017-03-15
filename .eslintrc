@@ -1,0 +1,20 @@
+{
+  "parser"  : "babel-eslint",
+  "extends" : [
+    "standard"
+  ],
+  "plugins": [
+    "babel"
+  ],
+  "env"     : {
+    "browser" : true
+  },
+  "globals" : {
+    "expect": false,
+    "should": false,
+  },
+  "rules": {
+    "semi" : [2, "never"],
+    "no-console": "error"
+  }
+}

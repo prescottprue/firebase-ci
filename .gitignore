@@ -1,0 +1,12 @@
+# Dependency directory
+node_modules
+examples/**/node_modules
+dist
+coverage
+_book
+es
+lib
+# Logs
+*.log
+
+.DS_Store
