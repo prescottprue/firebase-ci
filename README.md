@@ -9,6 +9,12 @@
 
 > Simplified Firebase interaction for continuous integration
 
+
+## Features
+* Skip For Pull Requests
+* Deploy to Different Firebase Instances based on Branch (such as `prod` and `stage`)
+* Optional Deploying of targets Functions, Hosting, Database (rules) and Storage (rules)
+
 ## Getting Started
 
 1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
@@ -38,10 +44,6 @@ For instance within a `travis.yml`:
 }
 ```
 
-## Features
-* Skip For Pull Requests
-* Deploy to Different Firebase Instances based on Branch (such as `prod` and `stage`)
-* Deploying functions
 
 ### Coming Soon
 * Configuration of whitelisted branches
@@ -61,19 +63,20 @@ In order for Firebase Functions to successfully install, you will need to allow 
 ```
 after_success:
   - npm install --prefix ./functions
-  - firebase-ci deploy
+  - firebase-ci deploy --only functions
 ```
 
 **NOTE** This will be included by default soon, and will no longer be necessary
 
-## Why
 
-### Travis Has `firebase` deploy option
+## Travis Has `firebase` deploy option?
 
 Using the built in travis deploy tool is actually a perfect solution if you want to do general deployment. You can even include the following to install stuff functions dependencies on Travis:
+
 ```yaml
 after_success:
   - npm install --prefix ./functions
+
 deploy:
   provider: firebase
   project: $TRAVIS_BRANCH
@@ -82,7 +85,9 @@ deploy:
     secure: $FIREBASE_TOKEN
 ```
 
-However, if you need too deploy to differenOption does not allow you to
+This lets you deploy to whatever instance you want based on your branch (and config in `.firebaserc`).
+
+`firebase-ci` is for more advanced implementations including only deploying functions, hosting
 
 ### Tests
 
