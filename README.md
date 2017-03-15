@@ -23,6 +23,10 @@ This will only run
 Make sure you have your `.firebaserc` setup to match branch names you would like
 to use such as `master`
 
+## Use Case
+
+Deploying Only On `prod` or `stage` branches when building on Travis CI
+
 ## Testing/Coverage
 
 `npm run test` - Run unit tests

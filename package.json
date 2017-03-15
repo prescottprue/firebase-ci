@@ -1,12 +1,11 @@
 {
   "name": "firebase-ci",
   "version": "0.0.1",
+  "description": "Simplified Firebase interaction for continuous integration",
   "main": "lib/index.js",
   "files": [
     "src",
-    "dist",
-    "lib",
-    "es"
+    "lib"
   ],
   "scripts": {
     "clean": "rimraf lib coverage",
@@ -65,7 +64,6 @@
     "babel-plugin-add-module-exports": "^0.2.1",
     "cross-env": "^3.1.4",
     "chai": "^3.5.0",
-    "codecov": "^1.0.1",
     "docdown": "^0.7.2",
     "documentation": "^4.0.0-beta15",
     "documentation-markdown-api-theme": "^1.0.2",
