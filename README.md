@@ -7,34 +7,82 @@
 [![License][license-image]][license-url]
 [![Code Style][code-style-image]][code-style-url]
 
+> Simplified Firebase interaction for continuous integration
+
 ## Getting Started
 
-
-1. Install through(so it is available on your CI): `npm install --save-dev firebase-ci`
-<!-- TODO: Mention other options such as after_success -->
-
-2. Add the following script to your CI config:
+1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
+1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
+1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
+1.. Add the following script to your CI config:
 
   ```bash
-  node firebase-ci
+  firebase-ci deploy
   ```
-This will only run
 
-Make sure you have your `.firebaserc` setup to match branch names you would like
-to use such as `master`
+For instance within a `travis.yml`:
+
+  ```yaml
+  after_success:
+    - firebase-ci deploy
+  ```
+
+3. Set different Firebase instances names to `.firebaserc` like so:
+```
+{
+  "projects": {
+    "prod": "prod-firebase",
+    "master": "dev-firebase",
+    "default": "dev-firebase"
+  }
+}
+```
+
+## Features
+* Skip For Pull Requests
+* Deploy to Different Firebase Instances based on Branch (such as `prod` and `stage`)
+* Deploying functions
+
+### Coming Soon
+* Configuration of whitelisted branches
+* Deploying only a single function at a time
+* Support for Continuous Integration Tools other than Travis-CI
 
 ## Use Case
 
 Deploying Only On `prod` or `stage` branches when building on Travis CI
 
-## Testing/Coverage
+Skips Pull Requests and non-build branches (currently `prod`, `stage`, and `master`).
 
-`npm run test` - Run unit tests
-`npm run test:cov` - Run unit tests and report coverage
+## Deploying Functions
 
-## Building Bundle
+In order for Firebase Functions to successfully install, you will need to allow the dependencies to install by running `npm install --prefix ./functions`
 
-Build code before deployment by running `npm run build`
+```
+after_success:
+  - npm install --prefix ./functions
+  - firebase-ci deploy
+```
+
+**NOTE** This will be included by default soon, and will no longer be necessary
+
+## Why
+
+### Travis Has `firebase` deploy option
+
+Using the built in travis deploy tool is actually a perfect solution if you want to do general deployment. You can even include the following to install stuff functions dependencies on Travis:
+```yaml
+after_success:
+  - npm install --prefix ./functions
+deploy:
+  provider: firebase
+  project: $TRAVIS_BRANCH
+  skip_cleanup: true
+  token:
+    secure: $FIREBASE_TOKEN
+```
+
+However, if you need too deploy to differenOption does not allow you to
 
 ### Tests
 

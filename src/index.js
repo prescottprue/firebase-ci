@@ -1,17 +1,49 @@
 /* eslint-disable no-console */
-const chalk = require('chalk')
+import chalk from 'chalk'
+import { isUndefined } from 'lodash'
 const exec = require('child_process').exec
+const {
+  TRAVIS_BRANCH,
+  TRAVIS_PULL_REQUEST,
+  FIREBASE_TOKEN
+} = process.env
 
-const { TRAVIS_BRANCH, TRAVIS_PULL_REQUEST, FIREBASE_TOKEN } = process.env
+const skipPrefix = 'Skipping Firebase Deploy'
+const branchWhitelist = [
+  'master',
+  'stage',
+  'prod'
+]
 
-const deployToFirebase = (cb) => {
+/**
+ * @description Deploy to Firebase under specific conditions
+ * NOTE: This must remain as callbacks for stdout to be realtime
+ * @private
+ */
+const deployToFirebase = ({ only }, cb) => {
+  if (isUndefined(TRAVIS_BRANCH)) {
+    const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
+    console.log(chalk.blue(nonCiMessage))
+    if (cb) {
+      return cb(null, nonCiMessage)
+    }
+    return
+  }
   if (!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') {
-    console.log(chalk.blue('Skipping Firebase Deploy - Build is a Pull Request'))
+    const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
+    console.log(chalk.blue(pullRequestMessage))
+    if (cb) {
+      return cb(null, pullRequestMessage)
+    }
     return
   }
 
-  if (TRAVIS_BRANCH !== 'prod' && TRAVIS_BRANCH !== 'stage' && TRAVIS_BRANCH !== 'master') {
-    console.log(chalk.blue('Skipping Firebase Deploy - Build is a not a Build Branch', TRAVIS_BRANCH))
+  if (branchWhitelist.indexOf(TRAVIS_BRANCH) === -1) {
+    const nonBuildBranch = `${skipPrefix} - Build is a not a Build Branch - Branch: ${TRAVIS_BRANCH}`
+    console.log(chalk.blue(nonBuildBranch))
+    if (cb) {
+      return cb(null, nonBuildBranch)
+    }
     return
   }
 
@@ -26,7 +58,9 @@ const deployToFirebase = (cb) => {
 
   console.log(chalk.blue('Deploying to Firebase...'))
 
-  exec(`firebase deploy --token ${FIREBASE_TOKEN} --project ${TRAVIS_BRANCH}`, (error, stdout) => {
+  const onlyString = only ? `--only ${only}` : ''
+
+  exec(`firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${TRAVIS_BRANCH}`, (error, stdout) => {
     if (error !== null) {
       if (cb) {
         cb(error, null)
@@ -38,14 +72,4 @@ const deployToFirebase = (cb) => {
     }
   })
 }
-
-(function () {
-  deployToFirebase((err, stdout) => {
-    if (err || !stdout) {
-      console.log(chalk.blue('error deploying to Firebase: ', err))
-      return
-    }
-    console.log(chalk.blue(stdout)) // log output of firebase cl)i
-    console.log(chalk.blue('\nSuccessfully deployed to Firebase'))
-  })
-})()
+export default deployToFirebase
