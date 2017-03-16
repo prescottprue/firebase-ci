@@ -56,20 +56,35 @@ const deployToFirebase = ({ only }, cb) => {
     return
   }
 
-  console.log(chalk.blue('Deploying to Firebase...'))
+  console.log(chalk.blue('Installing firebase-tools...'))
 
   const onlyString = only ? `--only ${only}` : ''
-
-  exec(`firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${TRAVIS_BRANCH}`, (error, stdout) => {
+  const project = TRAVIS_BRANCH
+  exec(`npm i -g firebase-tools`, (error, stdout) => {
     if (error !== null) {
+      console.log(chalk.red('Error deploying to firebase.', error.toString() || error))
       if (cb) {
         cb(error, null)
         return
       }
     }
-    if (cb) {
-      cb(null, stdout)
-    }
+    console.log(stdout) // log output
+    console.log(chalk.green('firebase-tools installed successfully'))
+    console.log(chalk.blue('Deploying to Firebase...'))
+    exec(`firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project}`, (error, stdout) => {
+      if (error !== null) {
+        console.log(chalk.red('Error deploying to firebase: '), error.toString() || error)
+        if (cb) {
+          cb(error, null)
+          return
+        }
+      }
+      console.log(stdout) // log output
+      console.log(chalk.green(`Successfully Deployed to ${project}`))
+      if (cb) {
+        cb(null, stdout)
+      }
+    })
   })
 }
 export default deployToFirebase
