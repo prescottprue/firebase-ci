@@ -68,8 +68,6 @@ const createCommandsPromise = (commands) => {
   }, [])
 }
 
-
-
 /**
  * @description Deploy to Firebase under specific conditions
  * NOTE: This must remain as callbacks for stdout to be realtime

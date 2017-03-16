@@ -62,9 +62,11 @@ after_success:
 
 **NOTE** This will be included by default soon, and will no longer be necessary
 
-## [Documentation](https://prescottprue.github.com/firebase-ci)
+## [Examples](/examples)
 
-# Why?
+* [Basic](/examples/basic) - Basic html file upload to Firebase hosting
+
+## Why?
 Advanced configuration of Firebase deployment is often necessary when deploying through continuous integration environment. Instead of having to write and invoke your own scripts, `firebase-ci` provides an easy way to  create/modify advanced configurations.
 
 ### What about [Travis's `firebase`](https://docs.travis-ci.com/user/deployment/firebase/) deploy option?
@@ -92,6 +94,7 @@ This lets you deploy to whatever instance you want based on your branch (and con
 Deploying Only On `prod` or `stage` branches when building on Travis CI
 
 Skips Pull Requests and non-build branches (currently `prod`, `stage`, and `master`).
+
 
 [npm-image]: https://img.shields.io/npm/v/firebase-ci.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/firebase-ci
