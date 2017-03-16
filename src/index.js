@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import chalk from 'chalk'
-import { isUndefined } from 'lodash'
+import { isUndefined, reduce } from 'lodash'
 const exec = require('child_process').exec
 const {
   TRAVIS_BRANCH,
@@ -14,6 +14,61 @@ const branchWhitelist = [
   'stage',
   'prod'
 ]
+const isPromise = (obj) => {
+  return obj && typeof obj.then === 'function'
+}
+
+/**
+ * @description Run a bash command using exec.
+ * @param {Object} opts - Options object
+ * @param {Object} opts.command - Command to be executed
+ * @param {Object} opts.before - Before callback
+ * @param {Object} opts.error - Error callback
+ * @param {Object} opts.success - Success Callback
+ * @private
+ */
+const runCommand = ({ command, before, error, success }) => {
+  console.log('run command called:', { command, before })
+  if (before) {
+    before()
+  }
+  return new Promise((resolve, reject) => {
+    exec(command, (err, stdout) => {
+      if (err !== null) {
+        if (error) {
+          error(err, null)
+        }
+        reject(err)
+      } else {
+        console.log(stdout) // log output
+        if (success) {
+          success(stdout)
+        }
+        resolve(stdout)
+      }
+    })
+  })
+}
+
+/**
+ * @description Create a promise that runs commands in waterfall
+ * @private
+ */
+const createCommandsPromise = (commands) => {
+  console.log('commands', commands)
+  return reduce(commands, (l, r) => {
+    console.log('in reduce:', { l, r, commands })
+    if (!isPromise(l)) {
+      return runCommand(r)
+    }
+    if (isPromise(runCommand(r))) {
+      return l.then(runCommand(r))
+    }
+    return l
+  }, [])
+}
+
+
 
 /**
  * @description Deploy to Firebase under specific conditions
@@ -29,6 +84,7 @@ const deployToFirebase = ({ only }, cb) => {
     }
     return
   }
+
   if (!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') {
     const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
     console.log(chalk.blue(pullRequestMessage))
@@ -55,36 +111,41 @@ const deployToFirebase = ({ only }, cb) => {
     cb('Error: FIREBASE_TOKEN env variable not found', null)
     return
   }
-
-  console.log(chalk.blue('Installing firebase-tools...'))
-
   const onlyString = only ? `--only ${only}` : ''
   const project = TRAVIS_BRANCH
-  exec(`npm i -g firebase-tools`, (error, stdout) => {
-    if (error !== null) {
-      console.log(chalk.red('Error deploying to firebase.', error.toString() || error))
-      if (cb) {
-        cb(error, null)
-        return
+
+  const commands = [
+    {
+      command: 'npm i -g firebase-tools',
+      before: () => {
+        console.log(chalk.blue('Installing firebase-tools...'))
+      },
+      success: (stdout) => {
+        console.log(chalk.green('firebase-tools installed successfully'))
+      },
+      error: (error) => {
+        console.log(chalk.red('Error installing firebase:\n', error.toString() || error))
+      }
+    },
+    {
+      command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project}`,
+      before: () => {
+        console.log(chalk.blue('Deploying to Firebase...'))
+      },
+      success: (stdout) => {
+        console.log(chalk.green(`Successfully Deployed to ${project}`))
+      },
+      error: (error) => {
+        console.log(chalk.red('Error installing firebase:\n', error.toString() || error))
       }
     }
-    console.log(stdout) // log output
-    console.log(chalk.green('firebase-tools installed successfully'))
-    console.log(chalk.blue('Deploying to Firebase...'))
-    exec(`firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project}`, (error, stdout) => {
-      if (error !== null) {
-        console.log(chalk.red('Error deploying to firebase: '), error.toString() || error)
-        if (cb) {
-          cb(error, null)
-          return
-        }
-      }
-      console.log(stdout) // log output
-      console.log(chalk.green(`Successfully Deployed to ${project}`))
-      if (cb) {
-        cb(null, stdout)
-      }
-    })
+  ]
+
+  const commandsPromise = createCommandsPromise(commands)
+
+  commandsPromise.then(() => {
+    console.log('commands executed successfully')
   })
 }
+
 export default deployToFirebase
