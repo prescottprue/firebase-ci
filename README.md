@@ -19,48 +19,23 @@
 * Deploying only a single function at a time
 * Support for Continuous Integration Tools other than Travis-CI
 
-# Why?
-## What about [Travis's `firebase`](https://docs.travis-ci.com/user/deployment/firebase/) deploy option?
-
-Using the built in [travis firebase deploy tool](https://docs.travis-ci.com/user/deployment/firebase/) is actually a perfect solution if you want to do general deployment. You can even include the following to install stuff functions dependencies on Travis:
-
-```yaml
-after_success:
-  - npm install --prefix ./functions
-
-deploy:
-  provider: firebase
-  project: $TRAVIS_BRANCH
-  skip_cleanup: true
-  token:
-    secure: $FIREBASE_TOKEN
-```
-
-This lets you deploy to whatever instance you want based on your branch (and config in `.firebaserc`).
-
-`firebase-ci` is for more advanced implementations including only deploying functions, hosting
-
-## Use Case
-
-Deploying Only On `prod` or `stage` branches when building on Travis CI
-
-Skips Pull Requests and non-build branches (currently `prod`, `stage`, and `master`).
-
 ## Getting Started
 
 1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
 1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
 1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
-1.. Add the following script to your CI config:
+1.. Add the following scripts to your CI config:
 
   ```yaml
-  firebase-ci deploy
+  npm i -g firebase-ci  # install firebase-ci tool
+  firebase-ci deploy # deploys only on master, stage, and prod branches to matching project in .firebaserc
   ```
 
   For instance within a `travis.yml`:
 
     ```yaml
     after_success:
+      - npm i -g firebase-ci
       - firebase-ci deploy
     ```
 
@@ -87,7 +62,39 @@ after_success:
 
 **NOTE** This will be included by default soon, and will no longer be necessary
 
-## [Documentation](https://prescottprue.github.com/firebase-ci)
+## [Examples](/examples)
+
+* [Basic](/examples/basic) - Basic html file upload to Firebase hosting
+
+## Why?
+Advanced configuration of Firebase deployment is often necessary when deploying through continuous integration environment. Instead of having to write and invoke your own scripts, `firebase-ci` provides an easy way to  create/modify advanced configurations.
+
+### What about [Travis's `firebase`](https://docs.travis-ci.com/user/deployment/firebase/) deploy option?
+
+Using the built in [travis firebase deploy tool](https://docs.travis-ci.com/user/deployment/firebase/) is actually a perfect solution if you want to do general deployment. You can even include the following to install stuff functions dependencies on Travis:
+
+```yaml
+after_success:
+  - npm install --prefix ./functions
+
+deploy:
+  provider: firebase
+  project: $TRAVIS_BRANCH
+  skip_cleanup: true
+  token:
+    secure: $FIREBASE_TOKEN
+```
+
+This lets you deploy to whatever instance you want based on your branch (and config in `.firebaserc`).
+
+`firebase-ci` is for more advanced implementations including only deploying functions, hosting
+
+## Use Case
+
+Deploying Only On `prod` or `stage` branches when building on Travis CI
+
+Skips Pull Requests and non-build branches (currently `prod`, `stage`, and `master`).
+
 
 [npm-image]: https://img.shields.io/npm/v/firebase-ci.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/firebase-ci
