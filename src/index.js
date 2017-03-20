@@ -20,10 +20,14 @@ const branchWhitelist = [
 /**
  * @description Deploy to Firebase under specific conditions
  * NOTE: This must remain as callbacks for stdout to be realtime
+ * @param {Object} opts - Options object
+ * @param {String} opts.only - String corresponding to list of entities
+ * to deploy (hosting, functions, database)
+ * @param {Function} cb - Callback called when complete (err, stdout)
  * @private
  */
-const deployToFirebase = ({ only }, cb) => {
-  if (isUndefined(TRAVIS_BRANCH)) {
+const deployToFirebase = (opts, cb) => {
+  if (isUndefined(TRAVIS_BRANCH) && (!opts || !opts.project)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     console.log(chalk.blue(nonCiMessage))
     if (cb) {
@@ -31,6 +35,7 @@ const deployToFirebase = ({ only }, cb) => {
     }
     return
   }
+
   if (!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') {
     const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
     console.log(chalk.blue(pullRequestMessage))
@@ -60,7 +65,7 @@ const deployToFirebase = ({ only }, cb) => {
 
   console.log(chalk.blue('Installing firebase-tools...'))
 
-  const onlyString = only ? `--only ${only}` : ''
+  const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const project = TRAVIS_BRANCH
   exec(`npm i -g firebase-tools`, (error, stdout) => {
     if (error !== null) {
@@ -71,10 +76,10 @@ const deployToFirebase = ({ only }, cb) => {
       }
     }
     // TODO: Install functions npm depdendencies if folder exists
-    if (fs.existsSync(path.join(__dirname, '..', 'functions'))) {
+    if (fs.existsSync(path.join(__dirname, 'functions'))) {
       console.log(chalk.green('functions folder exists'))
     } else {
-      console.log(chalk.green('functions folder does not exist'))
+      console.log(chalk.yellow('functions folder does not exist'))
     }
     // TODO: Do not attempt to install functions depdendencies if folder does not exist
     console.log(stdout) // log output
