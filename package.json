@@ -76,6 +76,7 @@
     "docdown": "^0.7.2",
     "documentation": "^4.0.0-beta15",
     "documentation-markdown-api-theme": "^1.0.2",
+    "env-cmd": "^5.0.0",
     "eslint": "^3.14.0",
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-babel": "^4.0.0",
