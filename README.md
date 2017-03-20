@@ -1,13 +1,14 @@
 # firebase-ci
 
+> Simplified Firebase interaction for continuous integration
+
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
-<!-- [![Code Climate][climate-image]][climate-url] -->
+[![Code Climate][climate-image]][climate-url]
+[![Code Coverage][coverage-image]][coverage-url]
 [![License][license-image]][license-url]
 [![Code Style][code-style-image]][code-style-url]
-
-> Simplified Firebase interaction for continuous integration
 
 ## Features
 * Skip For Pull Requests
@@ -26,7 +27,7 @@
 1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
 1.. Add the following scripts to your CI config:
 
-  ```yaml
+  ```bash
   npm i -g firebase-ci  # install firebase-ci tool
   firebase-ci deploy # deploys only on master, stage, and prod branches to matching project in .firebaserc
   ```
@@ -104,8 +105,8 @@ Skips Pull Requests and non-build branches (currently `prod`, `stage`, and `mast
 [daviddm-url]: https://david-dm.org/prescottprue/firebase-ci
 [climate-image]: https://img.shields.io/codeclimate/github/prescottprue/firebase-ci.svg?style=flat-square
 [climate-url]: https://codeclimate.com/github/prescottprue/firebase-ci
-[coverage-image]: https://img.shields.io/codeclimate/coverage/github/prescottprue/firebase-ci.svg?style=flat-square
-[coverage-url]: https://codeclimate.com/github/prescottprue/firebase-ci
+[coverage-image]: https://img.shields.io/codecov/c/github/prescottprue/firebase-ci.svg?style=flat-square
+[coverage-url]: https://codecov.io/gh/prescottprue/firebase-ci
 [license-image]: https://img.shields.io/npm/l/firebase-ci.svg?style=flat-square
 [license-url]: https://github.com/prescottprue/firebase-ci/blob/master/LICENSE
 [code-style-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square

@@ -21,20 +21,26 @@ script:
   - npm run test:cov
   - npm run build
 
-# Publish To NPM if push to release branch
+# Publish To NPM if push to master branch with a version not already released
 deploy:
   skip_cleanup: true
   provider: npm
   email: $NPM_EMAIL
   api_key: $NPM_TOKEN
   on:
-    branch: release
+    branch: master
 
 addons:
   code_climate:
     repo_token: $CODE_CLIMATE
 
 after_success:
+  - npm run codecov
   - npm install -g codeclimate-test-reporter
   - codeclimate-test-reporter < coverage/lcov.info
 
+notifications:
+  email:
+    # Only send notifications when travis status changes
+    on_failure: change
+    on_success: change
