@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import chalk from 'chalk'
 import fs from 'fs'
-import path from 'path'
 import { isUndefined } from 'lodash'
 const exec = require('child_process').exec
 const {
@@ -27,7 +26,13 @@ const branchWhitelist = [
  * @private
  */
 const deployToFirebase = (opts, cb) => {
-  if (isUndefined(TRAVIS_BRANCH) || (opts && !opts.project)) {
+  // TODO: Install functions npm depdendencies if folder exists
+  if (fs.existsSync('functions')) {
+    console.log(chalk.green('functions folder exists!'))
+  } else {
+    console.log(chalk.yellow('functions folder does not exist'))
+  }
+  if (isUndefined(TRAVIS_BRANCH) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     console.log(chalk.blue(nonCiMessage))
     if (cb) {
@@ -75,12 +80,7 @@ const deployToFirebase = (opts, cb) => {
         return
       }
     }
-    // TODO: Install functions npm depdendencies if folder exists
-    if (fs.existsSync(path.join(__dirname, 'functions'))) {
-      console.log(chalk.green('functions folder exists'))
-    } else {
-      console.log(chalk.yellow('functions folder does not exist'))
-    }
+
     // TODO: Do not attempt to install functions depdendencies if folder does not exist
     console.log(stdout) // log output
     console.log(chalk.green('firebase-tools installed successfully'))

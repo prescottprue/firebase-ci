@@ -9,7 +9,7 @@ describe('firebase-ci Library', () => {
   })
   describe('deploy option', () => {
     it('exits with message if not in a CI environment', () => {
-      deployToFirebase({}, (err, msg) => {
+      deployToFirebase({ test: true }, (err, msg) => {
         expect(msg).to.exist
         expect(msg).to.equal('Skipping Firebase Deploy - Not a supported CI environment')
         expect(err).to.be.null
