@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 import chalk from 'chalk'
+import fs from 'fs'
+import path from 'path'
 import { isUndefined } from 'lodash'
 const exec = require('child_process').exec
 const {
@@ -69,6 +71,11 @@ const deployToFirebase = ({ only }, cb) => {
       }
     }
     // TODO: Install functions npm depdendencies if folder exists
+    if (fs.existsSync(path.join(__dirname, '..', 'functions'))) {
+      console.log(chalk.green('functions folder exists'))
+    } else {
+      console.log(chalk.green('functions folder does not exist'))
+    }
     // TODO: Do not attempt to install functions depdendencies if folder does not exist
     console.log(stdout) // log output
     console.log(chalk.green('firebase-tools installed successfully'))
