@@ -62,18 +62,20 @@ const deployToFirebase = ({ only }, cb) => {
   const project = TRAVIS_BRANCH
   exec(`npm i -g firebase-tools`, (error, stdout) => {
     if (error !== null) {
-      console.log(chalk.red('Error deploying to firebase.', error.toString() || error))
+      console.log(chalk.red('Error deploying to firebase.'), error ? error.toString() : stdout)
       if (cb) {
         cb(error, null)
         return
       }
     }
+    // TODO: Install functions npm depdendencies if folder exists
+    // TODO: Do not attempt to install functions depdendencies if folder does not exist
     console.log(stdout) // log output
     console.log(chalk.green('firebase-tools installed successfully'))
     console.log(chalk.blue('Deploying to Firebase...'))
     exec(`firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project}`, (error, stdout) => {
       if (error !== null) {
-        console.log(chalk.red('Error deploying to firebase: '), error.toString() || error)
+        console.log(chalk.red('Error deploying to firebase: '), error ? error.toString() : stdout)
         if (cb) {
           cb(error, null)
           return
