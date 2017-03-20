@@ -27,7 +27,7 @@ const branchWhitelist = [
  * @private
  */
 const deployToFirebase = (opts, cb) => {
-  if (isUndefined(TRAVIS_BRANCH) && (!opts || !opts.project)) {
+  if (isUndefined(TRAVIS_BRANCH) || (opts && !opts.project)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     console.log(chalk.blue(nonCiMessage))
     if (cb) {

@@ -1,4 +1,4 @@
-/* global describe, it, expect, beforeEach */
+/* global describe, it, expect */
 import deployToFirebase from '../../src'
 
 describe('firebase-ci Library', () => {
@@ -8,11 +8,8 @@ describe('firebase-ci Library', () => {
     })
   })
   describe('deploy option', () => {
-    beforeEach(() => {
-      process.env.TRAVIS_BRANCH = undefined
-    })
     it('exits with message if not in a CI environment', () => {
-      deployToFirebase(null, (err, msg) => {
+      deployToFirebase({}, (err, msg) => {
         expect(msg).to.exist
         expect(msg).to.equal('Skipping Firebase Deploy - Not a supported CI environment')
         expect(err).to.be.null
@@ -21,7 +18,7 @@ describe('firebase-ci Library', () => {
     it('accepts project option', () => {
       deployToFirebase({ project: 'test' }, (err, msg) => {
         expect(msg).to.exist
-        expect(msg).to.equal('Skipping Firebase Deploy - Build is a not a Build Branch - Branch: undefined')
+        expect(msg).to.equal('Skipping Firebase Deploy - Build is a not a Build Branch - Branch: test')
         expect(err).to.be.null
       })
     })
