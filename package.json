@@ -16,7 +16,7 @@
     "clean": "rimraf lib coverage",
     "lint": "eslint src cmds bin test",
     "lint:fix": "npm run lint -- --fix",
-    "test": "mocha -R spec --compilers js:babel-core/register ./tests/setup.js ./test/**/*.spec.js",
+    "test": "env-cmd ./tests/.env mocha -R spec --compilers js:babel-core/register ./tests/setup.js ./tests/**/*.spec.js",
     "test:cov": "env-cmd ./tests/.env istanbul cover ./node_modules/mocha/bin/_mocha -- ./tests/** --recursive --report lcov --compilers js:babel-register --require babel-polyfill",
     "build:lib": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
     "build": "npm run clean && npm run build:lib",
