@@ -10,11 +10,6 @@ const {
 } = process.env
 
 const skipPrefix = 'Skipping Firebase Deploy'
-const branchWhitelist = [
-  'master',
-  'stage',
-  'prod'
-]
 
 /**
  * Get settings from firebaserc file
@@ -24,6 +19,7 @@ const getSettings = () => {
   try {
     return JSON.parse(fs.readFileSync(`./.firebaserc`, 'utf8'))
   } catch (err) {
+    console.log(chalk.red('.firebaserc file does not exist!'))
     return {}
   }
 }
@@ -68,8 +64,8 @@ const deployToFirebase = (opts, cb) => {
     return
   }
 
-  if (branchWhitelist.indexOf(TRAVIS_BRANCH) === -1) {
-    const nonBuildBranch = `${skipPrefix} - Build is a not a Build Branch - Branch: ${TRAVIS_BRANCH}`
+  if (settings.projects && !settings.projects[TRAVIS_BRANCH]) {
+    const nonBuildBranch = `${skipPrefix} - Branch is a not a Build Branch - Branch: ${TRAVIS_BRANCH}`
     console.log(chalk.blue(nonBuildBranch))
     if (cb) {
       return cb(null, nonBuildBranch)
