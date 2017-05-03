@@ -19,7 +19,7 @@ program
 program
 	.parse(process.argv)
 
-if (program.args.length < 1 ) {
+if (program.args.length < 1) {
 	console.log('No command specified. See \'firebase-ci --help\':')
 	program.outputHelp()
 	process.exit(1)

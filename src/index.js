@@ -17,6 +17,31 @@ const branchWhitelist = [
 ]
 
 /**
+ * Get settings from firebaserc file
+ * @return {Object} Firebase settings object
+ */
+const getSettings = () => {
+  try {
+    return JSON.parse(fs.readFileSync(`./.firebaserc`, 'utf8'))
+  } catch (err) {
+    return {}
+  }
+}
+
+const settings = getSettings()
+
+/**
+ * Copy version from main package file into functions package file
+ */
+const copyVersion = () => {
+  console.log(chalk.blue('Copying version into functions package.json...'))
+  const pkg = JSON.parse(fs.readFileSync(`./package.json`))
+  const functionsPkg = JSON.parse(fs.readFileSync(`./functions/package.json`))
+  functionsPkg.version = pkg.version
+  fs.writeFileSync(`./functions/package.json`, JSON.stringify(functionsPkg, null, 2), 'utf8')
+}
+
+/**
  * @description Deploy to Firebase under specific conditions
  * NOTE: This must remain as callbacks for stdout to be realtime
  * @param {Object} opts - Options object
@@ -32,6 +57,11 @@ const deployToFirebase = (opts, cb) => {
   } else {
     console.log(chalk.yellow('functions folder does not exist'))
   }
+
+  if (settings && settings.copyVersion) {
+    copyVersion()
+  }
+
   if (isUndefined(TRAVIS_BRANCH) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     console.log(chalk.blue(nonCiMessage))
