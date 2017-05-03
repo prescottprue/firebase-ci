@@ -18,7 +18,7 @@ describe('firebase-ci Library', () => {
     it('accepts project option', () => {
       deployToFirebase({ project: 'test' }, (err, msg) => {
         expect(msg).to.exist
-        expect(msg).to.equal('Skipping Firebase Deploy - Build is a not a Build Branch - Branch: test')
+        expect(msg).to.equal('Skipping Firebase Deploy - Branch is a not a Build Branch - Branch: test')
         expect(err).to.be.null
       })
     })

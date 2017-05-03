@@ -73,11 +73,24 @@ const deployToFirebase = (opts, cb) => {
     return
   }
 
+  // Handle project option
+  if (opts && opts.project && settings.projects && !settings.projects[opts.project]) {
+    const nonBuildBranch = `${skipPrefix} - Project is a not an Alias - Project: ${opts.project}`
+    console.log(chalk.blue(nonBuildBranch))
+    if (cb) {
+      return cb(null, nonBuildBranch)
+    }
+    return
+  }
+
   if (!FIREBASE_TOKEN) {
-    console.log(chalk.blue('Error: FIREBASE_TOKEN env variable not found.\n' +
-      'Run firebase login:ci (from  firebase-tools) to generate a token' +
-      'and place it travis environment variables as FIREBASE_TOKEN'
-    ))
+    console.log(chalk.red('Error: FIREBASE_TOKEN env variable not found.'))
+    console.log(
+      chalk.blue(
+        'Run firebase login:ci (from  firebase-tools) to generate a token' +
+        'and place it travis environment variables as FIREBASE_TOKEN'
+      )
+    )
     cb('Error: FIREBASE_TOKEN env variable not found', null)
     return
   }
