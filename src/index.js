@@ -2,7 +2,7 @@
 import chalk from 'chalk'
 import fs from 'fs'
 import { isUndefined } from 'lodash'
-const exec = require('child_process').exec
+import { runCommand } from './utils/commands'
 const {
   TRAVIS_BRANCH,
   TRAVIS_PULL_REQUEST,
@@ -43,7 +43,6 @@ const copyVersion = () => {
 
 /**
  * @description Deploy to Firebase under specific conditions
- * NOTE: This must remain as callbacks for stdout to be realtime
  * @param {Object} opts - Options object
  * @param {String} opts.only - String corresponding to list of entities
  * to deploy (hosting, functions, database)
@@ -51,17 +50,6 @@ const copyVersion = () => {
  * @private
  */
 const deployToFirebase = (opts, cb) => {
-  // TODO: Install functions npm depdendencies if folder exists
-  if (fs.existsSync('functions')) {
-    console.log(chalk.green('functions folder exists!'))
-  } else {
-    console.log(chalk.yellow('functions folder does not exist'))
-  }
-
-  if (settings && settings.copyVersion) {
-    copyVersion()
-  }
-
   if (isUndefined(TRAVIS_BRANCH) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     console.log(chalk.blue(nonCiMessage))
@@ -98,37 +86,45 @@ const deployToFirebase = (opts, cb) => {
     return
   }
 
-  console.log(chalk.blue('Installing firebase-tools...'))
-
+  let promises = [
+    runCommand({
+      command: `npm i -g firebase-tools`,
+      beforeMsg: 'Installing firebase-tools...',
+      errorMsg: 'Error installing firebase-tools.',
+      afterMsg: 'Firebase tools installed successfully'
+    })
+  ]
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const project = TRAVIS_BRANCH
-  exec(`npm i -g firebase-tools`, (error, stdout) => {
-    if (error !== null) {
-      console.log(chalk.red('Error deploying to firebase.'), error ? error.toString() : stdout)
-      if (cb) {
-        cb(error, null)
-        return
-      }
+  if (fs.existsSync('functions')) {
+    if (settings.functions && settings.functions.copyVersion) {
+      copyVersion()
     }
-
-    // TODO: Do not attempt to install functions depdendencies if folder does not exist
-    console.log(stdout) // log output
-    console.log(chalk.green('firebase-tools installed successfully'))
-    console.log(chalk.blue('Deploying to Firebase...'))
-    exec(`firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project}`, (error, stdout) => {
-      if (error !== null) {
-        console.log(chalk.red('Error deploying to firebase: '), error ? error.toString() : stdout)
-        if (cb) {
-          cb(error, null)
-          return
-        }
-      }
-      console.log(stdout) // log output
-      console.log(chalk.green(`Successfully Deployed to ${project}`))
-      if (cb) {
-        cb(null, stdout)
-      }
+    promises.push(
+      runCommand({
+        command: 'npm install --prefix ./functions',
+        beforeMsg: 'Installing functions dependencies...',
+        errorMsg: 'Error installing functions dependencies:',
+        afterMsg: 'Functions dependencies installed successfully'
+      })
+    )
+  }
+  promises.push(
+    runCommand({
+      command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project}`,
+      beforeMsg: 'Deploying to Firebase...',
+      errorMsg: 'Error deploying to firebase:',
+      afterMsg: `Successfully Deployed to ${project}`
     })
-  })
+  )
+  return Promise.all(promises)
+    .then(() => {
+      cb(null, {})
+    })
+    .catch((err) => {
+      cb(err, null)
+      return Promise.reject(err)
+    })
 }
+
 export default deployToFirebase

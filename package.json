@@ -1,6 +1,6 @@
 {
   "name": "firebase-ci",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha",
   "description": "Simplified Firebase interaction for continuous integration including deploying hosting, functions, and database/storage rules.",
   "main": "lib/index.js",
   "bin": {

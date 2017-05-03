@@ -35,13 +35,13 @@
   For instance within a `travis.yml`:
 
   ```yaml
-    after_success:
-      - npm i -g firebase-ci
-      - firebase-ci deploy
+  after_success:
+    - npm i -g firebase-ci
+    - firebase-ci deploy
   ```
 
 1. Set different Firebase instances names to `.firebaserc` like so:
-```
+```js
 {
   "projects": {
     "prod": "prod-firebase",
