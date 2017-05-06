@@ -118,17 +118,17 @@ const deployToFirebase = (opts, cb) => {
       })
     )
   }
-  promises.push(
-    runCommand({
-      command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project}`,
-      beforeMsg: 'Deploying to Firebase...',
-      errorMsg: 'Error deploying to firebase:',
-      afterMsg: `Successfully Deployed to ${project}`
-    })
-  )
   return Promise.all(promises)
     .then(() => {
-      cb(null, {})
+      // Wait until all other commands are complete before calling deploy
+      return runCommand({
+        command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project}`,
+        beforeMsg: 'Deploying to Firebase...',
+        errorMsg: 'Error deploying to firebase:',
+        afterMsg: `Successfully Deployed to ${project}`
+      }).then(() => {
+        cb(null, {})
+      })
     })
     .catch((err) => {
       cb(err, null)
