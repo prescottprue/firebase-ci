@@ -97,7 +97,7 @@ const deployToFirebase = (opts, cb) => {
   }
 
   if (settings.projects && !settings.projects[TRAVIS_BRANCH]) {
-    const nonBuildBranch = `${skipPrefix} - Branch is a not a Build Branch - Branch: ${TRAVIS_BRANCH}`
+    const nonBuildBranch = `${skipPrefix} - Branch name is a not a project alias - Branch: ${TRAVIS_BRANCH}`
     console.log(chalk.blue(nonBuildBranch))
     if (cb) {
       return cb(null, nonBuildBranch)
