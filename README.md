@@ -16,7 +16,9 @@
 * Mapping of environment variables from CI environment to Firebase Functions
 * Optional Deploying of targets Functions, Hosting, Database (rules) and Storage (rules)
 
-### Coming Soon
+### Roadmap
+* `setCORS` option for copying CORS config file to Cloud Storage Bucket
+* only setting non existent env vars with `mapEnv`
 * Support for Continuous Integration Tools other than Travis-CI
 
 ## Getting Started
@@ -28,7 +30,7 @@
 
   ```bash
   npm i -g firebase-ci  # install firebase-ci tool
-  firebase-ci deploy # deploys only on master, stage, and prod branches to matching project in .firebaserc
+  firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
   ```
 
   For instance within a `travis.yml`:

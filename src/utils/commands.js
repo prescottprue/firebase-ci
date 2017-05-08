@@ -8,9 +8,9 @@ export const isPromise = (obj) => obj && typeof obj.then === 'function'
  * @description Run a bash command using exec.
  * @param {Object} opts - Options object
  * @param {Object} opts.command - Command to be executed
- * @param {Object} opts.before - Before callback
- * @param {Object} opts.error - Error callback
- * @param {Object} opts.success - Success Callback
+ * @param {Object} opts.beforeMsg - Before callback
+ * @param {Object} opts.errorMsg - Error callback
+ * @param {Object} opts.successMsg - Success Callback
  * @private
  */
 export const runCommand = ({ command, beforeMsg, errorMsg, successMsg }) => {

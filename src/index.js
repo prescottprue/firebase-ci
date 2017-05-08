@@ -49,8 +49,9 @@ const copyVersion = () => {
  *   }
  * }
  */
-const copyEnv = (copySettings) =>
-  Promise.all(
+const copyEnv = (copySettings) => {
+  console.log(chalk.blue('Mapping Environment to Firebase Functions...'))
+  return Promise.all(
     map(copySettings, (functionsVar, travisVar) => {
       if (!process.env[travisVar]) {
         const msg = `${travisVar} does not exist on within Travis-CI environment variables`
@@ -62,10 +63,11 @@ const copyEnv = (copySettings) =>
         command: `firebase functions:config:set ${functionsVar}="${process.env[travisVar]}"`,
         beforeMsg: `Setting ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`,
         errorMsg: `Error setting Firebase functions config variable: ${functionsVar} from ${travisVar} variable on Travis-CI.`,
-        afterMsg: `Successfully set ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`
+        successMsg: `Successfully set ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`
       })
     })
   )
+}
 
 /**
  * @description Deploy to Firebase under specific conditions
@@ -130,18 +132,15 @@ const deployToFirebase = (opts, cb) => {
       command: `npm i -g firebase-tools`,
       beforeMsg: 'Installing firebase-tools...',
       errorMsg: 'Error installing firebase-tools.',
-      afterMsg: 'Firebase tools installed successfully'
+      successMsg: 'Firebase tools installed successfully!'
     })
   ]
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const project = TRAVIS_BRANCH
   if (fs.existsSync('functions')) {
-    if (settings.functions) {
-      if (settings.functions.copyVersion) {
+    if (settings.ci) {
+      if (settings.ci.copyVersion) {
         copyVersion()
-      }
-      if (settings.functions.copyEnv) {
-        copyEnv(settings.functions.copyEnv)
       }
     }
 
@@ -150,23 +149,44 @@ const deployToFirebase = (opts, cb) => {
         command: 'npm install --prefix ./functions',
         beforeMsg: 'Installing functions dependencies...',
         errorMsg: 'Error installing functions dependencies:',
-        afterMsg: 'Functions dependencies installed successfully'
+        successMsg: 'Functions dependencies installed successfully'
       })
     )
   }
-  return Promise.all(promises)
+  Promise.all(promises)
+    .then(() =>
+      // -------------------------- Set Project ---------------------------- //
+      runCommand({
+        command: `firebase use ${project}`,
+        beforeMsg: `Setting Firebase project to alias ${project}`,
+        errorMsg: `Error setting Firebase project to alias ${project}`,
+        successMsg: `Successfully set Firebase project to alias ${project}`
+      })
+    )
     .then(() => {
+      // -------------------------- Actions ---------------------------- //
+      if (settings.ci.mapEnv) {
+        return copyEnv(settings.ci.mapEnv)
+          .catch((err) => {
+            console.log(chalk.red('Error mapping Travis Environment to Functions environment: '), err)
+            return Promise.reject(err)
+          })
+      }
+      return {}
+    })
+    .then(() =>
       // Wait until all other commands are complete before calling deploy
-      return runCommand({
+      runCommand({
         command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project}`,
         beforeMsg: 'Deploying to Firebase...',
         errorMsg: 'Error deploying to firebase:',
-        afterMsg: `Successfully Deployed to ${project}`
+        successMsg: `Successfully Deployed to ${project}`
       }).then(() => {
         cb(null, {})
       })
-    })
+    )
     .catch((err) => {
+      console.log(chalk.red('Error in firebase-ci:\n '), err)
       cb(err, null)
       return Promise.reject(err)
     })
