@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import chalk from 'chalk'
 import fs from 'fs'
-import { isUndefined } from 'lodash'
+import { isUndefined, map } from 'lodash'
 import { runCommand } from './utils/commands'
 const {
   TRAVIS_BRANCH,
@@ -19,7 +19,7 @@ const getSettings = () => {
   try {
     return JSON.parse(fs.readFileSync(`./.firebaserc`, 'utf8'))
   } catch (err) {
-    console.log(chalk.red('.firebaserc file does not exist!'))
+    console.log(chalk.red('.firebaserc file does not exist! Run firebase init to create a .firebaserc file.'))
     return {}
   }
 }
@@ -36,6 +36,36 @@ const copyVersion = () => {
   functionsPkg.version = pkg.version
   fs.writeFileSync(`./functions/package.json`, JSON.stringify(functionsPkg, null, 2), 'utf8')
 }
+
+/**
+ * Copy Travis environment variables over to Firebase functions
+ * @param {Object} copySettings - Settings for how environment variables should
+ * be copied from Travis-CI to Firebase Functions Config
+ * @return {[type]} [description]
+ * @example
+ * "functions": {
+ *   "copyEnv": {
+ *     "SOME_TOKEN": "some.token"
+ *   }
+ * }
+ */
+const copyEnv = (copySettings) =>
+  Promise.all(
+    map(copySettings, (functionsVar, travisVar) => {
+      if (!process.env[travisVar]) {
+        const msg = `${travisVar} does not exist on within Travis-CI environment variables`
+        console.log(chalk.blue(msg))
+        return Promise.reject(msg)
+      }
+      // TODO: Check for not allowed characters in functionsVar (camelcase not allowed?)
+      return runCommand({
+        command: `firebase functions:config:set ${functionsVar}="${process.env[travisVar]}"`,
+        beforeMsg: `Setting ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`,
+        errorMsg: `Error setting Firebase functions config variable: ${functionsVar} from ${travisVar} variable on Travis-CI.`,
+        afterMsg: `Successfully set ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`
+      })
+    })
+  )
 
 /**
  * @description Deploy to Firebase under specific conditions
@@ -106,9 +136,15 @@ const deployToFirebase = (opts, cb) => {
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const project = TRAVIS_BRANCH
   if (fs.existsSync('functions')) {
-    if (settings.functions && settings.functions.copyVersion) {
-      copyVersion()
+    if (settings.functions) {
+      if (settings.functions.copyVersion) {
+        copyVersion()
+      }
+      if (settings.functions.copyEnv) {
+        copyEnv(settings.functions.copyEnv)
+      }
     }
+
     promises.push(
       runCommand({
         command: 'npm install --prefix ./functions',
