@@ -12,12 +12,13 @@
 
 ## Features
 * Skip For Pull Requests
-* Deploy to Different Firebase Instances based on Branch (such as `prod` and `stage`)
+* Deploy to Different Firebase Instances based on Branch
+* Mapping of environment variables from CI environment to Firebase Functions
 * Optional Deploying of targets Functions, Hosting, Database (rules) and Storage (rules)
 
-### Coming Soon
-* Configuration of whitelisted branches
-* Deploying only a single function at a time
+### Roadmap
+* `setCORS` option for copying CORS config file to Cloud Storage Bucket
+* only setting non existent env vars with `mapEnv`
 * Support for Continuous Integration Tools other than Travis-CI
 
 ## Getting Started
@@ -25,23 +26,23 @@
 1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
 1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
 1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
-1.. Add the following scripts to your CI config:
+1. Add the following scripts to your CI config:
 
   ```bash
   npm i -g firebase-ci  # install firebase-ci tool
-  firebase-ci deploy # deploys only on master, stage, and prod branches to matching project in .firebaserc
+  firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
   ```
 
   For instance within a `travis.yml`:
 
   ```yaml
-    after_success:
-      - npm i -g firebase-ci
-      - firebase-ci deploy
+  after_success:
+    - npm i -g firebase-ci
+    - firebase-ci deploy
   ```
 
 1. Set different Firebase instances names to `.firebaserc` like so:
-```
+```json
 {
   "projects": {
     "prod": "prod-firebase",
@@ -53,15 +54,13 @@
 
 ## Deploying Functions
 
-In order for Firebase Functions to successfully install, you will need to allow the dependencies to install by running `npm install --prefix ./functions`
+If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
 
 ```yaml
 after_success:
-  - npm install --prefix ./functions
-  - firebase-ci deploy --only functions
+  - npm i -g firebase-ci
+  - firebase-ci deploy --only hosting
 ```
-
-**NOTE** This will be included by default soon, and will no longer be necessary
 
 ## [Examples](/examples)
 
@@ -90,11 +89,63 @@ This lets you deploy to whatever instance you want based on your branch (and con
 
 `firebase-ci` is for more advanced implementations including only deploying functions, hosting
 
-## Use Case
+## Usage
+
+### Default
+* Everything skipped on Pull Requests
+* Deployment goes to default project
+* If you have a `functions` folder, `npm install` will be run for you within your `functions` folder
+
+### Deploying branch to specific instance
 
 Deploying Only On `prod` or `stage` branches when building on Travis CI
 
-Skips Pull Requests and non-build branches (currently `prod`, `stage`, and `master`).
+non-build branches (currently `prod`, `stage`, and `master`).
+
+```json
+"projects": {
+  "default": "main-firebase-instance",
+  "prod": "main-firebase-instance",
+  "int": "integration-instance",
+  "test": "testing-firebase-db"
+}
+```
+
+### Functions
+If you have a functions folder, by default, your
+
+#### copyVersion
+
+Some find it convenient for the version within the `functions/package.json` file to match the top level `package.json`. Enabling the `copyVersion` option, automatically copies the version number during the CI build.
+
+```json
+"ci": {
+  "copyVersion": true
+}
+```
+
+#### mapEnv
+
+Set Firebase Functions variables based on CI variables. Does not require writing any secure variables within config files.
+
+This is accomplished by setting the `mapEnv` parameter with an object containing the variables you would like to map in the following pattern:
+
+```
+TRAVIS_VAR: "firebase.var"
+```
+
+##### Example
+CI variable is SOME_TOKEN="asdf" and you would like to set it to `some.token` on Firebase Functions you would provide the following config:
+
+```json
+"ci": {
+  "mapEnv": {
+    "SOME_TOKEN": "some.token"
+  }
+}
+```
+
+Internally calls `firebase functions:config:set some.token="asdf"`. This will happen for every variable you provide within mapEnv.
 
 
 [npm-image]: https://img.shields.io/npm/v/firebase-ci.svg?style=flat-square
