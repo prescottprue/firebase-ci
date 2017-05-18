@@ -24,8 +24,12 @@ module.exports = function (program) {
     .description('Deploy to Firebase only on build branches (master, stage, prod)')
     .option('-o --only <targets>', 'Only deploy to specified, comma-seperated targets (e.g "hosting, storage")', /^(hosting|functions|small)$/i)
     .action((directory, options) => {
-      deployToFirebase(program.args[0], () => {
-        process.exit(1)
+      deployToFirebase(program.args[0], (err, val) => {
+        if (err) {
+          process.exit(1)
+        } else {
+          process.exit(0)
+        }
       })
     })
 }
