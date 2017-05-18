@@ -138,10 +138,8 @@ const deployToFirebase = (opts, cb) => {
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const project = TRAVIS_BRANCH
   if (fs.existsSync('functions')) {
-    if (settings.ci) {
-      if (settings.ci.copyVersion) {
-        copyVersion()
-      }
+    if (settings.ci && settings.ci.copyVersion) {
+      copyVersion()
     }
 
     promises.push(
@@ -165,7 +163,7 @@ const deployToFirebase = (opts, cb) => {
     )
     .then(() => {
       // -------------------------- Actions ---------------------------- //
-      if (settings.ci.mapEnv) {
+      if (settings.ci && settings.ci.mapEnv) {
         return copyEnv(settings.ci.mapEnv)
           .catch((err) => {
             console.log(chalk.red('Error mapping Travis Environment to Functions environment: '), err)
