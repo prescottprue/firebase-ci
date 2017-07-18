@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import chalk from 'chalk'
 import fs from 'fs'
-import { isUndefined, reduce } from 'lodash'
+import { isUndefined, reduce, template, mapValues } from 'lodash'
 import { runCommand } from './utils/commands'
 const {
   TRAVIS_BRANCH,
@@ -41,16 +41,17 @@ const copyVersion = () => {
 }
 
 /**
- * Copy Travis environment variables over to Firebase functions
+ * Copy CI environment variables over to Firebase functions
  * @param {Object} copySettings - Settings for how environment variables should
- * be copied from Travis-CI to Firebase Functions Config
- * @return {[type]} [description]
+ * be copied from CI environment to Firebase Functions Environment
+ * @return {Promise} Resolves with undefined (result of functions config set)
  * @example
- * "functions": {
+ * "ci": {
  *   "copyEnv": {
  *     "SOME_TOKEN": "some.token"
  *   }
  * }
+ * @private
  */
 const copyEnv = (copySettings) => {
   console.log(chalk.blue('Mapping Environment to Firebase Functions...'))
@@ -70,9 +71,54 @@ const copyEnv = (copySettings) => {
 }
 
 /**
+ * Create config file based on CI environment variables
+ * @param {Object} settings - Settings for how environment variables should
+ * be copied from Travis-CI to Firebase Functions Config
+ * @return {Promise} Resolves with undefined (result of functions config set)
+ * @example
+ * "ci": {
+ *   "createConfig": {
+ *     "prod": {
+ *        "firebase": {
+ *          "apiKey": "${PROD_FIREBASE_API_KEY}"
+ *        }
+ *     }
+ *   }
+ * }
+ * @private
+ */
+const createConfig = (config) => {
+  console.log(chalk.blue('Creating config file...'))
+  if (!config[TRAVIS_BRANCH]) {
+    console.log(chalk.red('Matching branch does not exist to create config'))
+  }
+  const envConfig = config.prod
+  const templatedData = mapValues(envConfig, (parent) =>
+    mapValues(parent, (data) => {
+      try {
+        return template(data)(process.env) || data
+      } catch (err) {
+        console.log('------- Error in creating config\n', err)
+        return data
+      }
+    })
+  )
+  const exportString = reduce(templatedData, (acc, parent, parentName) =>
+    acc.concat(`export const ${parentName} = ${JSON.stringify(parent, null, 2)};\n`)
+  , '').concat(`\nexport default { ${Object.keys(templatedData).join(', ')} }`)
+
+  try {
+    fs.writeFileSync(config.path, exportString, 'utf8')
+  } catch (err) {
+    console.log(chalk.red('Error creating config file: '), err)
+  }
+}
+
+/**
  * Run firebase-ci actions
  * @param  {String} project - name of project
  * @return {Promise}
+ * @private
  */
 const runActions = (project) => {
   if (fs.existsSync('functions') && settings.ci) {
@@ -82,9 +128,15 @@ const runActions = (project) => {
     if (settings.ci.mapEnv) {
       return copyEnv(settings.ci.mapEnv)
         .catch((err) => {
-          console.log(chalk.red('Error mapping Travis Environment to Functions environment: '), err)
+          console.log(chalk.red('Error mapping CI environment variables to Functions environment: '), err)
           return Promise.reject(err)
         })
+    }
+    if (settings.ci.createConfig) {
+      createConfig({
+        path: './src/config.js',
+        ...settings.ci.createConfig
+      })
     }
   }
   console.log(chalk.blue('No action settings found. Skipping actions.'))
@@ -101,7 +153,7 @@ const runActions = (project) => {
 const deployToFirebase = (opts, directory) => {
   if (isUndefined(TRAVIS_BRANCH) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
-    console.log(chalk.blue(nonCiMessage))
+    console.log(chalk.yellow(nonCiMessage))
     return Promise.resolve(nonCiMessage)
   }
 

@@ -111,12 +111,55 @@ non-build branches (currently `prod`, `stage`, and `master`).
 }
 ```
 
+### Creating a config file
+Often times a config file needs to be created specific to each environment for which you are building. To create a config file (writes to  `src/config.js` by default), set `config` parameter:
+
+```js
+"ci": {
+  "createConfig": {
+    prod: {
+      firebase: {
+        apiKey: '${PROD_FIREBASE_API_KEY}', // key is environment variable
+        authDomain: '${PROD_FIREBASE}.firebaseapp.com',
+        databaseURL: 'https://${PROD_FIREBASE}.firebaseio.com',
+        storageBucket: '${PROD_FIREBASE}.appspot.com'
+      },
+      reduxFirebase: {
+        userProfile: 'users',
+        enableLogging: false // enable/disable Firebase Database Logging
+      },
+    },
+  }
+}
+```
+
+builds on prod branch result in a `src/config.js` looking like so:
+
+```js
+export const firebase = {
+  apiKey: '<- actual production firebase key here ->',
+  authDomain: 'prod-app.firebaseapp.com',
+  databaseURL: 'https://prod-app.firebaseio.com',
+  storageBucket: 'prod-app.appspot.com'
+}
+export const reduxFirebase = {
+  userProfile: 'users',
+  enableLogging: false,
+}
+export const env = 'prod' // based on name of parameter
+export default { firebase, reduxFirebase, env }
+
+```
+
 ### Functions
-If you have a functions folder, by default, your
+
+#### Default Settings
+
+If you have a functions folder, by default, your node modules will be installed for you.
 
 #### copyVersion
 
-Some find it convenient for the version within the `functions/package.json` file to match the top level `package.json`. Enabling the `copyVersion` option, automatically copies the version number during the CI build.
+It is often convenient for the version within the `functions/package.json` file to match the top level `package.json`. Enabling the `copyVersion` option, automatically copies the version number during the CI build.
 
 ```json
 "ci": {
@@ -146,6 +189,7 @@ CI variable is SOME_TOKEN="asdf" and you would like to set it to `some.token` on
 ```
 
 Internally calls `firebase functions:config:set some.token="asdf"`. This will happen for every variable you provide within mapEnv.
+
 
 
 [npm-image]: https://img.shields.io/npm/v/firebase-ci.svg?style=flat-square
