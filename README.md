@@ -29,7 +29,7 @@
 1. Add the following scripts to your CI config:
 
   ```bash
-  npm i -g firebase-ci  # install firebase-ci tool
+  npm i -g firebase-ci@latest  # install firebase-ci tool
   firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
   ```
 
@@ -37,7 +37,7 @@
 
   ```yaml
   after_success:
-    - npm i -g firebase-ci
+    - npm i -g firebase-ci@latest
     - firebase-ci deploy
   ```
 
