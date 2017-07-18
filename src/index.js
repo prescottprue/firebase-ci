@@ -23,7 +23,8 @@ const getFile = (filePath) => {
   const localPath = path.join(process.cwd(), filePath)
   if (!fs.existsSync(localPath)) {
     console.log(chalk.red(`${filePath} file does not exist!`), ' Run firebase init to create.')
-    throw new Error(`${filePath} file does not exist! Run firebase init to create.`)
+    // throw new Error(`${filePath} file does not exist! Run firebase init to create.`)
+    return {}
   }
 
   try {
