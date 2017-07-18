@@ -117,18 +117,20 @@ Often times a config file needs to be created specific to each environment for w
 ```js
 "ci": {
   "createConfig": {
-    prod: {
-      firebase: {
-        apiKey: '${PROD_FIREBASE_API_KEY}', // key is environment variable
-        authDomain: '${PROD_FIREBASE}.firebaseapp.com',
-        databaseURL: 'https://${PROD_FIREBASE}.firebaseio.com',
-        storageBucket: '${PROD_FIREBASE}.appspot.com'
+    "path": "./src/config.js", // './src/config.js' is the default
+    "prod": {
+      "firebase": {
+        "apiKey": "${PROD_FIREBASE_KEY}",
+        "authDomain": "${PROD_FIREBASE}.firebaseapp.com",
+        "databaseURL": "https://${PROD_FIREBASE}.firebaseio.com",
+        "storageBucket": "${PROD_FIREBASE}.appspot.com"
       },
-      reduxFirebase: {
-        userProfile: 'users',
-        enableLogging: false // enable/disable Firebase Database Logging
-      },
-    },
+      "reduxFirebase": {
+        "userProfile": "users",
+        "enableLogging": false
+      }
+    }
+  },
   }
 }
 ```

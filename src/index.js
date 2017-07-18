@@ -3,13 +3,15 @@ import chalk from 'chalk'
 import fs from 'fs'
 import { isUndefined, reduce, template, mapValues } from 'lodash'
 import { runCommand } from './utils/commands'
+import path from 'path'
+const client = require('firebase-tools')
+
 const {
   TRAVIS_BRANCH,
   TRAVIS_PULL_REQUEST,
   TRAVIS_COMMIT_MESSAGE,
   FIREBASE_TOKEN
 } = process.env
-const client = require('firebase-tools')
 
 const skipPrefix = 'Skipping Firebase Deploy'
 
@@ -18,16 +20,22 @@ const skipPrefix = 'Skipping Firebase Deploy'
  * @return {Object} Firebase settings object
  */
 const getFile = (filePath) => {
+  const localPath = path.join(process.cwd(), filePath)
+  if (!fs.existsSync(localPath)) {
+    console.log(chalk.red(`${filePath} file does not exist!`), ' Run firebase init to create.')
+    throw new Error(`${filePath} file does not exist! Run firebase init to create.`)
+  }
+
   try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'))
+    return JSON.parse(fs.readFileSync(localPath, 'utf8'))
   } catch (err) {
-    console.log(chalk.red(`${filePath} file does not exist! Run firebase init to create.`))
-    return null
+    console.log(chalk.red(`Error parsing ${filePath}.`), 'JSON is most likley not valid')
+    return {}
   }
 }
 
-const settings = getFile('./.firebaserc')
-const firebaseJson = getFile('./firebase.json')
+const settings = getFile('.firebaserc')
+const firebaseJson = getFile('firebase.json')
 
 /**
  * Copy version from main package file into functions package file
@@ -94,7 +102,7 @@ const createConfig = (config) => {
   }
   const envConfig = config.prod
   const templatedData = mapValues(envConfig, (parent) =>
-    mapValues(parent, (data) => {
+    mapValues(parent, (data, childKey) => {
       try {
         return template(data)(process.env) || data
       } catch (err) {
@@ -103,9 +111,14 @@ const createConfig = (config) => {
       }
     })
   )
+  // convert object into formatted object string
+  const parentAsString = (parent) => reduce(parent, (acc, child, childKey) =>
+    acc.concat(`  ${childKey}: ${JSON.stringify(child, null, 2)},\n`)
+  , '')
+  // combine all stringified vars and attach default export
   const exportString = reduce(templatedData, (acc, parent, parentName) =>
-    acc.concat(`export const ${parentName} = ${JSON.stringify(parent, null, 2)};\n`)
-  , '').concat(`\nexport default { ${Object.keys(templatedData).join(', ')} }`)
+    acc.concat(`export const ${parentName} = {\n${parentAsString(parent)}};\n\n`)
+  , '').concat(`export default { ${Object.keys(templatedData).join(', ')} }`)
 
   try {
     fs.writeFileSync(config.path, exportString, 'utf8')
