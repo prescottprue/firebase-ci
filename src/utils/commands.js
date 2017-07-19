@@ -19,13 +19,13 @@ export const runCommand = ({ command, beforeMsg, errorMsg, successMsg }) => {
   }
   return new Promise((resolve, reject) => {
     exec(command, (err, stdout, e) => {
-      if (err !== null) {
+      log(stdout) // log output
+      if (err) {
         if (errorMsg) {
           error(errorMsg, err)
         }
         return reject(err)
       } else {
-        log(stdout) // log output
         if (successMsg) {
           success(successMsg, stdout)
         }

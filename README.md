@@ -16,55 +16,6 @@
 * Mapping of environment variables from CI environment to Firebase Functions
 * Optional Deploying of targets Functions, Hosting, Database (rules) and Storage (rules)
 
-### Roadmap
-* `setCORS` option for copying CORS config file to Cloud Storage Bucket
-* only setting non existent env vars with `mapEnv`
-* Support for Continuous Integration Tools other than Travis-CI
-
-## Getting Started
-
-1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
-1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
-1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
-1. Add the following scripts to your CI config:
-
-  ```bash
-  npm i -g firebase-ci@latest  # install firebase-ci tool
-  firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
-  ```
-
-  For instance within a `travis.yml`:
-
-  ```yaml
-  after_success:
-    - npm i -g firebase-ci@latest
-    - firebase-ci deploy
-  ```
-
-1. Set different Firebase instances names to `.firebaserc` like so:
-```json
-{
-  "projects": {
-    "prod": "prod-firebase",
-    "master": "dev-firebase",
-    "default": "dev-firebase"
-  }
-}
-```
-
-## Deploying Functions
-
-If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
-
-```yaml
-after_success:
-  - npm i -g firebase-ci
-  - firebase-ci deploy --only hosting
-```
-
-## [Examples](/examples)
-
-* [Basic](/examples/basic) - Basic html file upload to Firebase hosting
 
 ## Why?
 Advanced configuration of Firebase deployment is often necessary when deploying through continuous integration environment. Instead of having to write and invoke your own scripts, `firebase-ci` provides an easy way to  create/modify advanced configurations.
@@ -88,6 +39,58 @@ deploy:
 This lets you deploy to whatever instance you want based on your branch (and config in `.firebaserc`).
 
 `firebase-ci` is for more advanced implementations including only deploying functions, hosting
+
+## Getting Started
+
+1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
+1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
+1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
+1. Add the following scripts to your CI config:
+
+  ```bash
+  npm i -g firebase-ci # install firebase-ci tool
+  firebase-ci createConfig # create src/config.js file based on .firebaserc
+  ```
+
+  For instance within a `travis.yml`:
+
+  ```yaml
+  install:
+    - npm i -g firebase-ci # install firebase-ci for use in scripts
+    - npm set progress=false # quite install logs
+    - npm i
+
+  script:
+    - firebase-ci createConfig # create src/config.js file based on .firebaserc
+
+  after_success:
+    - firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
+  ```
+
+1. Set different Firebase instances names to `.firebaserc` like so:
+```json
+{
+  "projects": {
+    "prod": "prod-firebase",
+    "master": "dev-firebase",
+    "default": "dev-firebase"
+  }
+}
+```
+
+## Deploying Functions
+
+If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
+
+```yaml
+after_success:
+  - npm i -g firebase-ci
+  - firebase-ci deploy --only functions
+```
+
+## [Examples](/examples)
+
+* [Basic](/examples/basic) - Basic html file upload to Firebase hosting
 
 ## Usage
 
@@ -193,6 +196,10 @@ CI variable is SOME_TOKEN="asdf" and you would like to set it to `some.token` on
 Internally calls `firebase functions:config:set some.token="asdf"`. This will happen for every variable you provide within mapEnv.
 
 
+### Roadmap
+* `setCORS` option for copying CORS config file to Cloud Storage Bucket
+* only setting non existent env vars with `mapEnv`
+* Support for Continuous Integration Tools other than Travis-CI
 
 [npm-image]: https://img.shields.io/npm/v/firebase-ci.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/firebase-ci
