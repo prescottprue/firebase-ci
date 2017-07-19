@@ -26,6 +26,7 @@ export default (copySettings) => {
     return
   }
   info('Mapping Environment to Firebase Functions...')
+
   const mappedSettings = reduce(copySettings, (acc, functionsVar, travisVar) => {
     if (!process.env[travisVar]) {
       warn(`${travisVar} does not exist on within Travis-CI environment variables. ${functionsVar} will not be set!`)

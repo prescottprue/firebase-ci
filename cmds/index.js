@@ -8,7 +8,7 @@ module.exports = function (client) {
   client.deploy = loadCommand('deploy')
   client.createConfig = loadCommand('createConfig')
   client.copyVersion = loadCommand('copyVersion')
-  client.copyEnv = loadCommand('copyEnv')
+  client.mapEnv = loadCommand('mapEnv')
   client.run = loadCommand('run')
 
   return client

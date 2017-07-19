@@ -25,19 +25,22 @@ const { TRAVIS_BRANCH } = process.env
  */
 export default (config) => {
   const settings = getFile('.firebaserc')
-  if (!settings) {
-    error('.firebaserc file is required')
-    return
-  }
-  if (!settings.ci || !settings.ci.createConfig) {
-    warn('Create config settings needed in .firebaserc!')
-    return
-  }
 
   if (!TRAVIS_BRANCH) {
     warn('Creating config is currently only supported in CI environment')
     return
   }
+
+  if (!settings) {
+    error('.firebaserc file is required')
+    throw new Error('.firebaserc file is required')
+  }
+
+  if (!settings.ci || !settings.ci.createConfig) {
+    warn('Create config settings needed in .firebaserc!')
+    return
+  }
+
   const opts = {
     path: config.path || './src/config.js',
     branch: config.branch || TRAVIS_BRANCH,
@@ -46,22 +49,15 @@ export default (config) => {
 
   if (!config[opts.branch]) {
     error('Matching branch does not exist in create config settings')
-    return
+    throw new Error('Matching branch does not exist in create config settings')
   }
 
   info(`Creating config file at path: ${opts.path}`)
 
   const envConfig = config[opts.branch]
   // template data based on environment variables
-  const templatedData = mapValues(envConfig, (parent) =>
-    mapValues(parent, (data, childKey) => {
-      try {
-        return template(data)(process.env) || data
-      } catch (err) {
-        console.log('------- Error in creating config\n', err)
-        return data
-      }
-    })
+  const templatedData = mapValues(envConfig, parent =>
+    mapValues(parent, (data, childKey) => template(data)(process.env) || data)
   )
   // convert object into formatted object string
   const parentAsString = (parent) => reduce(parent, (acc, child, childKey) =>
