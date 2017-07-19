@@ -5,7 +5,7 @@ import { getFile, functionsExists } from '../utils/files'
 import { error, success, info, warn } from '../utils/logger'
 import copyVersion from './copyVersion'
 import createConfig from './createConfig'
-import copyEnv from './copyEnv'
+import mapEnv from './mapEnv'
 const client = require('firebase-tools')
 
 const {
@@ -28,7 +28,7 @@ export const runActions = (project) => {
   createConfig()
   const settings = getFile('.firebaserc')
   if (functionsExists() && settings.ci && settings.ci.mapEnv) {
-    return copyEnv()
+    return mapEnv()
       .catch((err) => {
         error('Error mapping CI environment variables to Functions environment: ', err)
         return Promise.reject(err)
