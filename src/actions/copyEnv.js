@@ -15,7 +15,7 @@ const client = require('firebase-tools')
  *   }
  * }
  */
-export const copyEnv = (copySettings) => {
+export default (copySettings) => {
   const settings = getFile('.firebaserc')
   if (!settings) {
     error('.firebaserc file is required')

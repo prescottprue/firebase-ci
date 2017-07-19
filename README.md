@@ -49,7 +49,7 @@ This lets you deploy to whatever instance you want based on your branch (and con
 
   ```bash
   npm i -g firebase-ci # install firebase-ci tool
-  firebase-ci createConfig # create src/config.js file based on .firebaserc
+  firebase-ci run # run all actions based on config in .firebaserc
   ```
 
   For instance within a `travis.yml`:
@@ -61,7 +61,7 @@ This lets you deploy to whatever instance you want based on your branch (and con
     - npm i
 
   script:
-    - firebase-ci createConfig # create src/config.js file based on .firebaserc
+    - firebase-ci run # run all actions based on config in .firebaserc
 
   after_success:
     - firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
@@ -77,20 +77,6 @@ This lets you deploy to whatever instance you want based on your branch (and con
   }
 }
 ```
-
-## Deploying Functions
-
-If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
-
-```yaml
-after_success:
-  - npm i -g firebase-ci
-  - firebase-ci deploy --only functions
-```
-
-## [Examples](/examples)
-
-* [Basic](/examples/basic) - Basic html file upload to Firebase hosting
 
 ## Usage
 
@@ -115,6 +101,8 @@ non-build branches (currently `prod`, `stage`, and `master`).
 ```
 
 ### Creating a config file
+**Command**: `firebase-ci createConfig` (also runs as part of `firebase-ci run`)
+
 Often times a config file needs to be created specific to each environment for which you are building. To create a config file (writes to  `src/config.js` by default), set `config` parameter:
 
 ```js
@@ -137,6 +125,8 @@ Often times a config file needs to be created specific to each environment for w
   }
 }
 ```
+
+Then in your config calling either `firebase-ci run` or `firebase-ci`
 
 builds on prod branch result in a `src/config.js` looking like so:
 
@@ -163,6 +153,7 @@ export default { firebase, reduxFirebase, env }
 If you have a functions folder, by default, your node modules will be installed for you.
 
 #### copyVersion
+**Command**: `firebase-ci copyVersion` (also runs as part of `firebase-ci run`)
 
 It is often convenient for the version within the `functions/package.json` file to match the top level `package.json`. Enabling the `copyVersion` option, automatically copies the version number during the CI build.
 
@@ -173,6 +164,7 @@ It is often convenient for the version within the `functions/package.json` file 
 ```
 
 #### mapEnv
+**Command**: `firebase-ci mapEnv` (also runs as part of `firebase-ci run`)
 
 Set Firebase Functions variables based on CI variables. Does not require writing any secure variables within config files.
 
@@ -194,6 +186,20 @@ CI variable is SOME_TOKEN="asdf" and you would like to set it to `some.token` on
 ```
 
 Internally calls `firebase functions:config:set some.token="asdf"`. This will happen for every variable you provide within mapEnv.
+
+#### Skipping Functions
+
+If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
+
+```yaml
+after_success:
+  - npm i -g firebase-ci
+  - firebase-ci deploy --only hosting
+```
+
+## [Examples](/examples)
+
+* [Basic](/examples/basic) - Basic html file upload to Firebase hosting
 
 
 ### Roadmap

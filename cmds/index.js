@@ -9,6 +9,7 @@ module.exports = function (client) {
   client.createConfig = loadCommand('createConfig')
   client.copyVersion = loadCommand('copyVersion')
   client.copyEnv = loadCommand('copyEnv')
+  client.run = loadCommand('run')
 
   return client
 }

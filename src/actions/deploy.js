@@ -109,9 +109,6 @@ export default (opts, directory) => {
   })
   .then(() => {
     success(`Successfully set Firebase project to alias ${project}`)
-    return runActions(project)
-  })
-  .then(() => {
     info('Deploying to Firebase...')
     return client.deploy({
       token: FIREBASE_TOKEN,

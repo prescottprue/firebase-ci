@@ -10,9 +10,9 @@ const createPath = (filePath) => path.join(process.cwd(), filePath)
  * @param  {String} opts - name of project
  * @param  {Boolean} opts.silent - Whether or not to warn
  */
-export const copyVersion = ({ silence = false }) => {
+export default (config = { silence: false }) => {
   if (!functionsExists()) {
-    if (silence) {
+    if (config.silence) {
       return
     }
     warn('Functions folder does not exist. Exiting...')
