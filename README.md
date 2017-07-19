@@ -13,13 +13,9 @@
 ## Features
 * Skip For Pull Requests
 * Deploy to Different Firebase Instances based on Branch
-* Mapping of environment variables from CI environment to Firebase Functions
+* Mapping of CI environment variables to Firebase Functions Config
+* Create a config file based on CI environment variables
 * Optional Deploying of targets Functions, Hosting, Database (rules) and Storage (rules)
-
-### Roadmap
-* `setCORS` option for copying CORS config file to Cloud Storage Bucket
-* only setting non existent env vars with `mapEnv`
-* Support for Continuous Integration Tools other than Travis-CI
 
 ## Getting Started
 
@@ -52,15 +48,10 @@
 }
 ```
 
-## Deploying Functions
+## Other Versions
+Default installation uses `@latest` tag, but there are also others:
 
-If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
-
-```yaml
-after_success:
-  - npm i -g firebase-ci
-  - firebase-ci deploy --only hosting
-```
+* `react-redux-firebase@next` - upcoming version (currently `v0.2.0` progress)
 
 ## [Examples](/examples)
 
@@ -147,6 +138,21 @@ CI variable is SOME_TOKEN="asdf" and you would like to set it to `some.token` on
 
 Internally calls `firebase functions:config:set some.token="asdf"`. This will happen for every variable you provide within mapEnv.
 
+
+### Skipping Deploying Functions
+
+If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
+
+```yaml
+after_success:
+  - npm i -g firebase-ci
+  - firebase-ci deploy --only hosting
+```
+
+### Roadmap
+* `setCORS` option for copying CORS config file to Cloud Storage Bucket
+* only setting non existent env vars with `mapEnv`
+* Support for Continuous Integration Tools other than Travis-CI
 
 [npm-image]: https://img.shields.io/npm/v/firebase-ci.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/firebase-ci
