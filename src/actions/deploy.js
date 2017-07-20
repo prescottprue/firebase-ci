@@ -1,11 +1,11 @@
 import chalk from 'chalk'
 import { isUndefined } from 'lodash'
-import { runCommand } from '../utils/commands'
 import { getFile, functionsExists } from '../utils/files'
 import { error, success, info, warn } from '../utils/logger'
 import copyVersion from './copyVersion'
 import createConfig from './createConfig'
 import mapEnv from './mapEnv'
+const exec = require('child-process-promise').exec
 const client = require('firebase-tools')
 
 const {
@@ -39,6 +39,7 @@ export const runActions = (project) => {
 }
 
 /**
+ * @name deploy
  * @description Deploy to Firebase under specific conditions
  * @param {Object} opts - Options object
  * @param {String} opts.only - String corresponding to list of entities
@@ -97,35 +98,32 @@ export default (opts, directory) => {
 
   const onlyString = opts && opts.only ? opts.only : 'hosting'
   const project = TRAVIS_BRANCH || opts.project
-  return runCommand({
-    command: 'npm install --prefix ./functions',
-    beforeMsg: 'Installing functions dependencies...',
-    errorMsg: 'Error installing functions dependencies:',
-    successMsg: 'Functions dependencies installed successfully'
-  })
-  .then(() => {
-    info(`Setting Firebase project to alias ${project}`)
-    return client.use(project, {}) // object needed as second arg
-  })
-  .then(() => {
-    success(`Successfully set Firebase project to alias ${project}`)
-    info('Deploying to Firebase...')
-    return client.deploy({
-      token: FIREBASE_TOKEN,
-      message: TRAVIS_COMMIT_MESSAGE || 'Recent Updates',
-      project,
-      cwd: process.cwd(),
-      nonInteractive: true,
-      only: onlyString
+  info('Installing functions dependencies...')
+  return exec('npm install --prefix ./functions')
+    .then(() => {
+      success('Functions dependencies installed successfully')
+      info(`Setting Firebase project to alias ${project}`)
+      return client.use(project, {}) // object needed as second arg
     })
+    .then(() => {
+      success(`Successfully set Firebase project to alias ${project}`)
+      info('Deploying to Firebase...')
+      return client.deploy({
+        token: FIREBASE_TOKEN,
+        message: TRAVIS_COMMIT_MESSAGE || 'Recent Updates',
+        project,
+        cwd: process.cwd(),
+        nonInteractive: true,
+        only: onlyString
+      })
+      .catch((err) => {
+        error('Error in firebase-ci:\n ', err)
+        return Promise.reject(err)
+      })
+    })
+    .then(() => success(`Successfully Deployed to ${project}`))
     .catch((err) => {
       error('Error in firebase-ci:\n ', err)
       return Promise.reject(err)
     })
-  })
-  .then(() => success(`Successfully Deployed to ${project}`))
-  .catch((err) => {
-    error('Error in firebase-ci:\n ', err)
-    return Promise.reject(err)
-  })
 }
