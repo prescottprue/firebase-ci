@@ -43,18 +43,19 @@ export default (config) => {
 
   const opts = {
     path: config.path || './src/config.js',
-    branch: config.branch || TRAVIS_BRANCH,
-    ...settings.ci.createConfig
+    branch: config.branch || TRAVIS_BRANCH
   }
 
-  if (!config[opts.branch]) {
+  info(`Attempting to load config for ${opts.branch}`)
+
+  if (!settings.ci.createConfig[opts.branch]) {
     error('Matching branch does not exist in create config settings')
     throw new Error('Matching branch does not exist in create config settings')
   }
 
   info(`Creating config file at path: ${opts.path}`)
 
-  const envConfig = config[opts.branch]
+  const envConfig = settings.ci.createConfig[opts.branch]
   // template data based on environment variables
   const templatedData = mapValues(envConfig, parent =>
     mapValues(parent, (data, childKey) => template(data)(process.env) || data)
