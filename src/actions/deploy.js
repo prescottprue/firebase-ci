@@ -132,7 +132,9 @@ export default (opts, directory) => {
 
   const onlyString = opts && opts.only ? opts.only : 'hosting'
   const project = TRAVIS_BRANCH || opts.project
-  return installFunctionsDeps()
+  const arr = []
+  arr.push(installFunctionsDeps())
+  return Promise.all(arr)
     .then(() => {
       info(`Setting Firebase project to alias ${project}`)
       return client.use(project, {}) // object needed as second arg
