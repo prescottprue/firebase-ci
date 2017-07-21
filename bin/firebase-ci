@@ -2,10 +2,12 @@
 'use strict'
 
 const program = require('commander')
+
+const pkg = require('../package.json')
+program.version(pkg.version)
+
 require('autocmdr/lib/logger')(program)
 require('../cmds')(program)
-
-program.version('0.0.0')
 
 program
   .on('*', function (name) {

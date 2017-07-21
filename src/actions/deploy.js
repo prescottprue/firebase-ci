@@ -5,7 +5,7 @@ import { error, success, info, warn } from '../utils/logger'
 import copyVersion from './copyVersion'
 import createConfig from './createConfig'
 import mapEnv from './mapEnv'
-import npm from 'npm'
+const npm = require('npm')
 const client = require('firebase-tools')
 
 const {
@@ -45,20 +45,19 @@ export const runActions = (project) => {
 const installFunctionsDeps = () => {
   // Skip installation if functions folder does not exist
   if (!functionsExists()) {
+    info('Functions folder does not exist. Skipping install...')
     return Promise.resolve()
   }
   info('Installing functions dependencies...')
   return new Promise((resolve, reject) => {
-    npm.load({ prefix: './functions', loglevel: 'error' }, (err, loadedNpm) => {
+    npm.load({ prefix: './functions', loglevel: 'verbose' }, (err) => {
       if (err) {
         error('Error loading functions dependencies', err)
         reject(err)
       } else {
         info('Npm load completed. Calling install...')
-        // output any log messages
-        loadedNpm.on('log', (message) => console.log(message))
         // run npm install
-        loadedNpm.commands.install([], (err) => {
+        npm.commands.install([], (err) => {
           if (!err) {
             success('Functions dependencies installed successfully')
             resolve()
@@ -67,6 +66,8 @@ const installFunctionsDeps = () => {
             reject(err)
           }
         })
+        // output any log messages
+        npm.on('log', message => console.log(message))
       }
     })
   })
@@ -82,7 +83,6 @@ const installFunctionsDeps = () => {
 export default (opts, directory) => {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
-
   if (isUndefined(TRAVIS_BRANCH) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     warn(nonCiMessage)
@@ -132,7 +132,6 @@ export default (opts, directory) => {
 
   const onlyString = opts && opts.only ? opts.only : 'hosting'
   const project = TRAVIS_BRANCH || opts.project
-
   return installFunctionsDeps()
     .then(() => {
       info(`Setting Firebase project to alias ${project}`)
