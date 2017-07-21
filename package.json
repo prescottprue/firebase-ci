@@ -1,6 +1,6 @@
 {
   "name": "firebase-ci",
-  "version": "0.2.0-alpha.7",
+  "version": "0.2.0-alpha.8",
   "author": "prescottprue",
   "license": "MIT",
   "description": "Simplified Firebase interaction for continuous integration including deploying hosting, functions, and database/storage rules.",

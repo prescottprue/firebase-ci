@@ -48,19 +48,17 @@ const installFunctionsDeps = () => {
     return Promise.resolve()
   }
   info('Installing functions dependencies...')
-  console.log('type of promise:', typeof Promise)
-  console.log('npm keys:', Object.keys(npm))
   return new Promise((resolve, reject) => {
-    npm.load({ prefix: './functions', loglevel: 'error' }, (err) => {
+    npm.load({ prefix: './functions', loglevel: 'error' }, (err, loadedNpm) => {
       if (err) {
         error('Error loading functions dependencies', err)
         reject(err)
       } else {
         info('Npm load completed. Calling install...')
         // output any log messages
-        npm.on('log', (message) => console.log(message))
+        loadedNpm.on('log', (message) => console.log(message))
         // run npm install
-        npm.commands.install([], (err) => {
+        loadedNpm.commands.install([], (err) => {
           if (!err) {
             success('Functions dependencies installed successfully')
             resolve()
