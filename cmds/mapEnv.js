@@ -20,7 +20,7 @@ module.exports = function (program) {
   program
     .command('mapEnv')
     .description('Copy version from outer folder into functions folder')
-    .action((directory, options) =>
+    .action((directory, options) => {
       mapEnv(program.args[0])
         .then(() => {
           return process.exit(0)
@@ -29,5 +29,5 @@ module.exports = function (program) {
           console.error('Error:', err)
           return process.exit(1)
         })
-    )
+    })
 }

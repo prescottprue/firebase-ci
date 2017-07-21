@@ -22,7 +22,7 @@ module.exports = function (program) {
   program
     .command('run')
     .description('Run all firebase-ci actions based on config (includes copyVersion, copyEnv, and createConfig)')
-    .action((directory, options) =>
+    .action((directory, options) => {
       runActions(program.args[0])
         .then(() => {
           return process.exit(0)
@@ -31,5 +31,5 @@ module.exports = function (program) {
           console.error('Error:', err)
           return process.exit(1)
         })
-    )
+    })
 }

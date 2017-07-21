@@ -23,14 +23,15 @@ module.exports = function (program) {
     .command('deploy')
     .description('Deploy to Firebase only on build branches (master, stage, prod)')
     .option('-o --only <targets>', 'Only deploy to specified, comma-seperated targets (e.g "hosting, storage")', /^(hosting|functions|small)$/i)
-    .action((directory, options) =>
+    .action((directory, options) => {
       deployToFirebase(program.args[0], directory, options)
         .then(() => {
+          console.log('in then response')
           return process.exit(0)
         })
         .catch((err) => {
           console.error('Error:', err)
           return process.exit(1)
         })
-    )
+    })
 }
