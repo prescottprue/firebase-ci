@@ -2,7 +2,7 @@
  * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
  */
 'use strict'
-const createConfig = require('../lib/actions').createConfig
+const createConfig = require('../lib/index').createConfig
 
 /**
  * @name deploy
@@ -27,7 +27,6 @@ module.exports = function (program) {
         createConfig(program.args[0], directory, options)
         return process.exit(0)
       } catch (err) {
-        console.error('Error:', err.toString ? err.toString() : err) // eslint-disable-line no-console
         return process.exit(1)
       }
     })

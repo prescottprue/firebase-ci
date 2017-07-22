@@ -5,23 +5,23 @@ const npm = require('npm')
 
 const npmInstall = (settings, deps = []) => {
   // Skip installation if functions folder does not exist
-  if (!functionsExists()) {
+  if (settings.prefix === 'functions' && !functionsExists()) {
     info('Functions folder does not exist. Skipping install...')
     return Promise.resolve()
   }
   info('Installing functions dependencies...')
   return new Promise((resolve, reject) => {
-    npm.load({ prefix: './functions', loglevel: 'error' }, (err, npm) => {
+    npm.load(settings, (err, npm) => {
       if (err) {
         error('Error loading functions dependencies', err)
         reject(err)
       } else {
-        info('Npm load completed. Calling install...')
+        info(`Calling install for deps: ${deps} with settings: ${settings}`)
         // run npm install
-        npm.commands.install([], (err) => {
+        npm.commands.install(deps, (err) => {
           if (!err) {
-            success('Functions dependencies installed successfully')
-            resolve()
+            success(`${deps.length ? deps.join(', ') : 'Dependencies'} installed successfully`)
+            resolve(deps)
           } else {
             error('Error installing functions dependencies', err)
             reject(err)
@@ -34,15 +34,13 @@ const npmInstall = (settings, deps = []) => {
   })
 }
 
-const installFunctionsDeps = npmInstall({ prefix: './functions', loglevel: 'error' }, [])
-const installFirebaseTools = npmInstall({ global: true }, ['firebase-tools'])
 /**
  * Install Firebase tools and install
  * @return {[type]} [description]
  */
 export const installDeps = () => {
   let promises = [
-    installFirebaseTools
+    npmInstall({ global: true }, ['firebase-tools'])
     // runCommand({
     //   command: `npm i -g firebase-tools`,
     //   beforeMsg: 'Installing firebase-tools...',
@@ -51,7 +49,7 @@ export const installDeps = () => {
     // })
   ]
   if (functionsExists()) {
-    promises.push(installFunctionsDeps)
+    promises.push(npmInstall({ prefix: 'functions', loglevel: 'error' }, []))
   }
   return Promise.all(promises)
 }

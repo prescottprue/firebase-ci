@@ -19,11 +19,13 @@ export default (copySettings) => {
   const settings = getFile('.firebaserc')
   if (!settings) {
     error('.firebaserc file is required')
-    throw new Error('.firebaserc file is required')
+    return Promise.reject(new Error('.firebaserc file is required'))
   }
+
   if (!settings.ci || !settings.ci.mapEnv) {
-    warn('mapEnv parameter with settings needed in .firebaserc!')
-    return
+    const msg = 'mapEnv parameter with settings needed in .firebaserc!'
+    warn(msg)
+    return Promise.reject(new Error(msg))
   }
 
   info('Mapping Environment to Firebase Functions...')

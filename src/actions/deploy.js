@@ -93,12 +93,13 @@ export default (opts, directory) => {
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const project = TRAVIS_BRANCH
-  installDeps()
+  const message = TRAVIS_COMMIT_MESSAGE ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'") : 'Update'
+  return installDeps()
     .then(() => runActions())
     .then(() =>
       // Wait until all other commands are complete before calling deploy
       runCommand({
-        command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project} -m ${TRAVIS_COMMIT_MESSAGE || 'Update'}`,
+        command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project} --message "${message}"`,
         beforeMsg: 'Deploying to Firebase...',
         errorMsg: 'Error deploying to firebase:',
         successMsg: `Successfully Deployed to ${project}`

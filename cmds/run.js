@@ -2,7 +2,7 @@
  * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
  */
 'use strict'
-const runActions = require('../lib/actions').runActions
+const runActions = require('../lib/index').runActions
 
 /**
  * @name deploy
@@ -24,12 +24,7 @@ module.exports = function (program) {
     .description('Run all firebase-ci actions based on config (includes copyVersion, copyEnv, and createConfig)')
     .action((directory, options) => {
       runActions(program.args[0])
-        .then(() => {
-          return process.exit(0)
-        })
-        .catch((err) => {
-          console.error('Error:', err.toString ? err.toString() : err) // eslint-disable-line no-console
-          return process.exit(1)
-        })
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1))
     })
 }

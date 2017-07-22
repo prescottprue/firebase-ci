@@ -2,7 +2,7 @@
  * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
  */
 'use strict'
-const mapEnv = require('../lib/actions/mapEnv').mapEnv
+const mapEnv = require('../lib/index').mapEnv
 
 /**
  * @name mapEnv
@@ -22,12 +22,7 @@ module.exports = function (program) {
     .description('Copy version from outer folder into functions folder')
     .action((directory, options) => {
       mapEnv(program.args[0])
-        .then(() => {
-          return process.exit(0)
-        })
-        .catch((err) => {
-          console.error('Error:', err.toString ? err.toString() : err) // eslint-disable-line no-console
-          return process.exit(1)
-        })
+       .then(() => process.exit(0))
+       .catch(() => process.exit(1))
     })
 }
