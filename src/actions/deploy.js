@@ -1,12 +1,11 @@
-import chalk from 'chalk'
 import { isUndefined } from 'lodash'
 import { getFile, functionsExists } from '../utils/files'
-import { error, success, info, warn } from '../utils/logger'
+import { error, info, warn } from '../utils/logger'
+import { runCommand } from '../utils/commands'
+import { installDeps } from '../utils/deps'
 import copyVersion from './copyVersion'
 import createConfig from './createConfig'
 import mapEnv from './mapEnv'
-const npm = require('npm')
-const client = require('firebase-tools')
 
 const {
   TRAVIS_BRANCH,
@@ -36,41 +35,6 @@ export const runActions = (project) => {
   }
   info('No action settings found. Skipping actions.')
   return Promise.resolve({})
-}
-
-/**
- * Run npm install within functions directory if it exists
- * @return {Promise} Resolves when installing is complete
- */
-const installFunctionsDeps = () => {
-  // Skip installation if functions folder does not exist
-  if (!functionsExists()) {
-    info('Functions folder does not exist. Skipping install...')
-    return Promise.resolve()
-  }
-  info('Installing functions dependencies...')
-  return new Promise((resolve, reject) => {
-    npm.load({ prefix: './functions', loglevel: 'verbose' }, (err) => {
-      if (err) {
-        error('Error loading functions dependencies', err)
-        reject(err)
-      } else {
-        info('Npm load completed. Calling install...')
-        // run npm install
-        npm.commands.install([], (err) => {
-          if (!err) {
-            success('Functions dependencies installed successfully')
-            resolve()
-          } else {
-            error('Error installing functions dependencies', err)
-            reject(err)
-          }
-        })
-        // output any log messages
-        npm.on('log', message => console.log(message))
-      }
-    })
-  })
 }
 
 /**
@@ -119,43 +83,27 @@ export default (opts, directory) => {
   }
 
   if (!FIREBASE_TOKEN) {
-    const noToken = 'Error: FIREBASE_TOKEN env variable not found'
-    error(noToken)
-    console.log(
-      chalk.blue(
-        'Run firebase login:ci (from  firebase-tools) to generate a token' +
-        'and place it travis environment variables as FIREBASE_TOKEN'
-      )
+    error('Error: FIREBASE_TOKEN env variable not found.')
+    info(
+      'Run firebase login:ci (from  firebase-tools) to generate a token' +
+      'and place it travis environment variables as FIREBASE_TOKEN'
     )
-    return Promise.reject(noToken)
+    return Promise.reject('Error: FIREBASE_TOKEN env variable not found.')
   }
 
-  const onlyString = opts && opts.only ? opts.only : 'hosting'
-  const project = TRAVIS_BRANCH || opts.project
-  const arr = []
-  arr.push(installFunctionsDeps())
-  return Promise.all(arr)
-    .then(() => {
-      info(`Setting Firebase project to alias ${project}`)
-      return client.use(project, {}) // object needed as second arg
-    })
-    .then(() => {
-      success(`Successfully set Firebase project to alias ${project}`)
-      info('Deploying to Firebase...')
-      return client.deploy({
-        token: FIREBASE_TOKEN,
-        message: TRAVIS_COMMIT_MESSAGE || 'Recent Updates',
-        project,
-        cwd: process.cwd(),
-        nonInteractive: true,
-        only: onlyString
+  const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
+  const project = TRAVIS_BRANCH
+  installDeps()
+    .then(() => runActions())
+    .then(() =>
+      // Wait until all other commands are complete before calling deploy
+      runCommand({
+        command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project} -m ${TRAVIS_COMMIT_MESSAGE || 'Update'}`,
+        beforeMsg: 'Deploying to Firebase...',
+        errorMsg: 'Error deploying to firebase:',
+        successMsg: `Successfully Deployed to ${project}`
       })
-      .catch((err) => {
-        error('Error in firebase-ci:\n ', err)
-        return Promise.reject(err)
-      })
-    })
-    .then(() => success(`Successfully Deployed to ${project}`))
+    )
     .catch((err) => {
       error('Error in firebase-ci:\n ', err)
       return Promise.reject(err)

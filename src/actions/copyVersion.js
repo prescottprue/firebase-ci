@@ -23,7 +23,7 @@ export default (config = { silence: false }) => {
   const functionsPkg = JSON.parse(fs.readFileSync(createPath(`functions/package.json`)))
   functionsPkg.version = pkg.version
   try {
-    fs.writeFileSync(`./functions/package.json`, JSON.stringify(functionsPkg, null, 2), 'utf8')
+    fs.writeFileSync(createPath(`functions/package.json`), JSON.stringify(functionsPkg, null, 2), 'utf8')
     success('Version copied successfully')
   } catch (err) {
     error('Error copying version to functions folder')

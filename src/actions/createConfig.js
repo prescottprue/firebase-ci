@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { reduce, template, mapValues } from 'lodash'
+import { reduce, template, mapValues, get } from 'lodash'
 import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 
@@ -42,8 +42,8 @@ export default (config) => {
   }
 
   const opts = {
-    path: config.path || './src/config.js',
-    branch: config.branch || TRAVIS_BRANCH
+    path: get(config, 'path', './src/config.js'),
+    branch: get(config, 'branch', TRAVIS_BRANCH)
   }
 
   info(`Attempting to load config for ${opts.branch}`)

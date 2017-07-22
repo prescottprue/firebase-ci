@@ -25,7 +25,7 @@ module.exports = function (program) {
         copyVersion(program.args[0], directory, options)
         return process.exit(0)
       } catch (err) {
-        console.error('Error:', err)
+        console.error('Error:', err.toString ? err.toString() : err) // eslint-disable-line no-console
         return process.exit(1)
       }
     })

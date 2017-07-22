@@ -1,7 +1,7 @@
-import { reduce } from 'lodash'
+import { map } from 'lodash'
 import { error, success, info, warn } from '../utils/logger'
 import { getFile } from '../utils/files'
-const client = require('firebase-tools')
+import { runCommand } from '../utils/commands'
 
 /**
  * Map CI environment variables to Firebase functions config variables
@@ -28,22 +28,20 @@ export default (copySettings) => {
 
   info('Mapping Environment to Firebase Functions...')
 
-  const mappedSettings = reduce(settings.ci.mapEnv, (acc, functionsVar, travisVar) => {
-    if (!process.env[travisVar]) {
-      warn(`${travisVar} does not exist on within Travis-CI environment variables. ${functionsVar} will not be set!`)
-      return acc
-    }
-    return acc.concat([`${functionsVar}="${process.env[travisVar]}"`])
-  }, [])
-
-  return client.functions.config
-    .set(mappedSettings, { project: 'top-agent-prue-dev' })
-    .then(() => {
-      success('Environment correctly mapped from CI to Firebase Functions Config')
-      return client
+  return Promise.all(
+    map(copySettings, (functionsVar, travisVar) => {
+      if (!process.env[travisVar]) {
+        const msg = `${travisVar} does not exist on within Travis-CI environment variables`
+        success(msg)
+        return Promise.reject(msg)
+      }
+      // TODO: Check for not allowed characters in functionsVar (camelcase not allowed?)
+      return runCommand({
+        command: `firebase functions:config:set ${functionsVar}="${process.env[travisVar]}"`,
+        beforeMsg: `Setting ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`,
+        errorMsg: `Error setting Firebase functions config variable: ${functionsVar} from ${travisVar} variable on Travis-CI.`,
+        successMsg: `Successfully set ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`
+      })
     })
-    .catch((err) => {
-      error('Error mapping environment to Firebase Functions', err)
-      return Promise.reject(err)
-    })
+  )
 }
