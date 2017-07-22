@@ -1,7 +1,35 @@
 {
   "projects": {
-    "default": "firebase-1", # put your dev project name here
-    "stage": "firebase-2", # put your staging project name here
-    "prod": "firebase-3", # put your production project name here
+    "default": "firebase-1",
+    "master": "firebase-1",
+    "stage": "firebase-2",
+    "prod": "firebase-3",
+  }
+  "ci": {
+    "createConfig": {
+      "master": {
+        "version": "${npm_package_version}",
+        "firebase": {
+          "apiKey": "${MASTER_FIREBASE_WEBAPIKEY}",
+          "authDomain": "firebase-1.firebaseapp.com",
+          "databaseURL": "https://firebase-1.firebaseio.com",
+          "projectId": "firebase-1",
+          "storageBucket": "firebase-1.appspot.com",
+          "messagingSenderId": "499842460400"
+        },
+      },
+      "prod": {
+        "version": "${npm_package_version}",
+        "gaTrackingId": "${GA_TRACKINGID}",
+        "firebase": {
+          "apiKey": "${PROD_FIREBASE_WEBAPIKEY}",
+          "authDomain": "firebase-1.firebaseapp.com",
+          "databaseURL": "https://firebase-1.firebaseio.com",
+          "projectId": "firebase-1",
+          "storageBucket": "firebase-1.appspot.com",
+          "messagingSenderId": "499842460400"
+        },
+      }
+    }
   }
 }

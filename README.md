@@ -149,7 +149,11 @@ after_success:
   - firebase-ci deploy --only hosting
 ```
 
-### Roadmap
+## [Examples](/examples)
+
+* [Basic](/examples/basic) - Basic html file upload to Firebase hosting
+
+## Roadmap
 * `setCORS` option for copying CORS config file to Cloud Storage Bucket
 * only setting non existent env vars with `mapEnv`
 * Support for Continuous Integration Tools other than Travis-CI

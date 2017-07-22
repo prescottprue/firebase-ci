@@ -1,17 +1,13 @@
 {
   "name": "firebase-ci",
-  "version": "0.1.1",
+  "version": "0.2.0-alpha.11",
+  "author": "prescottprue",
+  "license": "MIT",
   "description": "Simplified Firebase interaction for continuous integration including deploying hosting, functions, and database/storage rules.",
   "main": "lib/index.js",
   "bin": {
     "firebase-ci": "./bin/firebase-ci"
   },
-  "files": [
-    "src",
-    "lib",
-    "bin",
-    "cmds"
-  ],
   "scripts": {
     "clean": "rimraf lib coverage",
     "lint": "eslint src cmds bin test",
@@ -30,48 +26,28 @@
     "docs:watch": "npm run docs:prepare && gitbook serve",
     "docs:publish": "npm run docs:clean && npm run docs:build && cd _book && git init && git commit --allow-empty -m 'update book' && git checkout -b gh-pages && touch .nojekyll && git add . && git commit -am 'update book' && git push git@github.com:prescottprue/firebase-ci gh-pages --force"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/prescottprue/firebase-ci.git"
-  },
-  "keywords": [
-    "webpack",
-    "firebase",
-    "ci"
-  ],
-  "author": "prescottprue",
-  "contributors": [
-    {
-      "name": "prescottprue",
-      "email": "sprue.dev@gmail.com"
-    }
-  ],
-  "npmName": "firebase-ci",
-  "npmFileMap": [
-    {
-      "basePath": "/lib/",
-      "files": [
-        "*.js"
-      ]
-    }
-  ],
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/prescottprue/firebase-ci/issues"
   },
   "homepage": "https://github.com/prescottprue/firebase-ci",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prescottprue/firebase-ci.git"
+  },
   "dependencies": {
     "autocmdr": "~0.0.7",
-    "chalk": "^1.1.3",
+    "chalk": "^2.0.1",
+    "child-process-promise": "^2.2.1",
+    "firebase-tools": "^3.9.1",
     "lodash": "^4.17.4"
   },
   "devDependencies": {
-    "babel-cli": "^6.22.2",
-    "babel-core": "^6.22.1",
-    "babel-eslint": "^7.1.1",
-    "babel-loader": "^6.2.10",
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-eslint": "^7.2.3",
     "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-preset-es2015": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
     "chai": "^3.5.0",
     "codecov": "^2.1.0",
     "cross-env": "^3.1.4",
@@ -85,11 +61,32 @@
     "eslint-plugin-promise": "^3.0.0",
     "eslint-plugin-standard": "^2.0.1",
     "gitbook-cli": "^2.3.0",
-    "husky": "^0.13.2",
+    "husky": "^0.14.3",
     "istanbul": "^1.1.0-alpha.1",
-    "json-loader": "^0.5.4",
     "mocha": "^3.2.0",
-    "rimraf": "^2.5.4",
-    "webpack": "^1.14.0"
-  }
+    "rimraf": "^2.6.1"
+  },
+  "keywords": [
+    "webpack",
+    "firebase",
+    "continuous",
+    "integration",
+    "travis",
+    "ci"
+  ],
+  "npmName": "firebase-ci",
+  "npmFileMap": [
+    {
+      "basePath": "/lib/",
+      "files": [
+        "*.js"
+      ]
+    }
+  ],
+  "files": [
+    "src",
+    "lib",
+    "bin",
+    "cmds"
+  ]
 }

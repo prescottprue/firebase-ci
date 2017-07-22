@@ -4,7 +4,7 @@ const colorMapping = {
   info: 'blue',
   warn: 'yellow',
   success: 'green',
-  error: 'red'
+  error: 'magenta' // red does not work on travis-ci linux builds
 }
 
 const logType = (type, message, other) => {
