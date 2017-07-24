@@ -33,7 +33,7 @@
 
   ```yaml
   after_success:
-    - npm i -g firebase-ci@latest
+    - npm i -g firebase-ci
     - firebase-ci deploy
   ```
 
@@ -80,34 +80,17 @@ This lets you deploy to whatever instance you want based on your branch (and con
 
 `firebase-ci` is for more advanced implementations including only deploying functions, hosting
 
-## Usage
+## Commands
 
-### Default
-* Everything skipped on Pull Requests
-* Deployment goes to default project
-* If you have a `functions` folder, `npm install` will be run for you within your `functions` folder
+* [`copyVersion`](#createVersion) - Copy version from `package.json` to `functions/package.json`
+* [`createConfig`](#createConfig) - Create a config file based on CI environment variables (defaults to `src/config.js`)
+* [`deploy`](#deploy) - Deploy to Firebase (can run all other actions based on settings)
+* [`mapEnv`](#mapEnv) - Map environment variables from CI Environment to Firebase functions environment
 
-### Deploying branch to specific instance
 
-Deploying Only On `prod` or `stage` branches when building on Travis CI
+### copyVersion
 
-non-build branches (currently `prod`, `stage`, and `master`).
-
-```json
-"projects": {
-  "default": "main-firebase-instance",
-  "prod": "main-firebase-instance",
-  "int": "integration-instance",
-  "test": "testing-firebase-db"
-}
-```
-
-### Functions
-If you have a functions folder, by default, your
-
-#### copyVersion
-
-Some find it convenient for the version within the `functions/package.json` file to match the top level `package.json`. Enabling the `copyVersion` option, automatically copies the version number during the CI build.
+It can be convenient for the version within the `functions/package.json` file to match the top level `package.json`. Enabling the `copyVersion` option, automatically copies the version number when calling `deploy` if the following config is provided:
 
 ```json
 "ci": {
@@ -115,11 +98,100 @@ Some find it convenient for the version within the `functions/package.json` file
 }
 ```
 
-#### mapEnv
+### createConfig
+
+Create a config file based on CI environment variables (defaults to `src/config.js`)
+
+With the following environment variables:
+
+```json
+"ci": {
+  "createConfig": {
+    "master": {
+      "version": "${npm_package_version || ''}",
+      "firebase": {
+        "apiKey": "${INT_FIREBASE_WEBAPIKEY}",
+        "authDomain": "firebase-ci-int.firebaseapp.com",
+        "databaseURL": "https://firebase-ci-int.firebaseio.com",
+        "projectId": "firebase-ci-int",
+        "storageBucket": "firebase-ci-int.appspot.com",
+        "messagingSenderId": "499842460400"
+      },
+      "sentryDsn": "${SENTRY_DSN}",
+      "gaTrackingId": "${GA_TRACKINGID}"
+    },
+    "prod": {
+      "version": "${npm_package_version || ''}",
+      "firebase": {
+        "apiKey": "${PROD_FIREBASE_WEBAPIKEY}",
+        "authDomain": "firebase-ci.firebaseapp.com",
+        "databaseURL": "https://firebase-ci.firebaseio.com",
+        "projectId": "firebase-ci",
+        "storageBucket": "firebase-ci.appspot.com",
+        "messagingSenderId": "995180480938"
+      },
+      "sentryDsn": "${SENTRY_DSN}",
+      "gaTrackingId": "${GA_TRACKINGID}"
+    }
+  }
+}
+```
+
+when building on master branch, produces a file in `src/config.js` that looks like so:
+
+```js
+export const version = "0.0.1" // or whatever version your package is
+export const firebase = {
+  apiKey: "123FIREBASEKEY",
+  authDomain: "firebase-ci.firebaseapp.com",
+  databaseURL: "https://firebase-ci.firebaseio.com",
+  projectId: "firebase-ci",
+  storageBucket: "firebase-ci.appspot.com",
+  messagingSenderId: "995180480938"
+}
+export const sentryDSN = "123SENTRYDSN"
+export const gaTrackingId = "123GA"
+export default { version, firebase, sentryDSN, gaTrackingId }
+```
+
+### deploy
+
+`firebase-ci deploy`
+
+#### Default
+* Everything skipped on Pull Requests
+* Deployment goes to default project
+* If you have a `functions` folder, `npm install` will be run for you within your `functions` folder
+
+```json
+"projects": {
+  "default": "main-firebase-instance",
+  "prod": "main-firebase-instance",
+  "int": "integration-instance",
+  "test": "testing-firebase-db"
+ }
+}
+```
+
+#### Skipping Deploying Functions
+
+If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
+
+```yaml
+after_success:
+  - npm i -g firebase-ci
+  - firebase-ci deploy --only hosting
+```
+
+### mapEnv
+
+`firebase-ci mapEnv`
 
 Set Firebase Functions variables based on CI variables. Does not require writing any secure variables within config files.
 
-This is accomplished by setting the `mapEnv` parameter with an object containing the variables you would like to map in the following pattern:
+**NOTE**: Called automatically during `firebase-ci deploy`
+
+Set the `mapEnv` parameter with an object containing the variables you would like to map in the following pattern:
 
 ```
 TRAVIS_VAR: "firebase.var"
@@ -138,16 +210,6 @@ CI variable is SOME_TOKEN="asdf" and you would like to set it to `some.token` on
 
 Internally calls `firebase functions:config:set some.token="asdf"`. This will happen for every variable you provide within mapEnv.
 
-
-### Skipping Deploying Functions
-
-If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
-
-```yaml
-after_success:
-  - npm i -g firebase-ci
-  - firebase-ci deploy --only hosting
-```
 
 ### Roadmap
 * `setCORS` option for copying CORS config file to Cloud Storage Bucket

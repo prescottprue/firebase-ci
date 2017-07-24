@@ -22,13 +22,13 @@ script:
   - npm run build
 
 # Publish To NPM if push to master branch with a version not already released
-deploy:
-  skip_cleanup: true
-  provider: npm
-  email: $NPM_EMAIL
-  api_key: $NPM_TOKEN
-  on:
-    branch: master
+# deploy:
+#   skip_cleanup: true
+#   provider: npm
+#   email: $NPM_EMAIL
+#   api_key: $NPM_TOKEN
+#   on:
+#     branch: master
 
 addons:
   code_climate:
