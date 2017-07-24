@@ -44,7 +44,7 @@ export const runActions = () => {
  * to deploy (hosting, functions, database)
  * @param {Function} cb - Callback called when complete (err, stdout)
  */
-export default (opts, directory) => {
+export default (opts) => {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
   if (isUndefined(TRAVIS_BRANCH) || (opts && opts.test)) {
@@ -61,12 +61,12 @@ export default (opts, directory) => {
 
   if (!settings) {
     error('.firebaserc file is required')
-    return Promise.reject('.firebaserc file is required')
+    return Promise.reject(new Error('.firebaserc file is required'))
   }
 
   if (!firebaseJson) {
     error('firebase.json file is required')
-    return Promise.reject('firebase.json file is required')
+    return Promise.reject(new Error('firebase.json file is required'))
   }
 
   if (settings.projects && !settings.projects[TRAVIS_BRANCH]) {
@@ -88,14 +88,20 @@ export default (opts, directory) => {
       'Run firebase login:ci (from  firebase-tools) to generate a token' +
       'and place it travis environment variables as FIREBASE_TOKEN'
     )
-    return Promise.reject('Error: FIREBASE_TOKEN env variable not found.')
+    return Promise.reject(new Error('Error: FIREBASE_TOKEN env variable not found.'))
   }
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const project = TRAVIS_BRANCH
   const message = TRAVIS_COMMIT_MESSAGE ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'") : 'Update'
   return installDeps()
-    .then(() => runActions())
+    .then(() => {
+      if (opts.simple) {
+        info('Simple mode enabled. Skipping CI actions')
+        return Promise.resolve({})
+      }
+      return runActions(opts.actions)
+    })
     .then(() =>
       // Wait until all other commands are complete before calling deploy
       runCommand({
