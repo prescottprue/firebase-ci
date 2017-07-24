@@ -2,7 +2,7 @@
  * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
  */
 'use strict'
-const deployToFirebase = require('../lib/index').deploy
+const runActions = require('../lib/index').runActions
 
 /**
  * @name deploy
@@ -20,11 +20,10 @@ const deployToFirebase = require('../lib/index').deploy
  */
 module.exports = function (program) {
   program
-    .command('deploy')
-    .description('Deploy to Firebase only on build branches (master, stage, prod)')
-    .option('-o --only <targets>', 'Only deploy to specified, comma-seperated targets (e.g "hosting, storage")', /^(hosting|functions|small)$/i)
+    .command('run')
+    .description('Run all firebase-ci actions based on config (includes copyVersion, copyEnv, and createConfig)')
     .action((directory, options) => {
-      deployToFirebase(program.args[0])
+      runActions(program.args[0])
         .then(() => process.exit(0))
         .catch(() => process.exit(1))
     })

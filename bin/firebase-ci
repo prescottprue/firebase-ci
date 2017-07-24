@@ -1,26 +1,26 @@
 #!/usr/bin/env node
 'use strict'
 
-const chalk = require('chalk')
-const exec = require('child_process').exec
 const program = require('commander')
+
+const pkg = require('../package.json')
+program.version(pkg.version)
+
 require('autocmdr/lib/logger')(program)
-require('../cmds/deploy')(program)
-
-program.version('0.0.0')
+require('../cmds')(program)
 
 program
-	.on('*', function(name) {
-		console.log('\''+name+'\' is not a known command. See \'firebase-ci --help\':')
-		program.outputHelp()
-		process.exit(1)
-	})
+  .on('*', function (name) {
+    console.log('\'' + name + '\' is not a known command. See \'firebase-ci --help\':')  // eslint-disable-line no-console
+    program.outputHelp()
+    process.exit(1)
+  })
 
 program
-	.parse(process.argv)
+  .parse(process.argv)
 
 if (program.args.length < 1) {
-	console.log('No command specified. See \'firebase-ci --help\':')
-	program.outputHelp()
-	process.exit(1)
+  console.log('No command specified. See \'firebase-ci --help\':')  // eslint-disable-line no-console
+  program.outputHelp()
+  process.exit(1)
 }
