@@ -1,6 +1,6 @@
 import { functionsExists } from './files'
 import { error, info, success } from './logger'
-
+import { runCommand } from './commands'
 const npm = require('npm')
 
 const npmInstall = (settings, deps = []) => {
@@ -9,7 +9,8 @@ const npmInstall = (settings, deps = []) => {
     info('Functions folder does not exist. Skipping install...')
     return Promise.resolve()
   }
-  info('Installing functions dependencies...')
+  const depsStr = deps.length ? deps.join(', ') : 'Dependencies'
+  info(`Npm Installing ${depsStr}...`)
   return new Promise((resolve, reject) => {
     npm.load(settings, (err, npm) => {
       if (err) {
@@ -20,7 +21,7 @@ const npmInstall = (settings, deps = []) => {
         // run npm install
         npm.commands.install(deps, (err) => {
           if (!err) {
-            success(`${deps.length ? deps.join(', ') : 'Dependencies'} installed successfully`)
+            success(`${depsStr} installed successfully`)
             resolve(deps)
           } else {
             error('Error installing functions dependencies', err)
@@ -40,13 +41,13 @@ const npmInstall = (settings, deps = []) => {
  */
 export const installDeps = () => {
   let promises = [
-    npmInstall({ global: true }, ['firebase-tools'])
-    // runCommand({
-    //   command: `npm i -g firebase-tools`,
-    //   beforeMsg: 'Installing firebase-tools...',
-    //   errorMsg: 'Error installing firebase-tools.',
-    //   successMsg: 'Firebase tools installed successfully!'
-    // })
+    // npmInstall({ global: true, loglevel: 'error' }, ['firebase-tools']) // causes can noy find module 'boom'
+    runCommand({
+      command: `npm i -g firebase-tools -q`,
+      beforeMsg: 'Installing firebase-tools...',
+      errorMsg: 'Error installing firebase-tools.',
+      successMsg: 'Firebase tools installed successfully!'
+    })
   ]
   if (functionsExists()) {
     promises.push(npmInstall({ prefix: 'functions', loglevel: 'error' }, []))

@@ -22,7 +22,7 @@ const skipPrefix = 'Skipping Firebase Deploy'
  * @return {Promise}
  * @private
  */
-export const runActions = (project) => {
+export const runActions = () => {
   copyVersion()
   createConfig()
   const settings = getFile('.firebaserc')
