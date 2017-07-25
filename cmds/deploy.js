@@ -25,7 +25,7 @@ module.exports = function (program) {
     .option('-o --only <targets>', 'Only deploy to specified, comma-seperated targets (e.g "hosting, storage")', /^(hosting|functions|small)$/i)
     .option('-s --simple', 'Skip CI actions, and only run deployment')
     // .option('-a --actions <actions>', 'Only run certain CI actions (e.g "mapEnv", "createConfig")', /^(mapEnv|createConfig|copyVersion)$/i)
-    .action((directory, valid) => {
+    .action(() => {
       deployToFirebase(program.args[0])
         .then(() => process.exit(0))
         .catch(() => process.exit(1))
