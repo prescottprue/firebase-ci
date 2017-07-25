@@ -98,7 +98,7 @@ export default (opts) => {
     .then(() => {
       if (opts.simple) {
         info('Simple mode enabled. Skipping CI actions')
-        return Promise.resolve({})
+        return {}
       }
       return runActions(opts.actions)
     })
