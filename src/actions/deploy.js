@@ -4,7 +4,6 @@ import { error, info, warn } from '../utils/logger'
 import { runCommand } from '../utils/commands'
 import { installDeps } from '../utils/deps'
 import copyVersion from './copyVersion'
-import createConfig from './createConfig'
 import mapEnv from './mapEnv'
 
 const {
@@ -24,7 +23,6 @@ const skipPrefix = 'Skipping Firebase Deploy'
  */
 export const runActions = () => {
   copyVersion()
-  createConfig()
   const settings = getFile('.firebaserc')
   if (functionsExists() && settings.ci && settings.ci.mapEnv) {
     return mapEnv()

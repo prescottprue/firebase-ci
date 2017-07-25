@@ -47,11 +47,12 @@
   }
 }
 ```
-
+<!-- Uncomment when next version is applicable
 ## Other Versions
 Default installation uses `@latest` tag, but there are also others:
 
 * `react-redux-firebase@next` - upcoming version (currently `v0.2.0` progress)
+-->
 
 ## [Examples](/examples)
 
@@ -82,10 +83,10 @@ This lets you deploy to whatever instance you want based on your branch (and con
 
 ## Commands
 
-* [`copyVersion`](#createVersion) - Copy version from `package.json` to `functions/package.json`
-* [`createConfig`](#createConfig) - Create a config file based on CI environment variables (defaults to `src/config.js`)
-* [`deploy`](#deploy) - Deploy to Firebase (can run all other actions based on settings)
-* [`mapEnv`](#mapEnv) - Map environment variables from CI Environment to Firebase functions environment
+* [`copyVersion`](#createversion) - Copy version from `package.json` to `functions/package.json`
+* [`createConfig`](#createconfig) - Create a config file based on CI environment variables (defaults to `src/config.js`)
+* [`deploy`](#deploy) - Deploy to Firebase (runs other actions by default)
+* [`mapEnv`](#mapenv) - Map environment variables from CI Environment to Firebase functions environment
 
 
 ### copyVersion
@@ -103,75 +104,78 @@ It can be convenient for the version within the `functions/package.json` file to
 Create a config file based on CI environment variables (defaults to `src/config.js`)
 
 With the following environment variables:
+`GA_TRACKINGID` - Your google analytics tracking id
+`INT_FIREBASE_WEBAPIKEY` - API key of your integration/main Firebase instance (this can also be hard coded if you prefer since it doesn't)
+`PROD_FIREBASE_WEBAPIKEY` - API key of your production Firebase instance
+
+And a `.firebaserc` that looks like so:
 
 ```json
 "ci": {
   "createConfig": {
     "master": {
-      "version": "${npm_package_version || ''}",
+      "version": "${npm_package_version}",
+      "gaTrackingId": "${GA_TRACKINGID}",
       "firebase": {
         "apiKey": "${INT_FIREBASE_WEBAPIKEY}",
         "authDomain": "firebase-ci-int.firebaseapp.com",
         "databaseURL": "https://firebase-ci-int.firebaseio.com",
         "projectId": "firebase-ci-int",
-        "storageBucket": "firebase-ci-int.appspot.com",
-        "messagingSenderId": "499842460400"
-      },
-      "sentryDsn": "${SENTRY_DSN}",
-      "gaTrackingId": "${GA_TRACKINGID}"
+        "storageBucket": "firebase-ci-int.appspot.com"
+      }
     },
     "prod": {
-      "version": "${npm_package_version || ''}",
+      "version": "${npm_package_version}",
+      "gaTrackingId": "${GA_TRACKINGID}",
       "firebase": {
         "apiKey": "${PROD_FIREBASE_WEBAPIKEY}",
         "authDomain": "firebase-ci.firebaseapp.com",
         "databaseURL": "https://firebase-ci.firebaseio.com",
         "projectId": "firebase-ci",
-        "storageBucket": "firebase-ci.appspot.com",
-        "messagingSenderId": "995180480938"
-      },
-      "sentryDsn": "${SENTRY_DSN}",
-      "gaTrackingId": "${GA_TRACKINGID}"
+        "storageBucket": "firebase-ci.appspot.com"
+      }
     }
   }
 }
 ```
 
-when building on master branch, produces a file in `src/config.js` that looks like so:
+building on master branch, produces a file in `src/config.js` that looks like so:
 
 ```js
 export const version = "0.0.1" // or whatever version your package is
+export const gaTrackingId = "123GA" // your google analytics tracking ID
 export const firebase = {
   apiKey: "123FIREBASEKEY",
   authDomain: "firebase-ci.firebaseapp.com",
   databaseURL: "https://firebase-ci.firebaseio.com",
   projectId: "firebase-ci",
-  storageBucket: "firebase-ci.appspot.com",
-  messagingSenderId: "995180480938"
+  storageBucket: "firebase-ci.appspot.com"
 }
-export const sentryDSN = "123SENTRYDSN"
-export const gaTrackingId = "123GA"
-export default { version, firebase, sentryDSN, gaTrackingId }
+export default { version, gaTrackingId, firebase }
 ```
 
 ### deploy
 
 `firebase-ci deploy`
 
+**Options:**
+* [Simple mode](#simple-mode)
+
+Deploy to Firebase. Following the API of `firebase-tools`, specific targets (i.e. `functions, hosting`) can be specificed for deployment.
+
 #### Default
 * Everything skipped on Pull Requests
 * Deployment goes to default project
 * If you have a `functions` folder, `npm install` will be run for you within your `functions` folder
+* [`copyVersion`](#copyversion) is called before deployment based on settings in `.firebaserc`, if you don't want this to happen, use simple mode.
+* [`mapEnv`](#mapenv) is called before deployment based on settings in `.firebaserc`, if you don't want this to happen, use simple mode.
 
-```json
-"projects": {
-  "default": "main-firebase-instance",
-  "prod": "main-firebase-instance",
-  "int": "integration-instance",
-  "test": "testing-firebase-db"
- }
-}
-```
+#### Simple Mode
+Option: `--simple`
+Flag: `-s`
+
+Skip all `firebase-ci` actions and only run Firebase deployment
+
 
 #### Skipping Deploying Functions
 
