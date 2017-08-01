@@ -5,6 +5,16 @@ import { error, info, warn } from '../utils/logger'
 
 const { TRAVIS_BRANCH } = process.env
 
+const tryTemplating = (str, name) => {
+  try {
+    return template(str)(process.env)
+  } catch (err) {
+    warn('Issue while creating config:', err.message)
+    warn(`Setting "${name}" to an empty string`)
+    return ''
+  }
+}
+
 /**
  * Create config file based on CI environment variables
  * @param {Object} settings - Settings for how environment variables should
@@ -56,17 +66,13 @@ export default (config) => {
   info(`Creating config file at path: ${opts.path}`)
 
   const envConfig = settings.ci.createConfig[opts.branch]
-  let templatedData
-  try {
-    // template data based on environment variables
-    templatedData = mapValues(envConfig, (parent) =>
-      isString(parent)
-        ? template(parent)(process.env)
-        : mapValues(parent, (data, childKey) => template(data)(process.env) || data)
-    )
-  } catch (err) {
-    error('Error while creating config:', err.toString())
-  }
+
+  // template data based on environment variables
+  const templatedData = mapValues(envConfig, (parent, parentName) =>
+    isString(parent)
+      ? tryTemplating(parent, parentName)
+      : mapValues(parent, (data, childKey) => tryTemplating(data, `${parentName}.${childKey}`))
+  )
   // convert object into formatted object string
   const parentAsString = (parent) => reduce(parent, (acc, child, childKey) =>
     acc.concat(`  ${childKey}: ${JSON.stringify(child, null, 2)},\n`)
