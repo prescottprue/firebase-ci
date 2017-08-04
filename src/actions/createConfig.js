@@ -1,9 +1,19 @@
 import fs from 'fs'
-import { reduce, template, mapValues, get } from 'lodash'
+import { reduce, template, mapValues, get, isString } from 'lodash'
 import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 
 const { TRAVIS_BRANCH } = process.env
+
+const tryTemplating = (str, name) => {
+  try {
+    return template(str)(process.env)
+  } catch (err) {
+    warn('Issue while creating config:', err.message)
+    warn(`Setting "${name}" to an empty string`)
+    return ''
+  }
+}
 
 /**
  * Create config file based on CI environment variables
@@ -27,8 +37,7 @@ export default (config) => {
   const settings = getFile('.firebaserc')
 
   if (!TRAVIS_BRANCH) {
-    warn('Creating config is currently only supported in CI environment')
-    return
+    warn('Not in CI Environment. Defaulting to settings for master branch...')
   }
 
   if (!settings) {
@@ -43,30 +52,36 @@ export default (config) => {
 
   const opts = {
     path: get(config, 'path', './src/config.js'),
-    branch: get(config, 'branch', TRAVIS_BRANCH)
+    branch: get(config, 'branch', TRAVIS_BRANCH || 'master')
   }
 
   info(`Attempting to load config for ${opts.branch}`)
 
   if (!settings.ci.createConfig[opts.branch]) {
-    error('Matching branch does not exist in create config settings')
-    throw new Error('Matching branch does not exist in create config settings')
+    const missingMsg = 'Matching branch does not exist in create config settings'
+    error(missingMsg)
+    throw new Error(missingMsg)
   }
 
   info(`Creating config file at path: ${opts.path}`)
 
   const envConfig = settings.ci.createConfig[opts.branch]
+
   // template data based on environment variables
-  const templatedData = mapValues(envConfig, parent =>
-    mapValues(parent, (data, childKey) => template(data)(process.env) || data)
+  const templatedData = mapValues(envConfig, (parent, parentName) =>
+    isString(parent)
+      ? tryTemplating(parent, parentName)
+      : mapValues(parent, (data, childKey) => tryTemplating(data, `${parentName}.${childKey}`))
   )
   // convert object into formatted object string
   const parentAsString = (parent) => reduce(parent, (acc, child, childKey) =>
     acc.concat(`  ${childKey}: ${JSON.stringify(child, null, 2)},\n`)
   , '')
+
   // combine all stringified vars and attach default export
   const exportString = reduce(templatedData, (acc, parent, parentName) =>
-    acc.concat(`export const ${parentName} = {\n${parentAsString(parent)}};\n\n`)
+    acc.concat(`export const ${parentName} = `)
+      .concat(isString(parent) ? `"${parent}";\n\n` : `{\n${parentAsString(parent)}};\n\n`)
   , '').concat(`export default { ${Object.keys(templatedData).join(', ')} }`)
 
   try {
