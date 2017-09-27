@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { log, info, success, error } from './logger'
-const exec = require('child_process').exec
+const exec = require('child-process-promise').exec
 
 export const isPromise = (obj) => obj && typeof obj.then === 'function'
 
@@ -17,22 +17,24 @@ export const runCommand = ({ command, beforeMsg, errorMsg, successMsg }) => {
   if (beforeMsg) {
     info(beforeMsg)
   }
-  return new Promise((resolve, reject) => {
-    exec(command, (err, stdout, e) => {
-      if (err !== null) {
-        if (errorMsg) {
-          error(errorMsg, err)
-        }
-        return reject(err)
-      } else {
-        log(stdout) // log output
-        if (successMsg) {
-          success(successMsg, stdout)
-        }
-        resolve(stdout)
+  return exec(command)
+    .then(({ stdout, stderr }) => {
+      if (stderr) {
+        error(errorMsg, stderr.message || stderr)
+        return Promise.reject(stderr)
       }
+      log(stdout) // log output
+      if (successMsg) {
+        success(successMsg, stdout)
+      }
+      return stdout
     })
-  })
+    .catch((err) => {
+      if (errorMsg) {
+        error(errorMsg, err.message || err)
+      }
+      return Promise.reject(err)
+    })
 }
 
 /**
