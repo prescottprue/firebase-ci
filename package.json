@@ -1,6 +1,6 @@
 {
   "name": "firebase-ci",
-  "version": "0.2.2-alpha",
+  "version": "0.2.2",
   "description": "Simplified Firebase interaction for continuous integration including deploying hosting, functions, and database/storage rules.",
   "main": "lib/index.js",
   "bin": {
@@ -63,6 +63,7 @@
   "dependencies": {
     "autocmdr": "~0.0.8",
     "chalk": "^2.0.1",
+    "child-process-promise": "^2.2.1",
     "lodash": "^4.17.4",
     "npm": "^5.3.0"
   },
@@ -73,7 +74,6 @@
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-env": "^1.6.0",
     "chai": "^3.5.0",
-    "child-process-promise": "^2.2.1",
     "codecov": "^2.1.0",
     "cross-env": "^3.1.4",
     "env-cmd": "^5.0.0",

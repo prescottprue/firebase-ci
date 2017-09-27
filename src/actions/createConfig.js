@@ -56,16 +56,21 @@ export default (config) => {
   }
 
   info(`Attempting to load config for ${opts.branch}`)
+  const { ci: { createConfig } } = settings
+  const envConfig = createConfig[opts.branch] || createConfig.default || createConfig.master
 
-  if (!settings.ci.createConfig[opts.branch]) {
-    const missingMsg = 'Matching branch does not exist in create config settings'
-    error(missingMsg)
-    throw new Error(missingMsg)
+  if (!createConfig[opts.branch]) {
+    const fallBackConfigName = createConfig.default ? 'default' : 'master'
+    info(`${opts.branch} branch does not exist in create config settings, falling back to ${fallBackConfigName}`)
+  }
+
+  if (!envConfig) {
+    const msg = 'Valid create config settings could not be loaded'
+    error(msg)
+    throw new Error(msg)
   }
 
   info(`Creating config file at path: ${opts.path}`)
-
-  const envConfig = settings.ci.createConfig[opts.branch]
 
   // template data based on environment variables
   const templatedData = mapValues(envConfig, (parent, parentName) =>

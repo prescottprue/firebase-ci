@@ -3,5 +3,29 @@
     "default": "firebase-1", # put your dev project name here
     "stage": "firebase-2", # put your staging project name here
     "prod": "firebase-3", # put your production project name here
+  },
+  "createConfig": {
+    "master": {
+      "version": "${npm_package_version}",
+      "env": "development",
+      "firebase": {
+        "apiKey": "AIzaSyDiVbMbj7nPXTBXxZlr_HiZ2AOY7yXWkYY",
+        "authDomain": "devshare-int.firebaseapp.com",
+        "databaseURL": "https://devshare-int.firebaseio.com",
+        "projectId": "devshare-int",
+        "storageBucket": "devshare-int.appspot.com"
+      }
+    },
+    "prod": {
+      "version": "${npm_package_version}",
+      "env": "development",
+      "firebase": {
+        "apiKey": "AIzaSyDiVbMbj7nPXTBXxZlr_HiZ2AOY7yXWkYY",
+        "authDomain": "devshare-int.firebaseapp.com",
+        "databaseURL": "https://devshare-int.firebaseio.com",
+        "projectId": "devshare-int",
+        "storageBucket": "devshare-int.appspot.com"
+      }
+    }
   }
 }
