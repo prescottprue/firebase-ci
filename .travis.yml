@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - "6"
+  - 6.11.1
 
 branches:
   only:
@@ -13,9 +13,6 @@ sudo: false
 cache:
   directories:
     - node_modules
-
-# before_install:
-#   - npm install # Install peer deps
 
 script:
   - npm run test:cov
