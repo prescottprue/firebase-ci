@@ -23,12 +23,7 @@
     "watch": "npm run build:lib -- --stats --progress --colors --watch",
     "prepublish": "npm run clean && npm run test && npm run build",
     "prepush": "npm run lint:fix",
-    "codecov": "cat coverage/*/lcov.info | codecov",
-    "docs:clean": "rimraf _book",
-    "docs:prepare": "gitbook install",
-    "docs:build": "npm run docs:prepare && gitbook build -g prescottprue/firebase-ci",
-    "docs:watch": "npm run docs:prepare && gitbook serve",
-    "docs:publish": "npm run docs:clean && npm run docs:build && cd _book && git init && git commit --allow-empty -m 'update book' && git checkout -b gh-pages && touch .nojekyll && git add . && git commit -am 'update book' && git push git@github.com:prescottprue/firebase-ci gh-pages --force"
+    "codecov": "cat coverage/*/lcov.info | codecov"
   },
   "repository": {
     "type": "git",
