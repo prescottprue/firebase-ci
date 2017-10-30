@@ -160,8 +160,9 @@ export default { version, gaTrackingId, firebase }
 
 **Options:**
 * [Simple mode](#simple-mode)
+* [Info](#info-option)
 
-Deploy to Firebase. Following the API of `firebase-tools`, specific targets (i.e. `functions, hosting`) can be specificed for deployment.
+Deploy to Firebase. Following the API of `firebase-tools`, specific targets (i.e. `functions, hosting`) can be specified for deployment.
 
 #### Default
 * Everything skipped on Pull Requests
@@ -176,6 +177,11 @@ Flag: `-s`
 
 Skip all `firebase-ci` actions and only run Firebase deployment
 
+#### Info Option
+Option : `--info`
+Flag: `-i`
+
+Provide extra information from internal actions (including npm install of `firebase-tools`).
 
 #### Skipping Deploying Functions
 
