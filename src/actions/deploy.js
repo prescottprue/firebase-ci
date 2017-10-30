@@ -92,7 +92,7 @@ export default (opts) => {
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const project = TRAVIS_BRANCH
   const message = TRAVIS_COMMIT_MESSAGE ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'") : 'Update'
-  return installDeps()
+  return installDeps(opts)
     .then(() => {
       if (opts.simple) {
         info('Simple mode enabled. Skipping CI actions')

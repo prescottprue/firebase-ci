@@ -20,10 +20,13 @@ export const runCommand = ({ command, beforeMsg, errorMsg, successMsg }) => {
   return exec(command)
     .then(({ stdout, stderr }) => {
       if (stderr) {
+        log(stdout) // log output
+        if (stderr && stderr.indexOf('npm WARN') !== -1) {
+          return stderr
+        }
         error(errorMsg, stderr.message || stderr)
         return Promise.reject(stderr)
       }
-      log(stdout) // log output
       if (successMsg) {
         success(successMsg, stdout)
       }
