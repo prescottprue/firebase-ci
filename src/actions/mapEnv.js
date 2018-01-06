@@ -1,4 +1,4 @@
-import { map } from 'lodash'
+import { map, get } from 'lodash'
 import { error, success, info, warn } from '../utils/logger'
 import { getFile } from '../utils/files'
 import { runCommand } from '../utils/commands'
@@ -22,7 +22,9 @@ export default (copySettings) => {
     return Promise.reject(new Error('.firebaserc file is required'))
   }
 
-  if (!settings.ci || !settings.ci.mapEnv) {
+  const mapEnvSettings = get(settings, 'ci.mapEnv', copySettings)
+
+  if (!mapEnvSettings) {
     const msg = 'mapEnv parameter with settings needed in .firebaserc!'
     warn(msg)
     return Promise.reject(new Error(msg))
@@ -31,7 +33,7 @@ export default (copySettings) => {
   info('Mapping Environment to Firebase Functions...')
 
   return Promise.all(
-    map(copySettings, (functionsVar, travisVar) => {
+    map(mapEnvSettings, (functionsVar, travisVar) => {
       if (!process.env[travisVar]) {
         const msg = `${travisVar} does not exist on within Travis-CI environment variables`
         success(msg)

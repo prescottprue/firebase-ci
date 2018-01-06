@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { log, info, success, error } from './logger'
-const exec = require('child-process-promise').exec
+import { info, success, error } from './logger'
+import shell from 'shelljs'
 
 export const isPromise = (obj) => obj && typeof obj.then === 'function'
 
@@ -17,27 +17,22 @@ export const runCommand = ({ command, beforeMsg, errorMsg, successMsg }) => {
   if (beforeMsg) {
     info(beforeMsg)
   }
-  return exec(command)
-    .then(({ stdout, stderr }) => {
-      if (stderr) {
-        log(stdout) // log output
-        if (stderr && stderr.indexOf('npm WARN') !== -1) {
-          return stderr
-        }
+  return new Promise((resolve, reject) => {
+    shell.exec(command, (code, stdout, stderr) => {
+      if (code !== 0) {
         error(errorMsg, stderr.message || stderr)
-        return Promise.reject(stderr)
+        if (stderr && stderr.indexOf('npm WARN') !== -1) {
+          return resolve(stderr)
+        }
+        reject(stderr, stdout)
+      } else {
+        if (successMsg) {
+          success(successMsg, stdout)
+        }
+        resolve(stdout)
       }
-      if (successMsg) {
-        success(successMsg, stdout)
-      }
-      return stdout
     })
-    .catch((err) => {
-      if (errorMsg) {
-        error(errorMsg, err.message || err)
-      }
-      return Promise.reject(err)
-    })
+  })
 }
 
 /**

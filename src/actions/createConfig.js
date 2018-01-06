@@ -9,7 +9,7 @@ const tryTemplating = (str, name) => {
   try {
     return template(str)(process.env)
   } catch (err) {
-    warn('Issue while creating config:', err.message)
+    warn(`Warning: ${err.message || 'Issue templating config file'}`)
     warn(`Setting "${name}" to an empty string`)
     return ''
   }
@@ -36,33 +36,36 @@ const tryTemplating = (str, name) => {
 export default (config) => {
   const settings = getFile('.firebaserc')
 
-  if (!TRAVIS_BRANCH) {
-    warn('Not in CI Environment. Defaulting to settings for master branch...')
-  }
-
+  // Check for .firebaserc settings file
   if (!settings) {
     error('.firebaserc file is required')
     throw new Error('.firebaserc file is required')
   }
 
+  // Check for ci section of settings file
   if (!settings.ci || !settings.ci.createConfig) {
     warn('Create config settings needed in .firebaserc!')
     return
   }
 
+  // Set options object for later use (includes path for config file)
   const opts = {
     path: get(config, 'path', './src/config.js'),
-    branch: get(config, 'branch', TRAVIS_BRANCH || 'master')
+    project: get(config, 'project', TRAVIS_BRANCH)
   }
 
-  info(`Attempting to load config for ${opts.branch}`)
+  info(`Attempting to load config for ${opts.project}`)
+
+  // Get environment config from settings file based on settings or branch
+  // default is used if TRAVIS_BRANCH env not provided, master used if default not set
   const { ci: { createConfig } } = settings
-  const envConfig = createConfig[opts.branch] || createConfig.default || createConfig.master
+  const fallBackConfigName = createConfig.default ? 'default' : 'master'
 
-  if (!createConfig[opts.branch]) {
-    const fallBackConfigName = createConfig.default ? 'default' : 'master'
-    info(`${opts.branch} branch does not exist in create config settings, falling back to ${fallBackConfigName}`)
+  if (!createConfig[opts.project]) {
+    info(`${opts.project} project does not exist in create config settings, falling back to ${fallBackConfigName}`)
   }
+
+  const envConfig = createConfig[fallBackConfigName]
 
   if (!envConfig) {
     const msg = 'Valid create config settings could not be loaded'
