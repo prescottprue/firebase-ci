@@ -36,6 +36,26 @@ export const runCommand = ({ command, beforeMsg, errorMsg, successMsg }) => {
 }
 
 /**
+ * Escape shell command arguments and join them to a single string
+ * @param  {Array} a - List of arguments to escape
+ * @return {String} Command string with arguments escaped
+ */
+export function shellescape (a) {
+  let ret = []
+
+  a.forEach((s) => {
+    if (/[^A-Za-z0-9_\/:=-]/.test(s)) { // eslint-disable-line no-useless-escape
+      s = "'" + s.replace(/'/g, "'\\''") + "'"
+      s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
+        .replace(/\\'''/g, "\\'") // remove non-escaped single-quote if there are enclosed between 2 escaped
+    }
+    ret.push(s)
+  })
+
+  return ret.join(' ')
+}
+
+/**
  * @description Create a promise that runs commands in waterfall
  * @param {Array} commands - List of commands to run in order
  * @private

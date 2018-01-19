@@ -1,8 +1,8 @@
 {
   "projects": {
-    "default": "firebase-1", # put your dev project name here
-    "stage": "firebase-2", # put your staging project name here
-    "prod": "firebase-3", # put your production project name here
+    "default": "firebase-1",
+    "stage": "firebase-2",
+    "prod": "firebase-3"
   },
   "createConfig": {
     "master": {

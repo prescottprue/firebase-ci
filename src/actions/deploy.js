@@ -1,10 +1,12 @@
-import { isUndefined } from 'lodash'
 import { getFile, functionsExists } from '../utils/files'
-import { error, info, warn } from '../utils/logger'
-import { runCommand } from '../utils/commands'
+import { error, info } from '../utils/logger'
+import { shellescape } from '../utils/commands'
 import { installDeps } from '../utils/deps'
 import copyVersion from './copyVersion'
+import shell from 'shelljs'
 import mapEnv from './mapEnv'
+// force colors to come through shelljs
+process.env.FORCE_COLOR = 1
 
 const {
   TRAVIS_BRANCH,
@@ -45,11 +47,6 @@ export const runActions = () => {
 export default (opts) => {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
-  if (isUndefined(TRAVIS_BRANCH) || (opts && opts.test)) {
-    const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
-    warn(nonCiMessage)
-    return Promise.resolve(nonCiMessage)
-  }
 
   if (!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') {
     const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
@@ -63,8 +60,8 @@ export default (opts) => {
   }
 
   if (!firebaseJson) {
-    error('firebase.json file is required')
-    return Promise.reject(new Error('firebase.json file is required'))
+    error('firebase.json file is required to deploy')
+    return Promise.reject(new Error('firebase.json file is required to deploy'))
   }
 
   if (settings.projects && !settings.projects[TRAVIS_BRANCH]) {
@@ -91,7 +88,7 @@ export default (opts) => {
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const project = TRAVIS_BRANCH
-  const message = TRAVIS_COMMIT_MESSAGE ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'") : 'Update'
+  const message = TRAVIS_COMMIT_MESSAGE ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'") : "Update `    ' \" "
   return installDeps(opts)
     .then(() => {
       if (opts.simple) {
@@ -100,15 +97,15 @@ export default (opts) => {
       }
       return runActions(opts.actions)
     })
-    .then(() =>
-      // Wait until all other commands are complete before calling deploy
-      runCommand({
-        command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project} --message "${message}"`,
-        beforeMsg: 'Deploying to Firebase...',
-        errorMsg: 'Error deploying to firebase:',
-        successMsg: `Successfully Deployed to ${project}`
-      })
-    )
+    .then(() => {
+      const commandArgs = ['firebase', 'deploy', onlyString, '--token', FIREBASE_TOKEN, '--project', project, '--message']
+      const escapedArgs = [message]
+      const deployCommand = commandArgs.concat([shellescape(escapedArgs)]).join(' ')
+      const deployCommandResult = shell.exec(deployCommand)
+      if (deployCommandResult.code !== 0) {
+        return Promise.reject(deployCommandResult.stdout || new Error('Error with Firebase deploy'))
+      }
+    })
     .catch((err) => {
       error('Error in firebase-ci:\n ', err)
       return Promise.reject(err)
