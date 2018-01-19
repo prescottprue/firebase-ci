@@ -33,7 +33,7 @@
 
   ```yaml
   after_success:
-    - npm i -g firebase-ci
+    - npm i firebase-ci ## or have within your package.json
     - firebase-ci deploy
   ```
 
