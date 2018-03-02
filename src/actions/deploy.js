@@ -109,7 +109,7 @@ export default async (opts) => {
         error('Error mapping CI environment variables to Functions environment: ')
         throw mapEnvErr
       }
-      info('No firebase-ci action settings found in .firebaserc, skipping actions...')
+      info('Functions environment variables successfully mapped from CI environment.')
     } else {
       info('No firebase-ci ci action settings found in .firebaserc, skipping actions...')
     }
