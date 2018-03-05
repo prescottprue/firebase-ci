@@ -24,29 +24,31 @@
 1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
 1. Add the following scripts to your CI config:
 
-  ```bash
-  npm i -g firebase-ci@latest  # install firebase-ci tool
-  firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
-  ```
+    ```bash
+    npm i -g firebase-ci@latest  # install firebase-ci tool
+    firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
+    ```
 
-  For instance within a `travis.yml`:
+For instance within a `travis.yml`:
 
-  ```yaml
-  after_success:
-    - npm i -g firebase-ci
-    - firebase-ci deploy
-  ```
+    ```yaml
+    after_success:
+      - npm i -g firebase-ci
+      - firebase-ci deploy
+    ```
+
+**NOTE**: `firebase-ci` can be used through the nodejs `bin` instead of being installed globally
 
 1. Set different Firebase instances names to `.firebaserc` like so:
-```json
-{
-  "projects": {
-    "prod": "prod-firebase",
-    "master": "dev-firebase",
-    "default": "dev-firebase"
-  }
-}
-```
+    ```json
+    {
+      "projects": {
+        "prod": "prod-firebase",
+        "master": "dev-firebase",
+        "default": "dev-firebase"
+      }
+    }
+    ```
 <!-- Uncomment when next version is applicable
 ## Other Versions
 Default installation uses `@latest` tag, but there are also others:
