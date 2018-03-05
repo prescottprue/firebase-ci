@@ -11,6 +11,7 @@ export const isPromise = (obj) => obj && typeof obj.then === 'function'
 export const runCommand = (command) => {
   return new Promise((resolve, reject) => {
     shell.exec(command, (code, stdout, stderr) => {
+      console.log('stdout: ', stdout)
       if (code !== 0) {
         // Resolve for npm warnings
         if (stderr && stderr.indexOf('npm WARN') !== -1) {

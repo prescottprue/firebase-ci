@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path'
 import { reduce, template, mapValues, get, isString } from 'lodash'
 import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
@@ -92,6 +93,14 @@ export default (config) => {
       .concat(isString(parent) ? `"${parent}";\n\n` : `{\n${parentAsString(parent)}};\n\n`)
   , '').concat(`export default { ${Object.keys(templatedData).join(', ')} }`)
 
+  const folderName = path.basename(path.dirname(opts.path))
+
+  // Add folder containing config file if it does not exist
+  if (!fs.existsSync(`./${folderName}`)) {
+    fs.mkdirSync(folderName)
+  }
+
+  // Write config file
   try {
     fs.writeFileSync(opts.path, exportString, 'utf8')
   } catch (err) {
