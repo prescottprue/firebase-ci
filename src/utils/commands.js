@@ -1,5 +1,10 @@
 /* eslint-disable no-console */
-import shell from 'shelljs'
+import { drop, compact } from 'lodash'
+import stream from 'stream'
+import { info } from '../utils/logger'
+const { spawn } = require('child_process')
+
+process.env.FORCE_COLOR = true
 
 export const isPromise = (obj) => obj && typeof obj.then === 'function'
 
@@ -9,17 +14,36 @@ export const isPromise = (obj) => obj && typeof obj.then === 'function'
  * @private
  */
 export const runCommand = (command) => {
+  if (command.beforeMsg) info(command.beforeMsg)
   return new Promise((resolve, reject) => {
-    shell.exec(command, (code, stdout, stderr) => {
-      console.log('stdout: ', stdout)
+    const child = spawn(command.command.split(' ')[0], command.args || compact(drop(command.command.split(' '))))
+    var customStream = new stream.Writable()
+    var customErrorStream = new stream.Writable()
+    let output
+    let error
+    customStream._write = (data, ...argv) => {
+      output += data
+      process.stdout._write(data, ...argv)
+    }
+    customErrorStream._write = (data, ...argv) => {
+      error += data
+      process.stderr._write(data, ...argv)
+    }
+    // Pipe errors and console output to main process
+    child.stdout.pipe(customStream)
+    child.stderr.pipe(customErrorStream)
+    // When child exits resolve or reject based on code
+    child.on('exit', (code, signal) => {
       if (code !== 0) {
         // Resolve for npm warnings
-        if (stderr && stderr.indexOf('npm WARN') !== -1) {
-          return resolve(stderr)
+        if (output && output.indexOf('npm WARN') !== -1) {
+          return resolve(command.successMsg || output)
         }
-        reject(stderr.message ? stderr : new Error(stderr), stdout)
+        reject(command.errorMsg || error)
       } else {
-        resolve(null, stdout)
+        // resolve(null, stdout)
+        if (command.successMsg) info(command.successMsg)
+        resolve(command.successMsg || output)
       }
     })
   })

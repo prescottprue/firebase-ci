@@ -1,6 +1,6 @@
 {
   "name": "firebase-ci",
-  "version": "0.4.0-alpha.2",
+  "version": "0.4.0-beta",
   "description": "Simplified Firebase interaction for continuous integration including deploying hosting, functions, and database/storage rules.",
   "main": "lib/index.js",
   "bin": {
@@ -58,8 +58,7 @@
   "dependencies": {
     "chalk": "^2.3.0",
     "commander": "^2.14.1",
-    "lodash": "^4.17.4",
-    "shelljs": "^0.8.1"
+    "lodash": "^4.17.4"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
