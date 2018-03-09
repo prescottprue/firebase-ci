@@ -22,9 +22,9 @@ export const installDeps = (opts = {}, settings = {}) => {
   if (functionsExists() && !functionsNodeModulesExist()) {
     promises.push(runCommand({
       command: `npm i --prefix functions`,
-      beforeMsg: 'Installing firebase-tools...',
-      errorMsg: 'Error installing firebase-tools.',
-      successMsg: 'Firebase tools installed successfully!'
+      beforeMsg: 'Running npm install in functions folder...',
+      errorMsg: 'Error installing functions dependencies.',
+      successMsg: 'Functions dependencies installed successfully!'
     }))
   }
   return Promise.all(promises)
