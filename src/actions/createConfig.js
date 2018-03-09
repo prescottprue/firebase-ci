@@ -55,15 +55,15 @@ export default (config) => {
     project: get(config, 'project', TRAVIS_BRANCH)
   }
 
-  info(`Attempting to load config for ${opts.project}`)
-
   // Get environment config from settings file based on settings or branch
   // default is used if TRAVIS_BRANCH env not provided, master used if default not set
   const { ci: { createConfig } } = settings
   const fallBackConfigName = createConfig.default ? 'default' : 'master'
 
+  info(`Attempting to load config for project: "${opts.project}"`)
+
   if (!createConfig[opts.project]) {
-    info(`${opts.project} project does not exist in create config settings, falling back to ${fallBackConfigName}`)
+    info(`Project named "${opts.project}" does not exist in create config settings, falling back to ${fallBackConfigName}`)
   }
 
   const envConfig = createConfig[fallBackConfigName]

@@ -96,7 +96,7 @@ export default (opts) => {
     ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'").substring(0, 300)
     : 'Update'
   info('Installing dependencies...')
-  return installDeps(opts)
+  return installDeps(opts, settings)
     .then(() => {
       if (opts.simple) {
         info('Simple mode enabled. Skipping CI actions')

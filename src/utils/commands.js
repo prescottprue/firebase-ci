@@ -16,7 +16,10 @@ export const isPromise = (obj) => obj && typeof obj.then === 'function'
 export const runCommand = (command) => {
   if (command.beforeMsg) info(command.beforeMsg)
   return new Promise((resolve, reject) => {
-    const child = spawn(command.command.split(' ')[0], command.args || compact(drop(command.command.split(' '))))
+    const child = spawn(
+      command.command.split(' ')[0],
+      command.args || compact(drop(command.command.split(' ')))
+    )
     var customStream = new stream.Writable()
     var customErrorStream = new stream.Writable()
     let output

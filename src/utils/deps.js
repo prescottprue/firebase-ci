@@ -1,21 +1,25 @@
-import { functionsExists } from './files'
+import { functionsExists, functionsNodeModulesExist } from './files'
 import { runCommand } from './commands'
 
 /**
  * Install Firebase tools and install
  * @return {[type]} [description]
  */
-export const installDeps = (opts = {}) => {
+export const installDeps = (opts = {}, settings = {}) => {
   const { info } = opts
-  let promises = [
+  const { toolsVersion } = settings
+  const versionSuffix = toolsVersion ? `@${toolsVersion}` : ''
+  const promises = [
     runCommand({
-      command: `npm i -g firebase-tools ${info ? '' : '-q'}`,
+      command: `npm i -g firebase-tools${versionSuffix} ${info ? '' : '-q'}`,
       beforeMsg: 'Installing firebase-tools...',
       errorMsg: 'Error installing firebase-tools.',
       successMsg: 'Firebase tools installed successfully!'
     })
   ]
-  if (functionsExists()) {
+  // Call npm install in functions folder if it exists and does
+  // not already contain node_modules
+  if (functionsExists() && !functionsNodeModulesExist()) {
     promises.push(runCommand({
       command: `npm i --prefix functions`,
       beforeMsg: 'Installing firebase-tools...',

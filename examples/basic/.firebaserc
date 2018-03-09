@@ -1,6 +1,7 @@
 {
   "projects": {
     "default": "firebase-1",
+    "master": "firebase-1",
     "stage": "firebase-2",
     "prod": "firebase-3"
   },
@@ -10,7 +11,7 @@
         "version": "${npm_package_version}",
         "env": "development",
         "firebase": {
-          "apiKey": "AIzaSyDiVbMbj7nPXTBXxZlr_HiZ2AOY7yXWkYY",
+          "apiKey": "< your api key >",
           "authDomain": "devshare-int.firebaseapp.com",
           "databaseURL": "https://devshare-int.firebaseio.com",
           "projectId": "devshare-int",
@@ -21,7 +22,7 @@
         "version": "${npm_package_version}",
         "env": "development",
         "firebase": {
-          "apiKey": "AIzaSyDiVbMbj7nPXTBXxZlr_HiZ2AOY7yXWkYY",
+          "apiKey": "< your api key >",
           "authDomain": "devshare-int.firebaseapp.com",
           "databaseURL": "https://devshare-int.firebaseio.com",
           "projectId": "devshare-int",
