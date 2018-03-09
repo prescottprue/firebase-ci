@@ -1,7 +1,7 @@
-import { isUndefined } from 'lodash'
+import { isUndefined, compact } from 'lodash'
 import { getFile, functionsExists } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
-import { runCommand } from '../utils/commands'
+import { runCommand, shellescape } from '../utils/commands'
 import { installDeps } from '../utils/deps'
 import copyVersion from './copyVersion'
 import mapEnv from './mapEnv'
@@ -31,7 +31,7 @@ export const runActions = () => {
         return Promise.reject(err)
       })
   }
-  info('No action settings found. Skipping actions.')
+  info('No ci action settings found in .firebaserc. Skipping actions.')
   return Promise.resolve({})
 }
 
@@ -90,9 +90,13 @@ export default (opts) => {
   }
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
-  const project = TRAVIS_BRANCH
-  const message = TRAVIS_COMMIT_MESSAGE ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'") : 'Update'
-  return installDeps(opts)
+  const project = TRAVIS_BRANCH || settings.projects.default
+  // // First 300 characters of travis commit message or "Update"
+  const message = TRAVIS_COMMIT_MESSAGE
+    ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'").substring(0, 300)
+    : 'Update'
+  info('Installing dependencies...')
+  return installDeps(opts, settings)
     .then(() => {
       if (opts.simple) {
         info('Simple mode enabled. Skipping CI actions')
@@ -103,9 +107,19 @@ export default (opts) => {
     .then(() =>
       // Wait until all other commands are complete before calling deploy
       runCommand({
-        command: `firebase deploy ${onlyString} --token ${FIREBASE_TOKEN} --project ${project} --message "${message}"`,
+        command: 'firebase',
+        args: compact([
+          'deploy',
+          onlyString,
+          '--token',
+          FIREBASE_TOKEN || 'Invalid Token',
+          '--project',
+          project,
+          '--message',
+          shellescape([message])
+        ]),
         beforeMsg: 'Deploying to Firebase...',
-        errorMsg: 'Error deploying to firebase:',
+        errorMsg: 'Error deploying to firebase.',
         successMsg: `Successfully Deployed to ${project}`
       })
     )

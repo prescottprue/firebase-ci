@@ -20,4 +20,10 @@ export const getFile = (filePath) => {
   }
 }
 
-export const functionsExists = () => fs.existsSync(path.join(process.cwd(), 'functions'))
+export function functionsExists () {
+  return fs.existsSync(path.join(process.cwd(), 'functions'))
+}
+
+export function functionsNodeModulesExist () {
+  return fs.existsSync(path.join(process.cwd(), 'functions', 'node_modules'))
+}

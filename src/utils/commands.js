@@ -1,66 +1,73 @@
 /* eslint-disable no-console */
-import { log, info, success, error } from './logger'
-const exec = require('child-process-promise').exec
+import { drop, compact } from 'lodash'
+import stream from 'stream'
+import { info } from '../utils/logger'
+const { spawn } = require('child_process')
+
+process.env.FORCE_COLOR = true
 
 export const isPromise = (obj) => obj && typeof obj.then === 'function'
 
 /**
  * @description Run a bash command using exec.
- * @param {Object} opts - Options object
- * @param {Object} opts.command - Command to be executed
- * @param {Object} opts.beforeMsg - Before callback
- * @param {Object} opts.errorMsg - Error callback
- * @param {Object} opts.successMsg - Success Callback
+ * @param {String} command - Command to be executed
  * @private
  */
-export const runCommand = ({ command, beforeMsg, errorMsg, successMsg }) => {
-  if (beforeMsg) {
-    info(beforeMsg)
-  }
-  return exec(command)
-    .then(({ stdout, stderr }) => {
-      if (stderr) {
-        log(stdout) // log output
-        if (stderr && stderr.indexOf('npm WARN') !== -1) {
-          return stderr
+export const runCommand = (command) => {
+  if (command.beforeMsg) info(command.beforeMsg)
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      command.command.split(' ')[0],
+      command.args || compact(drop(command.command.split(' ')))
+    )
+    var customStream = new stream.Writable()
+    var customErrorStream = new stream.Writable()
+    let output
+    let error
+    customStream._write = (data, ...argv) => {
+      output += data
+      process.stdout._write(data, ...argv)
+    }
+    customErrorStream._write = (data, ...argv) => {
+      error += data
+      process.stderr._write(data, ...argv)
+    }
+    // Pipe errors and console output to main process
+    child.stdout.pipe(customStream)
+    child.stderr.pipe(customErrorStream)
+    // When child exits resolve or reject based on code
+    child.on('exit', (code, signal) => {
+      if (code !== 0) {
+        // Resolve for npm warnings
+        if (output && output.indexOf('npm WARN') !== -1) {
+          return resolve(command.successMsg || output)
         }
-        error(errorMsg, stderr.message || stderr)
-        return Promise.reject(stderr)
+        reject(command.errorMsg || error)
+      } else {
+        // resolve(null, stdout)
+        if (command.successMsg) info(command.successMsg)
+        resolve(command.successMsg || output)
       }
-      if (successMsg) {
-        success(successMsg, stdout)
-      }
-      return stdout
     })
-    .catch((err) => {
-      if (errorMsg) {
-        error(errorMsg, err.message || err)
-      }
-      return Promise.reject(err)
-    })
+  })
 }
 
 /**
- * @description Create a promise that runs commands in waterfall
- * @param {Array} commands - List of commands to run in order
- * @private
+ * Escape shell command arguments and join them to a single string
+ * @param  {Array} a - List of arguments to escape
+ * @return {String} Command string with arguments escaped
  */
-export const createCommandsPromise = (commands) => {
-  return runCommand(commands[0])
-    .then(() => {
-      if (commands[1]) {
-        return runCommand(commands[1])
-      }
-      return commands
-    })
-  // TODO: Implement this method for running more than two commands
-  // return reduce(commands, (l, r) => {
-  //   if (!isPromise(l)) {
-  //     return runCommand(r)
-  //   }
-  //   if (isPromise(runCommand(r))) {
-  //     return l.then(runCommand(r))
-  //   }
-  //   return l
-  // }, {})
+export function shellescape (a) {
+  let ret = []
+
+  a.forEach((s) => {
+    if (/[^A-Za-z0-9_\/:=-]/.test(s)) { // eslint-disable-line no-useless-escape
+      s = "'" + s.replace(/'/g, "'\\''") + "'"
+      s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
+        .replace(/\\'''/g, "\\'") // remove non-escaped single-quote if there are enclosed between 2 escaped
+    }
+    ret.push(s)
+  })
+
+  return ret.join(' ')
 }

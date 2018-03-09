@@ -21,7 +21,8 @@ const createConfig = require('../lib/index').createConfig
 module.exports = function (program) {
   program
     .command('createConfig')
-    .description('Build configuration file based on settings in .firebaserc')
+    .option('-p --project', 'Project within .firebaserc to use when creating config file. Defaults to "default" then to "master"')
+    .description('Build configuration file based on settings in .firebaserc. Uses TRAVIS_BRANCH to determine project from .firebaserc to use for config (falls back to "default" then to "master").')
     .action((directory, options) => {
       try {
         createConfig(program.args[0], directory, options)
