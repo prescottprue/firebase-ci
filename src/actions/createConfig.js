@@ -66,7 +66,7 @@ export default (config) => {
     info(`Project named "${opts.project}" does not exist in create config settings, falling back to ${fallBackConfigName}`)
   }
 
-  const envConfig = createConfig[fallBackConfigName]
+  const envConfig = createConfig[opts.project || fallBackConfigName]
 
   if (!envConfig) {
     const msg = 'Valid create config settings could not be loaded'

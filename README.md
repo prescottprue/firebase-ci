@@ -29,15 +29,14 @@
     firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
     ```
 
-For instance within a `travis.yml`:
-
+  For instance within a `travis.yml`:
     ```yaml
     after_success:
       - npm i -g firebase-ci
       - firebase-ci deploy
     ```
 
-**NOTE**: `firebase-ci` can be used through the nodejs `bin` instead of being installed globally
+  **NOTE**: `firebase-ci` can be used through the nodejs `bin` instead of being installed globally
 
 1. Set different Firebase instances names to `.firebaserc` like so:
     ```json
@@ -49,6 +48,7 @@ For instance within a `travis.yml`:
       }
     }
     ```
+
 <!-- Uncomment when next version is applicable
 ## Other Versions
 Default installation uses `@latest` tag, but there are also others:
@@ -58,7 +58,7 @@ Default installation uses `@latest` tag, but there are also others:
 
 ## [Examples](/examples)
 
-* [Basic](/examples/basic) - Basic html file upload to Firebase hosting
+* [Basic](/examples/basic) - Basic html file upload to Firebase hosting of different projects (or "environments")
 
 ## Why?
 Advanced configuration of Firebase deployment is often necessary when deploying through continuous integration environment. Instead of having to write and invoke your own scripts, `firebase-ci` provides an easy way to  create/modify advanced configurations.
@@ -146,13 +146,15 @@ building on master branch, produces a file in `src/config.js` that looks like so
 ```js
 export const version = "0.0.1" // or whatever version your package is
 export const gaTrackingId = "123GA" // your google analytics tracking ID
+
 export const firebase = {
-  apiKey: "123FIREBASEKEY",
-  authDomain: "firebase-ci.firebaseapp.com",
-  databaseURL: "https://firebase-ci.firebaseio.com",
-  projectId: "firebase-ci",
-  storageBucket: "firebase-ci.appspot.com"
+  apiKey: "<- your app API key ->",
+  authDomain: "<- your app name ->.firebaseapp.com",
+  databaseURL: "https://<- your app name ->.firebaseio.com",
+  projectId: "<- your app name ->",
+  storageBucket: "<- your app name ->.appspot.com"
 }
+
 export default { version, gaTrackingId, firebase }
 ```
 
