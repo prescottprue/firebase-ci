@@ -29,14 +29,15 @@
     firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
     ```
 
-  For instance within a `travis.yml`:
-    ```yaml
-    after_success:
-      - npm i -g firebase-ci
-      - firebase-ci deploy
-    ```
+    For instance within a `travis.yml`:
 
-  **NOTE**: `firebase-ci` can be used through the nodejs `bin` instead of being installed globally
+      ```yaml
+      after_success:
+        - npm i -g firebase-ci
+        - firebase-ci deploy
+      ```
+
+    **NOTE**: `firebase-ci` can be used through the nodejs `bin` instead of being installed globally
 
 1. Set different Firebase instances names to `.firebaserc` like so:
     ```json
