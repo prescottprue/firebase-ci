@@ -1,7 +1,9 @@
 language: node_js
 
 node_js:
-  - 6.11.1
+  - 6.14.0
+  - 8
+  - 9
 
 branches:
   only:
@@ -19,13 +21,13 @@ script:
   - npm run build
 
 # Publish To NPM if push to master branch with a version not already released
-# deploy:
-#   skip_cleanup: true
-#   provider: npm
-#   email: $NPM_EMAIL
-#   api_key: $NPM_TOKEN
-#   on:
-#     branch: master
+deploy:
+  skip_cleanup: true
+  provider: npm
+  email: $NPM_EMAIL
+  api_key: $NPM_KEY
+  on:
+    node: '9'
 
 addons:
   code_climate:

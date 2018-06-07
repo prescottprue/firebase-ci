@@ -4,7 +4,7 @@ import { reduce, template, mapValues, get, isString } from 'lodash'
 import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 
-const { TRAVIS_BRANCH } = process.env
+const { TRAVIS_BRANCH, CIRCLE_BRANCH } = process.env
 
 const tryTemplating = (str, name) => {
   try {
@@ -52,7 +52,7 @@ export default (config) => {
   // Set options object for later use (includes path for config file)
   const opts = {
     path: get(config, 'path', './src/config.js'),
-    project: get(config, 'project', TRAVIS_BRANCH)
+    project: get(config, 'project', (TRAVIS_BRANCH || CIRCLE_BRANCH))
   }
 
   // Get environment config from settings file based on settings or branch
