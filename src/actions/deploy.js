@@ -10,6 +10,8 @@ const {
   TRAVIS_BRANCH,
   TRAVIS_PULL_REQUEST,
   TRAVIS_COMMIT_MESSAGE,
+  CIRCLE_BRANCH,
+  CIRCLE_PR_NUMBER,
   FIREBASE_TOKEN
 } = process.env
 
@@ -45,13 +47,13 @@ export const runActions = () => {
 export default (opts) => {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
-  if (isUndefined(TRAVIS_BRANCH) || (opts && opts.test)) {
+  if (isUndefined(TRAVIS_BRANCH) || isUndefined(CIRCLE_BRANCH) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     warn(nonCiMessage)
     return Promise.resolve(nonCiMessage)
   }
 
-  if (!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') {
+  if ((!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') || (!!CIRCLE_PR_NUMBER && CIRCLE_PR_NUMBER !== 'false')) {
     const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
     info(pullRequestMessage)
     return Promise.resolve(pullRequestMessage)
@@ -67,8 +69,8 @@ export default (opts) => {
     return Promise.reject(new Error('firebase.json file is required'))
   }
 
-  if (settings.projects && !settings.projects[TRAVIS_BRANCH]) {
-    const nonBuildBranch = `${skipPrefix} - Branch is not a project alias - Branch: ${TRAVIS_BRANCH}`
+  if ((settings.projects && !settings.projects[TRAVIS_BRANCH]) || (settings.projects && !settings.projects[CIRCLE_BRANCH])) {
+    const nonBuildBranch = `${skipPrefix} - Branch is not a project alias - Branch: ${(TRAVIS_BRANCH || CIRCLE_BRANCH)}`
     info(nonBuildBranch)
     return Promise.resolve(nonBuildBranch)
   }
@@ -90,7 +92,7 @@ export default (opts) => {
   }
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
-  const project = TRAVIS_BRANCH || settings.projects.default
+  const project = TRAVIS_BRANCH || CIRCLE_BRANCH || settings.projects.default
   // // First 300 characters of travis commit message or "Update"
   const message = TRAVIS_COMMIT_MESSAGE
     ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'").substring(0, 300)
