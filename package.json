@@ -17,7 +17,7 @@
     "lint": "eslint src cmds bin test",
     "lint:fix": "npm run lint -- --fix",
     "test": "env-cmd ./test/.env mocha ./test/**/*.spec.js",
-    "test:cov": "env-cmd ./tests/.env istanbul cover  $(npm bin)/_mocha -- ./tests/**",
+    "test:cov": "env-cmd ./test/.env istanbul cover  $(npm bin)/_mocha -- ./test/**",
     "build:lib": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
     "build": "npm run clean && npm run build:lib",
     "watch": "npm run build:lib -- --stats --progress --colors --watch",
