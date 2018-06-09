@@ -1,10 +1,9 @@
-/* global describe, it, expect */
 import { deploy } from '../../src/actions'
 
 describe('firebase-ci Library', () => {
   describe('deployToFirebase function', () => {
     it('exports a function', () => {
-      expect(deploy).to.be.a.function
+      expect(deploy).to.be.an('function')
     })
   })
   describe('deploy option', () => {
