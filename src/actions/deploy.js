@@ -47,7 +47,7 @@ export const runActions = () => {
 export default (opts) => {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
-  if (isUndefined(TRAVIS_BRANCH) || isUndefined(CIRCLE_BRANCH) || (opts && opts.test)) {
+  if ((isUndefined(TRAVIS_BRANCH) && isUndefined(CIRCLE_BRANCH)) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     warn(nonCiMessage)
     return Promise.resolve(nonCiMessage)
