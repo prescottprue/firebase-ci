@@ -69,7 +69,7 @@ export default (opts) => {
     return Promise.reject(new Error('firebase.json file is required'))
   }
 
-  if ((settings.projects && !settings.projects[TRAVIS_BRANCH]) || (settings.projects && !settings.projects[CIRCLE_BRANCH])) {
+  if (settings.projects && !settings.projects[TRAVIS_BRANCH || CIRCLE_BRANCH]) {
     const nonBuildBranch = `${skipPrefix} - Branch is not a project alias - Branch: ${(TRAVIS_BRANCH || CIRCLE_BRANCH)}`
     info(nonBuildBranch)
     return Promise.resolve(nonBuildBranch)
