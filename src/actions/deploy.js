@@ -12,7 +12,9 @@ const {
   TRAVIS_COMMIT_MESSAGE,
   CIRCLE_BRANCH,
   CIRCLE_PR_NUMBER,
-  FIREBASE_TOKEN
+  FIREBASE_TOKEN,
+  CI_COMMIT_MESSAGE,
+  CI_ENVIRONMENT_SLUG
 } = process.env
 
 const skipPrefix = 'Skipping Firebase Deploy'
@@ -91,11 +93,13 @@ export default (opts) => {
     return Promise.reject(new Error('Error: FIREBASE_TOKEN env variable not found.'))
   }
 
+  const originalMessage = TRAVIS_COMMIT_MESSAGE || CI_COMMIT_MESSAGE
+
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
-  const project = TRAVIS_BRANCH || CIRCLE_BRANCH || settings.projects.default
+  const project = TRAVIS_BRANCH || CIRCLE_BRANCH || CI_ENVIRONMENT_SLUG || settings.projects.default
   // // First 300 characters of travis commit message or "Update"
-  const message = TRAVIS_COMMIT_MESSAGE
-    ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'").substring(0, 300)
+  const message = originalMessage
+    ? originalMessage.replace(/"/g, "'").substring(0, 300)
     : 'Update'
   info('Installing dependencies...')
   return installDeps(opts, settings)
