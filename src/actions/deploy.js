@@ -13,6 +13,7 @@ const {
   CIRCLE_BRANCH,
   CIRCLE_PR_NUMBER,
   FIREBASE_TOKEN,
+  CI,
   CI_COMMIT_MESSAGE,
   CI_ENVIRONMENT_SLUG
 } = process.env
@@ -49,7 +50,7 @@ export const runActions = () => {
 export default (opts) => {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
-  if ((isUndefined(TRAVIS_BRANCH) && isUndefined(CIRCLE_BRANCH)) || (opts && opts.test)) {
+  if ((isUndefined(TRAVIS_BRANCH) && isUndefined(CIRCLE_BRANCH) && isUndefined(CI)) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     warn(nonCiMessage)
     return Promise.resolve(nonCiMessage)
@@ -71,7 +72,7 @@ export default (opts) => {
     return Promise.reject(new Error('firebase.json file is required'))
   }
 
-  if (settings.projects && !settings.projects[TRAVIS_BRANCH || CIRCLE_BRANCH]) {
+  if (settings.projects && !settings.projects[TRAVIS_BRANCH || CIRCLE_BRANCH || CI_ENVIRONMENT_SLUG]) {
     const nonBuildBranch = `${skipPrefix} - Branch is not a project alias - Branch: ${(TRAVIS_BRANCH || CIRCLE_BRANCH)}`
     info(nonBuildBranch)
     return Promise.resolve(nonBuildBranch)
@@ -113,12 +114,12 @@ export default (opts) => {
     .then(() =>
       // Wait until all other commands are complete before calling deploy
       runCommand({
-        command: 'firebase',
+        command: '$(npm bin)/firebase-ci',
         args: compact([
           'deploy',
           onlyString,
           '--token',
-          FIREBASE_TOKEN || 'Invalid Token',
+          FIREBASE_TOKEN || 'Invalid.Token',
           '--project',
           project,
           '--message',

@@ -1,6 +1,6 @@
 {
   "name": "firebase-ci",
-  "version": "0.4.6",
+  "version": "0.5.0-alpha",
   "description": "Simplified Firebase interaction for continuous integration including deploying hosting, functions, and database/storage rules.",
   "main": "lib/index.js",
   "bin": {
@@ -62,17 +62,18 @@
   "homepage": "https://github.com/prescottprue/firebase-ci",
   "dependencies": {
     "chalk": "^2.4.1",
+    "command-exists": "^1.2.7",
     "commander": "^2.15.1",
     "lodash": "^4.17.10"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^8.0.1",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-lodash": "^3.3.3",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
-    "babel-preset-env": "^1.6.0",
+    "babel-preset-env": "^1.7.0",
     "chai": "^4.1.2",
     "codecov": "^3.0.2",
     "cross-env": "^5.0.5",
@@ -80,7 +81,7 @@
     "eslint": "^3.14.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-babel": "^4.1.1",
-    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-node": "^5.1.1",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
