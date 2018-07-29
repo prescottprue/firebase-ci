@@ -18,10 +18,12 @@ const runActions = require('../lib/index').runActions
  *   - npm i -g firebase-ci
  *   - firebase-ci deploy
  */
-module.exports = function (program) {
+module.exports = function(program) {
   program
     .command('run')
-    .description('Run all firebase-ci actions based on config (includes copyVersion, copyEnv, and createConfig)')
+    .description(
+      'Run all firebase-ci actions based on config (includes copyVersion, copyEnv, and createConfig)'
+    )
     .action((directory, options) => {
       runActions(program.args[0])
         .then(() => process.exit(0))

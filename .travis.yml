@@ -1,33 +1,43 @@
+sudo: false
+
 language: node_js
 
 node_js:
-  - 6.14.0 # Cloud Functions Runtime
-  - 9
-  - 10 # LTS
+  - 6 # Maintenance
+  - 8  # Active
+  - 10 # Current
 
 branches:
   only:
     - master
-    - release
-
-sudo: false
+    - next
 
 cache:
   directories:
     - node_modules
 
 script:
+  - npm run lint
   - npm run test:cov
   - npm run build
 
-# Publish To NPM if push to master branch with a version not already released
+# Publish To NPM if push to master or next branch
 deploy:
-  skip_cleanup: true
-  provider: npm
-  email: $NPM_EMAIL
-  api_key: $NPM_KEY
-  on:
-    node: '9'
+  - provider: npm
+    skip_cleanup: true
+    email: $NPM_EMAIL
+    api_key: $NPM_TOKEN
+    on:
+      node: '10'
+      branch: 'master'
+  - provider: npm
+    skip_cleanup: true
+    email: $NPM_EMAIL
+    api_key: $NPM_TOKEN
+    tag: next
+    on:
+      node: '10'
+      branch: 'next'
 
 addons:
   code_climate:

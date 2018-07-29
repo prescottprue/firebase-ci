@@ -8,7 +8,7 @@ import { to } from './async'
  * Install Firebase tools and install
  * @return {[type]} [description]
  */
-export async function installDeps (opts = {}, settings = {}) {
+export async function installDeps(opts = {}, settings = {}) {
   const { info } = opts
   const { toolsVersion } = settings
   const versionSuffix = toolsVersion ? `@${toolsVersion}` : ''
@@ -29,12 +29,14 @@ export async function installDeps (opts = {}, settings = {}) {
   // Call npm install in functions folder if it exists and does
   // not already contain node_modules
   if (functionsExists() && !functionsNodeModulesExist()) {
-    promises.push(runCommand({
-      command: `npm i --prefix functions`,
-      beforeMsg: 'Running npm install in functions folder...',
-      errorMsg: 'Error installing functions dependencies.',
-      successMsg: 'Functions dependencies installed successfully!'
-    }))
+    promises.push(
+      runCommand({
+        command: `npm i --prefix functions`,
+        beforeMsg: 'Running npm install in functions folder...',
+        errorMsg: 'Error installing functions dependencies.',
+        successMsg: 'Functions dependencies installed successfully!'
+      })
+    )
   }
   return Promise.all(promises)
 }

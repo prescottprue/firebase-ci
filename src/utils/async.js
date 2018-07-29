@@ -3,7 +3,7 @@
  * @param { Promise } promise
  * @return { Promise }
  */
-export function to (promise) {
+export function to(promise) {
   return promise
     .then(data => {
       return [null, data]

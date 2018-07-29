@@ -30,11 +30,13 @@ export const runActions = () => {
   copyVersion()
   const settings = getFile('.firebaserc')
   if (functionsExists() && settings.ci && settings.ci.mapEnv) {
-    return mapEnv()
-      .catch((err) => {
-        error('Error mapping CI environment variables to Functions environment: ', err)
-        return Promise.reject(err)
-      })
+    return mapEnv().catch(err => {
+      error(
+        'Error mapping CI environment variables to Functions environment: ',
+        err
+      )
+      return Promise.reject(err)
+    })
   }
   info('No ci action settings found in .firebaserc. Skipping actions.')
   return Promise.resolve({})
@@ -47,16 +49,24 @@ export const runActions = () => {
  * to deploy (hosting, functions, database)
  * @param {Function} cb - Callback called when complete (err, stdout)
  */
-export default (opts) => {
+export default opts => {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
-  if ((isUndefined(TRAVIS_BRANCH) && isUndefined(CIRCLE_BRANCH) && isUndefined(CI)) || (opts && opts.test)) {
+  if (
+    (isUndefined(TRAVIS_BRANCH) &&
+      isUndefined(CIRCLE_BRANCH) &&
+      isUndefined(CI)) ||
+    (opts && opts.test)
+  ) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     warn(nonCiMessage)
     return Promise.resolve(nonCiMessage)
   }
 
-  if ((!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') || (!!CIRCLE_PR_NUMBER && CIRCLE_PR_NUMBER !== 'false')) {
+  if (
+    (!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') ||
+    (!!CIRCLE_PR_NUMBER && CIRCLE_PR_NUMBER !== 'false')
+  ) {
     const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
     info(pullRequestMessage)
     return Promise.resolve(pullRequestMessage)
@@ -72,15 +82,26 @@ export default (opts) => {
     return Promise.reject(new Error('firebase.json file is required'))
   }
 
-  if (settings.projects && !settings.projects[TRAVIS_BRANCH || CIRCLE_BRANCH || CI_ENVIRONMENT_SLUG]) {
-    const nonBuildBranch = `${skipPrefix} - Branch is not a project alias - Branch: ${(TRAVIS_BRANCH || CIRCLE_BRANCH)}`
+  if (
+    settings.projects &&
+    !settings.projects[TRAVIS_BRANCH || CIRCLE_BRANCH || CI_ENVIRONMENT_SLUG]
+  ) {
+    const nonBuildBranch = `${skipPrefix} - Branch is not a project alias - Branch: ${TRAVIS_BRANCH ||
+      CIRCLE_BRANCH}`
     info(nonBuildBranch)
     return Promise.resolve(nonBuildBranch)
   }
 
   // Handle project option
-  if (opts && opts.project && settings.projects && !settings.projects[opts.project]) {
-    const nonProjectBranch = `${skipPrefix} - Project is a not an Alias - Project: ${opts.project}`
+  if (
+    opts &&
+    opts.project &&
+    settings.projects &&
+    !settings.projects[opts.project]
+  ) {
+    const nonProjectBranch = `${skipPrefix} - Project is a not an Alias - Project: ${
+      opts.project
+    }`
     info(nonProjectBranch)
     return Promise.resolve(nonProjectBranch)
   }
@@ -89,15 +110,21 @@ export default (opts) => {
     error('Error: FIREBASE_TOKEN env variable not found.')
     info(
       'Run firebase login:ci (from  firebase-tools) to generate a token' +
-      'and place it travis environment variables as FIREBASE_TOKEN'
+        'and place it travis environment variables as FIREBASE_TOKEN'
     )
-    return Promise.reject(new Error('Error: FIREBASE_TOKEN env variable not found.'))
+    return Promise.reject(
+      new Error('Error: FIREBASE_TOKEN env variable not found.')
+    )
   }
 
   const originalMessage = TRAVIS_COMMIT_MESSAGE || CI_COMMIT_MESSAGE
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
-  const project = TRAVIS_BRANCH || CIRCLE_BRANCH || CI_ENVIRONMENT_SLUG || settings.projects.default
+  const project =
+    TRAVIS_BRANCH ||
+    CIRCLE_BRANCH ||
+    CI_ENVIRONMENT_SLUG ||
+    settings.projects.default
   // // First 300 characters of travis commit message or "Update"
   const message = originalMessage
     ? originalMessage.replace(/"/g, "'").substring(0, 300)
@@ -130,7 +157,7 @@ export default (opts) => {
         successMsg: `Successfully Deployed to ${project}`
       })
     )
-    .catch((err) => {
+    .catch(err => {
       error('Error in firebase-ci:\n ', err)
       return Promise.reject(err)
     })

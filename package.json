@@ -21,7 +21,7 @@
     "build:lib": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
     "build": "npm run clean && npm run build:lib",
     "watch": "npm run build:lib -- --stats --progress --colors --watch",
-    "prepublish": "npm run clean && npm run test && npm run build",
+    "prepare": "npm run clean && npm run build",
     "prepush": "npm run lint",
     "codecov": "cat coverage/*/lcov.info | codecov"
   },
@@ -79,15 +79,18 @@
     "cross-env": "^5.0.5",
     "env-cmd": "^5.0.0",
     "eslint": "^3.14.0",
+    "eslint-config-prettier": "^2.9.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-babel": "^4.1.1",
     "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-node": "^5.1.1",
+    "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
     "husky": "^0.14.3",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^5.0.4",
+    "prettier": "^1.13.7",
     "rimraf": "^2.5.4"
   }
 }

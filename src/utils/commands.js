@@ -6,14 +6,14 @@ const { spawn } = require('child_process')
 
 process.env.FORCE_COLOR = true
 
-export const isPromise = (obj) => obj && typeof obj.then === 'function'
+export const isPromise = obj => obj && typeof obj.then === 'function'
 
 /**
  * @description Run a bash command using exec.
  * @param {String} command - Command to be executed
  * @private
  */
-export const runCommand = (command) => {
+export const runCommand = command => {
   if (command.beforeMsg) info(command.beforeMsg)
   return new Promise((resolve, reject) => {
     const child = spawn(
@@ -57,13 +57,15 @@ export const runCommand = (command) => {
  * @param  {Array} a - List of arguments to escape
  * @return {String} Command string with arguments escaped
  */
-export function shellescape (a) {
+export function shellescape(a) {
   let ret = []
 
-  a.forEach((s) => {
-    if (/[^A-Za-z0-9_\/:=-]/.test(s)) { // eslint-disable-line no-useless-escape
+  a.forEach(s => {
+    if (/[^A-Za-z0-9_/:=-]/.test(s)) {
+      // eslint-disable-line no-useless-escape
       s = "'" + s.replace(/'/g, "'\\''") + "'"
-      s = s.replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
+      s = s
+        .replace(/^(?:'')+/g, '') // unduplicate single-quote at the beginning
         .replace(/\\'''/g, "\\'") // remove non-escaped single-quote if there are enclosed between 2 escaped
     }
     ret.push(s)

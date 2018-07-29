@@ -18,13 +18,19 @@ const deployToFirebase = require('../lib/index').deploy
  *   - npm i -g firebase-ci
  *   - firebase-ci deploy
  */
-module.exports = function (program) {
+module.exports = function(program) {
   program
     .command('deploy')
-    .description('Deploy to Firebase only on build branches (master, stage, prod)')
+    .description(
+      'Deploy to Firebase only on build branches (master, stage, prod)'
+    )
     // .option('-d --debug', 'Enable extra logging') // taken by autocmdr
     .option('-i --info', 'Extra Info from installs')
-    .option('-o --only <targets>', 'Only deploy to specified, comma-seperated targets (e.g "hosting, storage")', /^(hosting|functions|small)$/i)
+    .option(
+      '-o --only <targets>',
+      'Only deploy to specified, comma-seperated targets (e.g "hosting, storage")',
+      /^(hosting|functions|small)$/i
+    )
     .option('-s --simple', 'Skip CI actions, and only run deployment')
     // .option('-a --actions <actions>', 'Only run certain CI actions (e.g "mapEnv", "createConfig")', /^(mapEnv|createConfig|copyVersion)$/i)
     .action(() => {

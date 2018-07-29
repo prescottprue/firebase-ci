@@ -15,7 +15,11 @@ const logType = (type, message, other) => {
 }
 
 export const log = console.log // eslint-disable-line
-export const info = (message, other) => logType(colorMapping.info, message, other)
-export const success = (message, other) => logType(colorMapping.success, message, other)
-export const warn = (message, other) => logType(colorMapping.warn, message, other)
-export const error = (message, other) => logType(colorMapping.error, message, other)
+export const info = (message, other) =>
+  logType(colorMapping.info, message, other)
+export const success = (message, other) =>
+  logType(colorMapping.success, message, other)
+export const warn = (message, other) =>
+  logType(colorMapping.warn, message, other)
+export const error = (message, other) =>
+  logType(colorMapping.error, message, other)
