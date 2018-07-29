@@ -16,7 +16,7 @@ import { runCommand } from '../utils/commands'
  *   }
  * }
  */
-export default async (copySettings) => {
+export default async copySettings => {
   const settings = getFile('.firebaserc')
   if (!settings) {
     error('.firebaserc file is required')
@@ -33,25 +33,29 @@ export default async (copySettings) => {
 
   info('Mapping Environment to Firebase Functions...')
 
-  return Promise.all(
-    map(mapEnvSettings, setEnvVarInFunctions)
-  )
+  return Promise.all(map(mapEnvSettings, setEnvVarInFunctions))
 }
 
-async function setEnvVarInFunctions (functionsVar, travisVar) {
+async function setEnvVarInFunctions(functionsVar, travisVar) {
   if (!process.env[travisVar]) {
     const msg = `${travisVar} does not exist on within Travis-CI environment variables`
     success(msg)
     throw new Error(msg)
   }
-  info(`Setting ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`)
+  info(
+    `Setting ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`
+  )
   // TODO: Check for not allowed characters in functionsVar (camelcase not allowed?)
-  const setConfigCommand = `firebase functions:config:set ${functionsVar}="${process.env[travisVar]}"`
+  const setConfigCommand = `firebase functions:config:set ${functionsVar}="${
+    process.env[travisVar]
+  }"`
   const [configSetErr] = await to(runCommand(setConfigCommand))
   if (configSetErr) {
     const errMsg = `Error setting Firebase functions config variable: ${functionsVar} from ${travisVar} variable on Travis-CI.`
     error(errMsg)
     throw new Error(errMsg)
   }
-  info(`Successfully set ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`)
+  info(
+    `Successfully set ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`
+  )
 }

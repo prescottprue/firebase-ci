@@ -16,13 +16,13 @@ const mapEnv = require('../lib/index').mapEnv
  *   - npm i -g firebase-ci
  *   - firebase-ci mapEnv
  */
-module.exports = function (program) {
+module.exports = function(program) {
   program
     .command('mapEnv')
     .description('Copy version from outer folder into functions folder')
     .action((directory, options) => {
       return mapEnv(program.args[0])
-       .then(() => process.exit(0))
-       .catch(() => process.exit(1))
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1))
     })
 }

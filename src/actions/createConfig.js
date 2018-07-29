@@ -34,7 +34,7 @@ const tryTemplating = (str, name) => {
  * }
  * @private
  */
-export default (config) => {
+export default config => {
   const settings = getFile('.firebaserc')
 
   // Check for .firebaserc settings file
@@ -52,21 +52,29 @@ export default (config) => {
   // Set options object for later use (includes path for config file)
   const opts = {
     path: get(config, 'path', './src/config.js'),
-    project: get(config, 'project', (TRAVIS_BRANCH || CIRCLE_BRANCH))
+    project: get(config, 'project', TRAVIS_BRANCH || CIRCLE_BRANCH)
   }
 
   // Get environment config from settings file based on settings or branch
   // default is used if TRAVIS_BRANCH env not provided, master used if default not set
-  const { ci: { createConfig } } = settings
+  const {
+    ci: { createConfig }
+  } = settings
   const fallBackConfigName = createConfig.default ? 'default' : 'master'
 
   info(`Attempting to load config for project: "${opts.project}"`)
 
   if (!createConfig[opts.project]) {
-    info(`Project named "${opts.project}" does not exist in create config settings, falling back to ${fallBackConfigName}`)
+    info(
+      `Project named "${
+        opts.project
+      }" does not exist in create config settings, falling back to ${fallBackConfigName}`
+    )
   }
 
-  const envConfig = createConfig[opts.project] ? createConfig[opts.project] : createConfig[fallBackConfigName]
+  const envConfig = createConfig[opts.project]
+    ? createConfig[opts.project]
+    : createConfig[fallBackConfigName]
 
   if (!envConfig) {
     const msg = 'Valid create config settings could not be loaded'
@@ -77,21 +85,37 @@ export default (config) => {
   info(`Creating config file at path: ${opts.path}`)
 
   // template data based on environment variables
-  const templatedData = mapValues(envConfig, (parent, parentName) =>
-    isString(parent)
-      ? tryTemplating(parent, parentName)
-      : mapValues(parent, (data, childKey) => tryTemplating(data, `${parentName}.${childKey}`))
+  const templatedData = mapValues(
+    envConfig,
+    (parent, parentName) =>
+      isString(parent)
+        ? tryTemplating(parent, parentName)
+        : mapValues(parent, (data, childKey) =>
+            tryTemplating(data, `${parentName}.${childKey}`)
+          )
   )
   // convert object into formatted object string
-  const parentAsString = (parent) => reduce(parent, (acc, child, childKey) =>
-    acc.concat(`  ${childKey}: ${JSON.stringify(child, null, 2)},\n`)
-  , '')
+  const parentAsString = parent =>
+    reduce(
+      parent,
+      (acc, child, childKey) =>
+        acc.concat(`  ${childKey}: ${JSON.stringify(child, null, 2)},\n`),
+      ''
+    )
 
   // combine all stringified vars and attach default export
-  const exportString = reduce(templatedData, (acc, parent, parentName) =>
-    acc.concat(`export const ${parentName} = `)
-      .concat(isString(parent) ? `"${parent}";\n\n` : `{\n${parentAsString(parent)}};\n\n`)
-  , '').concat(`export default { ${Object.keys(templatedData).join(', ')} }`)
+  const exportString = reduce(
+    templatedData,
+    (acc, parent, parentName) =>
+      acc
+        .concat(`export const ${parentName} = `)
+        .concat(
+          isString(parent)
+            ? `"${parent}";\n\n`
+            : `{\n${parentAsString(parent)}};\n\n`
+        ),
+    ''
+  ).concat(`export default { ${Object.keys(templatedData).join(', ')} }`)
 
   const folderName = path.basename(path.dirname(opts.path))
 
