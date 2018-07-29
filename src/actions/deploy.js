@@ -114,7 +114,7 @@ export default (opts) => {
     .then(() =>
       // Wait until all other commands are complete before calling deploy
       runCommand({
-        command: '$(npm bin)/firebase-ci',
+        command: '$(npm bin)/firebase',
         args: compact([
           'deploy',
           onlyString,
