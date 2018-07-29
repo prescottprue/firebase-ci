@@ -46,6 +46,32 @@ export function runActions() {
   return Promise.resolve({})
 }
 
+function getBranchNameFromEnv() {
+  return TRAVIS_BRANCH || CIRCLE_BRANCH || CI_COMMIT_REF_SLUG || 'master'
+}
+
+function getProjectName(opts) {
+  const branchName = getBranchNameFromEnv()
+  // Get project from passed options, falling back to branch name
+  return (
+    FIREBASE_CI_PROJECT ||
+    get(opts, 'project', branchName === 'master' ? 'default' : branchName)
+  )
+}
+
+function getFallbackProjectName() {
+  return CI_ENVIRONMENT_SLUG
+}
+
+function getDeployMessage() {
+  const originalMessage =
+    TRAVIS_COMMIT_MESSAGE || CIRCLE_SHA1 || CI_COMMIT_MESSAGE
+  // // First 300 characters of travis commit message or "Update"
+  return originalMessage
+    ? originalMessage.replace(/"/g, "'").substring(0, 300)
+    : 'Update'
+}
+
 /**
  * @description Deploy to Firebase under specific conditions
  * @param {Object} opts - Options object
@@ -86,10 +112,10 @@ export default async function deploy(opts) {
     throw new Error('firebase.json file is required')
   }
 
-  const branchName = TRAVIS_BRANCH || CIRCLE_BRANCH || CI_COMMIT_REF_SLUG
-  const fallbackProjectName = CI_ENVIRONMENT_SLUG
+  const branchName = getBranchNameFromEnv()
+  const fallbackProjectName = getFallbackProjectName()
   // Get project from passed options, falling back to branch name
-  const projectName = FIREBASE_CI_PROJECT || get(opts, 'project', branchName)
+  const projectName = getProjectName(opts)
   // Get project setting from settings file based on branchName falling back
   // to fallbackProjectName
   const projectSetting = get(settings, `projects.${projectName}`)
@@ -99,20 +125,15 @@ export default async function deploy(opts) {
   )
   // Handle project option
   if (!projectSetting) {
-    const nonProjectBranch = `${skipPrefix} - Project is a not an Alias - ${
-      opts.project ? 'Project' : 'Branch'
-    }: ${projectName}, checking for fallback...`
+    const nonProjectBranch = `${skipPrefix} - "${projectName}" not an Alias, checking for fallback...`
     info(nonProjectBranch)
     if (!fallbackProjectSetting) {
-      const nonFallbackBranch = `${skipPrefix} - Fallback Project is a not an Alias - ${
-        opts.project ? 'Project' : 'Branch'
-      }: ${fallbackProjectName} exiting...`
+      const nonFallbackBranch = `${skipPrefix} - Fallback Project: "${fallbackProjectName}" is a not an Alias, exiting...`
       info(nonFallbackBranch)
       return nonProjectBranch
     }
     return nonProjectBranch
   }
-
   if (!FIREBASE_TOKEN) {
     error('Error: FIREBASE_TOKEN env variable not found.')
     info(
@@ -121,15 +142,8 @@ export default async function deploy(opts) {
     )
     throw new Error('Error: FIREBASE_TOKEN env variable not found.')
   }
-
-  const originalMessage =
-    TRAVIS_COMMIT_MESSAGE || CIRCLE_SHA1 || CI_COMMIT_MESSAGE
-
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
-  // // First 300 characters of travis commit message or "Update"
-  const message = originalMessage
-    ? originalMessage.replace(/"/g, "'").substring(0, 300)
-    : 'Update'
+  const message = getDeployMessage()
   // Install firebase-tools and functions dependencies if enabled
   if (!settings.skipDependencyInstall) {
     await installDeps(opts, settings)
@@ -144,7 +158,7 @@ export default async function deploy(opts) {
   }
   const [deployErr] = await to(
     runCommand({
-      command: ['$(npm bin)/firebase'],
+      command: 'firebase',
       args: compact([
         'deploy',
         onlyString,
@@ -155,7 +169,7 @@ export default async function deploy(opts) {
         '--message',
         shellescape([message])
       ]),
-      beforeMsg: 'Deploying to Firebase...',
+      beforeMsg: `Deploying to ${branchName} branch to ${projectName} Firebase project`,
       errorMsg: 'Error deploying to firebase.',
       successMsg: `Successfully Deployed ${branchName} branch to ${projectName} Firebase project`
     })

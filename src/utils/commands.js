@@ -20,7 +20,7 @@ export function runCommand({ beforeMsg, successMsg, command, errorMsg, args }) {
   if (beforeMsg) info(beforeMsg)
   return new Promise((resolve, reject) => {
     const child = spawn(
-      isArray(command) ? command : command.split(' ')[0],
+      isArray(command) ? command[0] : command.split(' ')[0],
       args || compact(drop(command.split(' ')))
     )
     var customStream = new stream.Writable()
