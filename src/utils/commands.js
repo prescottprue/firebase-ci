@@ -1,24 +1,27 @@
 /* eslint-disable no-console */
-import { drop, compact } from 'lodash'
+import { drop, compact, isArray } from 'lodash'
 import stream from 'stream'
 import { info } from '../utils/logger'
 const { spawn } = require('child_process')
 
 process.env.FORCE_COLOR = true
 
-export const isPromise = obj => obj && typeof obj.then === 'function'
+export function isPromise(obj) {
+  return obj && typeof obj.then === 'function'
+}
 
 /**
- * @description Run a bash command using exec.
+ * @description Run a bash command using spawn pipeing the results to the main
+ * process
  * @param {String} command - Command to be executed
  * @private
  */
-export const runCommand = command => {
-  if (command.beforeMsg) info(command.beforeMsg)
+export function runCommand({ beforeMsg, successMsg, command, errorMsg, args }) {
+  if (beforeMsg) info(beforeMsg)
   return new Promise((resolve, reject) => {
     const child = spawn(
-      command.command.split(' ')[0],
-      command.args || compact(drop(command.command.split(' ')))
+      isArray(command) ? command : command.split(' ')[0],
+      args || compact(drop(command.split(' ')))
     )
     var customStream = new stream.Writable()
     var customErrorStream = new stream.Writable()
@@ -40,13 +43,13 @@ export const runCommand = command => {
       if (code !== 0) {
         // Resolve for npm warnings
         if (output && output.indexOf('npm WARN') !== -1) {
-          return resolve(command.successMsg || output)
+          return resolve(successMsg || output)
         }
-        reject(command.errorMsg || error)
+        reject(errorMsg || error)
       } else {
         // resolve(null, stdout)
-        if (command.successMsg) info(command.successMsg)
-        resolve(command.successMsg || output)
+        if (successMsg) info(successMsg)
+        resolve(successMsg || output)
       }
     })
   })

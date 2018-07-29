@@ -224,6 +224,14 @@ CI variable is SOME_TOKEN="asdf" and you would like to set it to `some.token` on
 
 Internally calls `firebase functions:config:set some.token="asdf"`. This will happen for every variable you provide within mapEnv.
 
+### skipDependenciesInstall
+Skip installing of dependencies including `firebase-tools` and `node_modules` within `functions` folder
+
+### skipToolsInstall
+Skip installing of `firebase-tools` (installed by default when calling `firebase-ci deploy` without simple mode)
+
+### skipFunctionsInstall
+Skip running `npm install` within `functions` folder (`npm install` is called within `functions` folder by default when calling `firebase-ci deploy`).
 
 ### Roadmap
 * `setCORS` option for copying CORS config file to Cloud Storage Bucket

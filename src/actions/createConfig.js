@@ -4,9 +4,15 @@ import { reduce, template, mapValues, get, isString } from 'lodash'
 import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 
-const { TRAVIS_BRANCH, CIRCLE_BRANCH } = process.env
+const {
+  FIREBASE_CI_PROJECT,
+  TRAVIS_BRANCH,
+  CIRCLE_BRANCH,
+  CI_COMMIT_REF_SLUG,
+  CI_ENVIRONMENT_SLUG
+} = process.env
 
-const tryTemplating = (str, name) => {
+function tryTemplating(str, name) {
   try {
     return template(str)(process.env)
   } catch (err) {
@@ -34,7 +40,7 @@ const tryTemplating = (str, name) => {
  * }
  * @private
  */
-export default config => {
+export default function createConfig(config) {
   const settings = getFile('.firebaserc')
 
   // Check for .firebaserc settings file
@@ -52,7 +58,14 @@ export default config => {
   // Set options object for later use (includes path for config file)
   const opts = {
     path: get(config, 'path', './src/config.js'),
-    project: get(config, 'project', TRAVIS_BRANCH || CIRCLE_BRANCH)
+    project: get(
+      config,
+      'project',
+      FIREBASE_CI_PROJECT ||
+        TRAVIS_BRANCH ||
+        CIRCLE_BRANCH ||
+        CI_COMMIT_REF_SLUG
+    )
   }
 
   // Get environment config from settings file based on settings or branch
@@ -60,7 +73,8 @@ export default config => {
   const {
     ci: { createConfig }
   } = settings
-  const fallBackConfigName = createConfig.default ? 'default' : 'master'
+  const fallBackConfigName =
+    CI_ENVIRONMENT_SLUG || (createConfig.default ? 'default' : 'master')
 
   info(`Attempting to load config for project: "${opts.project}"`)
 
