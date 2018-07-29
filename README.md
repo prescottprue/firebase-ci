@@ -32,8 +32,8 @@
 
       ```yaml
       after_success:
-        - npm i -g firebase-ci
-        - firebase-ci deploy
+        - npm i firebase-ci
+        - $(npm bin)/firebase-ci deploy
       ```
 
     **NOTE**: `firebase-ci` can be used through the nodejs `bin` instead of being installed globally
@@ -48,6 +48,22 @@
       }
     }
     ```
+
+
+## Setting Project
+There are a number of ways to set which Firebase project within `.firebaserc` is being used when running actions. Below is the order of for how the project is determined (default at bottom):
+
+* `FIREBASE_CI_PROJECT` environment variable (overrides all)
+* branch name (dependent on CI provider):
+  * Travis-CI - `TRAVIS_BRANCH`
+  * Gitlab - `CI_COMMIT_REF_SLUG`
+  * Circle-CI - `CIRCLE_BRANCH`
+* fallback name (dependent on CI provider)
+  * Gitlab - `CI_ENVIRONMENT_SLUG`
+  * Other - `master`
+* `master`
+* `default` (must be set within `.firebaserc`)
+
 
 <!-- Uncomment when next version is applicable
 ## Other Versions
@@ -224,6 +240,14 @@ CI variable is SOME_TOKEN="asdf" and you would like to set it to `some.token` on
 
 Internally calls `firebase functions:config:set some.token="asdf"`. This will happen for every variable you provide within mapEnv.
 
+### skipDependenciesInstall
+Skip installing of dependencies including `firebase-tools` and `node_modules` within `functions` folder
+
+### skipToolsInstall
+Skip installing of `firebase-tools` (installed by default when calling `firebase-ci deploy` without simple mode)
+
+### skipFunctionsInstall
+Skip running `npm install` within `functions` folder (`npm install` is called within `functions` folder by default when calling `firebase-ci deploy`).
 
 ### Roadmap
 * `setCORS` option for copying CORS config file to Cloud Storage Bucket

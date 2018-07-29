@@ -3,14 +3,16 @@ import path from 'path'
 import { log, info, success, error, warn } from '../utils/logger'
 import { functionsExists } from '../utils/files'
 
-const createPath = filePath => path.join(process.cwd(), filePath)
+function createPath(filePath) {
+  return path.join(process.cwd(), filePath)
+}
 
 /**
  * Copy version from main package file into functions package file
  * @param  {String} opts - name of project
  * @param  {Boolean} opts.silent - Whether or not to warn
  */
-export default (config = { silence: false }) => {
+export default function copyVersion(config = { silence: false }) {
   if (!functionsExists()) {
     if (config.silence) {
       return
