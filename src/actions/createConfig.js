@@ -40,7 +40,7 @@ function tryTemplating(str, name) {
  * }
  * @private
  */
-export default function createConfig(config) {
+export default function createConfigFile(config) {
   const settings = getFile('.firebaserc')
 
   // Check for .firebaserc settings file
@@ -73,8 +73,10 @@ export default function createConfig(config) {
   const {
     ci: { createConfig }
   } = settings
+
+  // Fallback to different project name
   const fallBackConfigName =
-    CI_ENVIRONMENT_SLUG || (createConfig.default ? 'default' : 'master')
+    CI_ENVIRONMENT_SLUG || (createConfig.master ? 'master' : 'default')
 
   info(`Attempting to load config for project: "${opts.project}"`)
 

@@ -32,8 +32,8 @@
 
       ```yaml
       after_success:
-        - npm i -g firebase-ci
-        - firebase-ci deploy
+        - npm i firebase-ci
+        - $(npm bin)/firebase-ci deploy
       ```
 
     **NOTE**: `firebase-ci` can be used through the nodejs `bin` instead of being installed globally
@@ -48,6 +48,22 @@
       }
     }
     ```
+
+
+## Setting Project
+There are a number of ways to set which Firebase project within `.firebaserc` is being used when running actions. Below is the order of for how the project is determined (default at bottom):
+
+* `FIREBASE_CI_PROJECT` environment variable (overrides all)
+* branch name (dependent on CI provider):
+  * Travis-CI - `TRAVIS_BRANCH`
+  * Gitlab - `CI_COMMIT_REF_SLUG`
+  * Circle-CI - `CIRCLE_BRANCH`
+* fallback name (dependent on CI provider)
+  * Gitlab - `CI_ENVIRONMENT_SLUG`
+  * Other - `master`
+* `master`
+* `default` (must be set within `.firebaserc`)
+
 
 <!-- Uncomment when next version is applicable
 ## Other Versions
