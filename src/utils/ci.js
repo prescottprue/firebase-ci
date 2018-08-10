@@ -26,6 +26,10 @@ export function getProjectName(opts) {
   )
 }
 
+/**
+ * [getFallbackProjectName description]
+ * @return {[type]} [description]
+ */
 export function getFallbackProjectName() {
   const { CI_ENVIRONMENT_SLUG } = process.env
   return CI_ENVIRONMENT_SLUG
