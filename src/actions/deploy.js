@@ -3,17 +3,11 @@ import { getFile, functionsExists } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 import { runCommand, shellescape } from '../utils/commands'
 import { installDeps } from '../utils/deps'
+import { getBranch, isPullRequest, getCommitMessage } from '../utils/ci'
 import copyVersion from './copyVersion'
 import mapEnv from './mapEnv'
 
-const {
-  TRAVIS_BRANCH,
-  TRAVIS_PULL_REQUEST,
-  TRAVIS_COMMIT_MESSAGE,
-  CIRCLE_BRANCH,
-  CIRCLE_PR_NUMBER,
-  FIREBASE_TOKEN
-} = process.env
+const {FIREBASE_TOKEN} = process.env
 
 const skipPrefix = 'Skipping Firebase Deploy'
 
@@ -47,13 +41,14 @@ export const runActions = () => {
 export default (opts) => {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
-  if ((isUndefined(TRAVIS_BRANCH) && isUndefined(CIRCLE_BRANCH)) || (opts && opts.test)) {
+  const branchName = getBranch()
+  if (isUndefined(branchName) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     warn(nonCiMessage)
     return Promise.resolve(nonCiMessage)
   }
 
-  if ((!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') || (!!CIRCLE_PR_NUMBER && CIRCLE_PR_NUMBER !== 'false')) {
+  if (isPullRequest()) {
     const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
     info(pullRequestMessage)
     return Promise.resolve(pullRequestMessage)
@@ -69,8 +64,8 @@ export default (opts) => {
     return Promise.reject(new Error('firebase.json file is required'))
   }
 
-  if (settings.projects && !settings.projects[TRAVIS_BRANCH || CIRCLE_BRANCH]) {
-    const nonBuildBranch = `${skipPrefix} - Branch is not a project alias - Branch: ${(TRAVIS_BRANCH || CIRCLE_BRANCH)}`
+  if (settings.projects && !settings.projects[branchName]) {
+    const nonBuildBranch = `${skipPrefix} - Branch is not a project alias - Branch: ${(branchName)}`
     info(nonBuildBranch)
     return Promise.resolve(nonBuildBranch)
   }
@@ -92,11 +87,9 @@ export default (opts) => {
   }
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
-  const project = TRAVIS_BRANCH || CIRCLE_BRANCH || settings.projects.default
+  const project = branchName || settings.projects.default
   // // First 300 characters of travis commit message or "Update"
-  const message = TRAVIS_COMMIT_MESSAGE
-    ? TRAVIS_COMMIT_MESSAGE.replace(/"/g, "'").substring(0, 300)
-    : 'Update'
+  const message = getCommitMessage()
   info('Installing dependencies...')
   return installDeps(opts, settings)
     .then(() => {
