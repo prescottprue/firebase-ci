@@ -1,26 +1,20 @@
 import { isUndefined, compact, get } from 'lodash'
+import copyVersion from './copyVersion'
+import mapEnv from './mapEnv'
 import { getFile, functionsExists } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 import { runCommand, shellescape } from '../utils/commands'
 import { installDeps } from '../utils/deps'
+import {
+  getBranch,
+  isPullRequest,
+  getDeployMessage,
+  getProjectName,
+  getFallbackProjectName
+} from '../utils/ci'
 import { to } from '../utils/async'
-import copyVersion from './copyVersion'
-import mapEnv from './mapEnv'
 
-const {
-  FIREBASE_CI_PROJECT,
-  TRAVIS_BRANCH,
-  TRAVIS_PULL_REQUEST,
-  TRAVIS_COMMIT_MESSAGE,
-  CIRCLE_BRANCH,
-  CIRCLE_PR_NUMBER,
-  FIREBASE_TOKEN,
-  CI,
-  CI_COMMIT_MESSAGE,
-  CI_COMMIT_REF_SLUG,
-  CI_ENVIRONMENT_SLUG,
-  CIRCLE_SHA1
-} = process.env
+const { FIREBASE_TOKEN } = process.env
 
 const skipPrefix = 'Skipping Firebase Deploy'
 
@@ -46,29 +40,6 @@ export function runActions() {
   return Promise.resolve({})
 }
 
-function getBranchNameFromEnv() {
-  return TRAVIS_BRANCH || CIRCLE_BRANCH || CI_COMMIT_REF_SLUG
-}
-
-function getProjectName(opts) {
-  const branchName = getBranchNameFromEnv()
-  // Get project from passed options, falling back to branch name
-  return FIREBASE_CI_PROJECT || get(opts, 'project') || branchName
-}
-
-function getFallbackProjectName() {
-  return CI_ENVIRONMENT_SLUG || 'default'
-}
-
-function getDeployMessage() {
-  const originalMessage =
-    TRAVIS_COMMIT_MESSAGE || CIRCLE_SHA1 || CI_COMMIT_MESSAGE
-  // // First 300 characters of travis commit message or "Update"
-  return originalMessage
-    ? originalMessage.replace(/"/g, "'").substring(0, 300)
-    : 'Update'
-}
-
 /**
  * @description Deploy to Firebase under specific conditions
  * @param {Object} opts - Options object
@@ -79,21 +50,14 @@ function getDeployMessage() {
 export default async function deploy(opts) {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
-  if (
-    (isUndefined(TRAVIS_BRANCH) &&
-      isUndefined(CIRCLE_BRANCH) &&
-      isUndefined(CI)) ||
-    (opts && opts.test)
-  ) {
+  const branchName = getBranch()
+  if (isUndefined(branchName) || (opts && opts.test)) {
     const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
     warn(nonCiMessage)
     return nonCiMessage
   }
 
-  if (
-    (!!TRAVIS_PULL_REQUEST && TRAVIS_PULL_REQUEST !== 'false') ||
-    (!!CIRCLE_PR_NUMBER && CIRCLE_PR_NUMBER !== 'false')
-  ) {
+  if (isPullRequest()) {
     const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
     info(pullRequestMessage)
     return pullRequestMessage
@@ -109,7 +73,6 @@ export default async function deploy(opts) {
     throw new Error('firebase.json file is required')
   }
 
-  const branchName = getBranchNameFromEnv()
   const fallbackProjectName = getFallbackProjectName()
   // Get project from passed options, falling back to branch name
   const projectName = getProjectName(opts)

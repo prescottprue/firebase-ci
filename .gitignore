@@ -6,3 +6,5 @@ _book
 # Logs
 *.log
 .DS_Store
+# IDE
+.idea
