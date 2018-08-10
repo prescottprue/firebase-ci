@@ -47,20 +47,17 @@ export function runActions() {
 }
 
 function getBranchNameFromEnv() {
-  return TRAVIS_BRANCH || CIRCLE_BRANCH || CI_COMMIT_REF_SLUG || 'master'
+  return TRAVIS_BRANCH || CIRCLE_BRANCH || CI_COMMIT_REF_SLUG
 }
 
 function getProjectName(opts) {
   const branchName = getBranchNameFromEnv()
   // Get project from passed options, falling back to branch name
-  return (
-    FIREBASE_CI_PROJECT ||
-    get(opts, 'project', branchName === 'master' ? 'default' : branchName)
-  )
+  return FIREBASE_CI_PROJECT || get(opts, 'project') || branchName
 }
 
 function getFallbackProjectName() {
-  return CI_ENVIRONMENT_SLUG
+  return CI_ENVIRONMENT_SLUG || 'default'
 }
 
 function getDeployMessage() {
