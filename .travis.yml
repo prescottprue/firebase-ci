@@ -4,8 +4,8 @@ language: node_js
 
 node_js:
   - 6 # Maintenance
-  - 8  # Active
-  - 10 # Current
+  - 8 # Active
+  - 10 # Current release
 
 branches:
   only:
@@ -14,7 +14,7 @@ branches:
 
 cache:
   directories:
-    - node_modules
+    - $HOME/.npm
 
 script:
   - npm run lint
