@@ -52,7 +52,8 @@ export async function installDeps(opts = {}, settings = {}) {
     !settings.skipFunctionsInstall
   ) {
     await runCommand({
-      command: `npm i --prefix functions`,
+      command: 'npm',
+      args: ['i', '--prefix', 'functions'],
       beforeMsg: 'Running npm install in functions folder...',
       errorMsg: 'Error installing functions dependencies.',
       successMsg: 'Functions dependencies installed successfully!'
