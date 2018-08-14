@@ -117,8 +117,9 @@ export default async function deploy(opts) {
   }
   const [deployErr] = await to(
     runCommand({
-      command: 'firebase',
+      command: 'npx',
       args: compact([
+        'firebase',
         'deploy',
         onlyString,
         '--token',
