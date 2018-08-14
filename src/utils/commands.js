@@ -6,8 +6,13 @@ const { spawn } = require('child_process')
 
 process.env.FORCE_COLOR = true
 
-export function isPromise(obj) {
-  return obj && typeof obj.then === 'function'
+/**
+ * Check to see if the provided value is a promise object
+ * @param  {Any}  valToCheck - Value to be checked for Promise qualities
+ * @return {Boolean} Whether or not provided value is a promise
+ */
+export function isPromise(valToCheck) {
+  return valToCheck && typeof valToCheck.then === 'function'
 }
 
 /**
@@ -16,24 +21,35 @@ export function isPromise(obj) {
  * @param {String} command - Command to be executed
  * @private
  */
-export function runCommand({ beforeMsg, successMsg, command, errorMsg, args }) {
+export function runCommand({
+  beforeMsg,
+  successMsg,
+  command,
+  errorMsg,
+  args,
+  pipeOutput = true
+}) {
   if (beforeMsg) info(beforeMsg)
   return new Promise((resolve, reject) => {
     const child = spawn(
       isArray(command) ? command[0] : command.split(' ')[0],
       args || compact(drop(command.split(' ')))
     )
-    var customStream = new stream.Writable()
-    var customErrorStream = new stream.Writable()
     let output
     let error
+    const customStream = new stream.Writable()
+    const customErrorStream = new stream.Writable()
     customStream._write = (data, ...argv) => {
       output += data
-      process.stdout._write(data, ...argv)
+      if (pipeOutput) {
+        process.stdout._write(data, ...argv)
+      }
     }
     customErrorStream._write = (data, ...argv) => {
       error += data
-      process.stderr._write(data, ...argv)
+      if (pipeOutput) {
+        process.stderr._write(data, ...argv)
+      }
     }
     // Pipe errors and console output to main process
     child.stdout.pipe(customStream)
@@ -49,7 +65,13 @@ export function runCommand({ beforeMsg, successMsg, command, errorMsg, args }) {
       } else {
         // resolve(null, stdout)
         if (successMsg) info(successMsg)
-        resolve(successMsg || output)
+        // Remove leading undefined from response
+        if (output && output.indexOf('undefined') === 0) {
+          resolve(successMsg || output.replace('undefined', ''))
+        } else {
+          console.log('output: ', output)
+          resolve(successMsg || output)
+        }
       }
     })
   })

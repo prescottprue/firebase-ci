@@ -3,7 +3,7 @@ import copyVersion from './copyVersion'
 import mapEnv from './mapEnv'
 import { getFile, functionsExists } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
-import { runCommand, shellescape } from '../utils/commands'
+import { runCommand } from '../utils/commands'
 import { installDeps } from '../utils/deps'
 import {
   getBranch,
@@ -13,8 +13,6 @@ import {
   getFallbackProjectName
 } from '../utils/ci'
 import { to } from '../utils/async'
-
-const { FIREBASE_TOKEN } = process.env
 
 const skipPrefix = 'Skipping Firebase Deploy'
 
@@ -94,6 +92,7 @@ export default async function deploy(opts) {
     }
     return nonProjectBranch
   }
+  const { FIREBASE_TOKEN } = process.env
   if (!FIREBASE_TOKEN) {
     error('Error: FIREBASE_TOKEN env variable not found.')
     info(
@@ -118,8 +117,9 @@ export default async function deploy(opts) {
   }
   const [deployErr] = await to(
     runCommand({
-      command: 'firebase',
+      command: 'npx',
       args: compact([
+        'firebase',
         'deploy',
         onlyString,
         '--token',
@@ -127,7 +127,7 @@ export default async function deploy(opts) {
         '--project',
         projectName,
         '--message',
-        shellescape([message])
+        message
       ]),
       beforeMsg: `Deploying to ${branchName} branch to ${projectName} Firebase project`,
       errorMsg: 'Error deploying to firebase.',
