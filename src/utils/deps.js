@@ -19,6 +19,7 @@ export async function installDeps(opts = {}, settings = {}) {
     beforeMsg: 'Checking to see if firebase-tools is installed...',
     errorMsg: 'Error checking for firebase-tools.'
   })
+  const promises = []
   // Skip installing firebase-tools if specified by config
   if (settings.skipToolsInstall) {
     // Throw for missing version when skipping install
@@ -35,13 +36,15 @@ export async function installDeps(opts = {}, settings = {}) {
       logInfo(`firebase-tools already exists, version: ${fbVersion}`)
     } else {
       // Install firebase-tools using npm
-      await runCommand({
-        command: 'npm',
-        args: ['i', `firebase-tools${versionSuffix}`, `${info ? '' : '-q'}`],
-        beforeMsg: 'firebase-tools does not already exist, installing...',
-        errorMsg: 'Error installing firebase-tools.',
-        successMsg: 'Firebase tools installed successfully!'
-      })
+      promises.push(
+        runCommand({
+          command: 'npm',
+          args: ['i', `firebase-tools${versionSuffix}`, `${info ? '' : '-q'}`],
+          beforeMsg: 'firebase-tools does not already exist, installing...',
+          errorMsg: 'Error installing firebase-tools.',
+          successMsg: 'Firebase tools installed successfully!'
+        })
+      )
     }
   }
   // Call npm install in functions folder if it exists and does
@@ -51,12 +54,16 @@ export async function installDeps(opts = {}, settings = {}) {
     !functionsNodeModulesExist() &&
     !settings.skipFunctionsInstall
   ) {
-    await runCommand({
-      command: 'npm',
-      args: ['i', '--prefix', 'functions'],
-      beforeMsg: 'Running npm install in functions folder...',
-      errorMsg: 'Error installing functions dependencies.',
-      successMsg: 'Functions dependencies installed successfully!'
-    })
+    promises.push(
+      runCommand({
+        command: 'npm',
+        args: ['i', '--prefix', 'functions'],
+        beforeMsg: 'Running npm install in functions folder...',
+        errorMsg: 'Error installing functions dependencies.',
+        successMsg: 'Functions dependencies installed successfully!'
+      })
+    )
   }
+  // Run installs in parallel for quickest completion
+  return Promise.all(promises)
 }
