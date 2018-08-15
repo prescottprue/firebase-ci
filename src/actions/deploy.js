@@ -34,7 +34,7 @@ export function runActions() {
       return Promise.reject(err)
     })
   }
-  info('No ci action settings found in .firebaserc. Skipping actions.')
+  info('No ci action settings found in .firebaserc. Skipping action phase.')
   return Promise.resolve({})
 }
 
@@ -73,17 +73,17 @@ export default async function deploy(opts) {
 
   const fallbackProjectName = getFallbackProjectName()
   // Get project from passed options, falling back to branch name
-  const projectName = getProjectName(opts)
+  const projectKey = getProjectName(opts)
   // Get project setting from settings file based on branchName falling back
   // to fallbackProjectName
-  const projectSetting = get(settings, `projects.${projectName}`)
+  const projectName = get(settings, `projects.${projectKey}`)
   const fallbackProjectSetting = get(
     settings,
     `projects.${fallbackProjectName}`
   )
   // Handle project option
-  if (!projectSetting) {
-    const nonProjectBranch = `${skipPrefix} - "${projectName}" not an Alias, checking for fallback...`
+  if (!projectName) {
+    const nonProjectBranch = `${skipPrefix} - "${projectKey}" not an Alias, checking for fallback...`
     info(nonProjectBranch)
     if (!fallbackProjectSetting) {
       const nonFallbackBranch = `${skipPrefix} - Fallback Project: "${fallbackProjectName}" is a not an Alias, exiting...`
@@ -125,13 +125,13 @@ export default async function deploy(opts) {
         '--token',
         FIREBASE_TOKEN || 'Invalid.Token',
         '--project',
-        projectName,
+        projectKey,
         '--message',
         message
       ]),
-      beforeMsg: `Deploying to ${branchName} branch to ${projectName} Firebase project`,
+      beforeMsg: `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`,
       errorMsg: 'Error deploying to firebase.',
-      successMsg: `Successfully Deployed ${branchName} branch to ${projectName} Firebase project`
+      successMsg: `Successfully Deployed ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
     })
   )
   if (deployErr) {

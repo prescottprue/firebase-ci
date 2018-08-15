@@ -20,7 +20,7 @@ export default function copyVersion(config = { silence: false }) {
     warn('Functions folder does not exist. Exiting...')
     return
   }
-  info('Copying version into functions package.json...')
+  info('Copying version from package.json to functions/package.json...')
   const pkg = JSON.parse(fs.readFileSync(createPath('package.json')))
   const functionsPkg = JSON.parse(
     fs.readFileSync(createPath(`functions/package.json`))
