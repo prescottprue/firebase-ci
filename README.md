@@ -20,11 +20,11 @@
 
 1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
 1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
-1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`
+1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`. You can also install `firebase-tools` locally so that the version is stored within your package file.
 1. Add the following scripts to your CI config:
 
     ```bash
-    npm i -g firebase-ci@latest  # install firebase-ci tool
+    npm i firebase-tools  # install firebase-ci tool and firebase-tools
     firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
     ```
 
@@ -32,7 +32,7 @@
 
       ```yaml
       after_success:
-        - npm i firebase-ci
+        - npm i firebase-tools
         - $(npm bin)/firebase-ci deploy
       ```
 
