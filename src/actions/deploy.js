@@ -84,10 +84,10 @@ export default async function deploy(opts) {
 
   // Handle project option
   if (!projectName) {
-    const nonProjectBranch = `${skipPrefix} - "${projectKey}" not an Alias, checking for fallback...`
+    const nonProjectBranch = `${skipPrefix} - Project "${projectKey}" is not an alias, checking for fallback...`
     info(nonProjectBranch)
     if (!fallbackProjectSetting) {
-      const nonFallbackBranch = `${skipPrefix} - Fallback Project: "${fallbackProjectName}" is a not an Alias, exiting...`
+      const nonFallbackBranch = `${skipPrefix} - Fallback Project: "${fallbackProjectName}" is a not an alias, exiting...`
       info(nonFallbackBranch)
       return nonProjectBranch
     }
