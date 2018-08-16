@@ -9,8 +9,8 @@ import {
   getBranch,
   isPullRequest,
   getDeployMessage,
-  getProjectName,
-  getFallbackProjectName
+  getProjectKey,
+  getFallbackProjectKey
 } from '../utils/ci'
 import { to } from '../utils/async'
 
@@ -71,9 +71,9 @@ export default async function deploy(opts) {
     throw new Error('firebase.json file is required')
   }
 
-  const fallbackProjectName = getFallbackProjectName()
+  const fallbackProjectName = getFallbackProjectKey()
   // Get project from passed options, falling back to branch name
-  const projectKey = getProjectName(opts)
+  const projectKey = getProjectKey(opts)
   // Get project setting from settings file based on branchName falling back
   // to fallbackProjectName
   const projectName = get(settings, `projects.${projectKey}`)
@@ -81,6 +81,7 @@ export default async function deploy(opts) {
     settings,
     `projects.${fallbackProjectName}`
   )
+
   // Handle project option
   if (!projectName) {
     const nonProjectBranch = `${skipPrefix} - "${projectKey}" not an Alias, checking for fallback...`
@@ -92,6 +93,8 @@ export default async function deploy(opts) {
     }
     return nonProjectBranch
   }
+
+  // Handle FIREBASE_TOKEN not existing within environment variables
   const { FIREBASE_TOKEN } = process.env
   if (!FIREBASE_TOKEN) {
     error('Error: FIREBASE_TOKEN env variable not found.')
@@ -101,20 +104,25 @@ export default async function deploy(opts) {
     )
     throw new Error('Error: FIREBASE_TOKEN env variable not found.')
   }
+
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const message = getDeployMessage()
-  // Install firebase-tools and functions dependencies if enabled
+
+  // Install firebase-tools and functions dependencies unless skipped by config
   if (!settings.skipDependencyInstall) {
     await installDeps(opts, settings)
   } else {
-    info('Dependency install skipped')
+    info('firebase-tools and functions dependencies installs skipped')
   }
+
   // Run CI actions if enabled (i.e. copyVersion, createConfig)
   if (!opts.simple) {
     runActions(opts.actions)
   } else {
     info('Simple mode enabled. Skipping CI actions')
   }
+
+  // Run deploy command
   const [deployErr] = await to(
     runCommand({
       command: 'npx',
@@ -134,9 +142,12 @@ export default async function deploy(opts) {
       successMsg: `Successfully Deployed ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
     })
   )
+
+  // Handle errors within the deploy command
   if (deployErr) {
     error('Error in firebase-ci:\n ', deployErr)
     throw deployErr
   }
+
   return null
 }
