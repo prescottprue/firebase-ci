@@ -9,8 +9,8 @@ import {
   getBranch,
   isPullRequest,
   getDeployMessage,
-  getProjectName,
-  getFallbackProjectName
+  getProjectKey,
+  getFallbackProjectKey
 } from '../utils/ci'
 import { to } from '../utils/async'
 
@@ -34,7 +34,7 @@ export function runActions() {
       return Promise.reject(err)
     })
   }
-  info('No ci action settings found in .firebaserc. Skipping actions.')
+  info('No ci action settings found in .firebaserc. Skipping action phase.')
   return Promise.resolve({})
 }
 
@@ -71,27 +71,30 @@ export default async function deploy(opts) {
     throw new Error('firebase.json file is required')
   }
 
-  const fallbackProjectName = getFallbackProjectName()
+  const fallbackProjectName = getFallbackProjectKey()
   // Get project from passed options, falling back to branch name
-  const projectName = getProjectName(opts)
+  const projectKey = getProjectKey(opts)
   // Get project setting from settings file based on branchName falling back
   // to fallbackProjectName
-  const projectSetting = get(settings, `projects.${projectName}`)
+  const projectName = get(settings, `projects.${projectKey}`)
   const fallbackProjectSetting = get(
     settings,
     `projects.${fallbackProjectName}`
   )
+
   // Handle project option
-  if (!projectSetting) {
-    const nonProjectBranch = `${skipPrefix} - "${projectName}" not an Alias, checking for fallback...`
+  if (!projectName) {
+    const nonProjectBranch = `${skipPrefix} - Project "${projectKey}" is not an alias, checking for fallback...`
     info(nonProjectBranch)
     if (!fallbackProjectSetting) {
-      const nonFallbackBranch = `${skipPrefix} - Fallback Project: "${fallbackProjectName}" is a not an Alias, exiting...`
+      const nonFallbackBranch = `${skipPrefix} - Fallback Project: "${fallbackProjectName}" is a not an alias, exiting...`
       info(nonFallbackBranch)
       return nonProjectBranch
     }
     return nonProjectBranch
   }
+
+  // Handle FIREBASE_TOKEN not existing within environment variables
   const { FIREBASE_TOKEN } = process.env
   if (!FIREBASE_TOKEN) {
     error('Error: FIREBASE_TOKEN env variable not found.')
@@ -101,20 +104,25 @@ export default async function deploy(opts) {
     )
     throw new Error('Error: FIREBASE_TOKEN env variable not found.')
   }
+
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
   const message = getDeployMessage()
-  // Install firebase-tools and functions dependencies if enabled
+
+  // Install firebase-tools and functions dependencies unless skipped by config
   if (!settings.skipDependencyInstall) {
     await installDeps(opts, settings)
   } else {
-    info('Dependency install skipped')
+    info('firebase-tools and functions dependencies installs skipped')
   }
+
   // Run CI actions if enabled (i.e. copyVersion, createConfig)
   if (!opts.simple) {
     runActions(opts.actions)
   } else {
     info('Simple mode enabled. Skipping CI actions')
   }
+
+  // Run deploy command
   const [deployErr] = await to(
     runCommand({
       command: 'npx',
@@ -125,18 +133,21 @@ export default async function deploy(opts) {
         '--token',
         FIREBASE_TOKEN || 'Invalid.Token',
         '--project',
-        projectName,
+        projectKey,
         '--message',
         message
       ]),
-      beforeMsg: `Deploying to ${branchName} branch to ${projectName} Firebase project`,
+      beforeMsg: `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`,
       errorMsg: 'Error deploying to firebase.',
-      successMsg: `Successfully Deployed ${branchName} branch to ${projectName} Firebase project`
+      successMsg: `Successfully Deployed ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
     })
   )
+
+  // Handle errors within the deploy command
   if (deployErr) {
     error('Error in firebase-ci:\n ', deployErr)
     throw deployErr
   }
+
   return null
 }

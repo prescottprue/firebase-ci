@@ -23,12 +23,14 @@ export function getBranch() {
 }
 
 /**
- * Get the name of the project from environment variables
+ * Get the key of the project matching the branch name which is gathered from
+ * from environment variables. This key is used to get the project settings
+ * from .firebaserc.
  * @param  {Object} opts - Options object
  * @param  {Object} opts.project - Project name from options
  * @return {String} Name of project
  */
-export function getProjectName(opts) {
+export function getProjectKey(opts) {
   const branchName = getBranch()
   const { FIREBASE_CI_PROJECT } = process.env
   // Get project from passed options, falling back to branch name
@@ -39,10 +41,11 @@ export function getProjectName(opts) {
 }
 
 /**
- * Get the name of the fallback project from environment variables
+ * Get the key of the fallback project from environment variables. This key
+ * is used to get the project settings from .firebaserc.
  * @return {String} Name of fallback Project
  */
-export function getFallbackProjectName() {
+export function getFallbackProjectKey() {
   const { CI_ENVIRONMENT_SLUG } = process.env
   return CI_ENVIRONMENT_SLUG
 }
