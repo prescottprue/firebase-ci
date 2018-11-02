@@ -132,6 +132,10 @@ export default async function deploy(opts) {
     '--message',
     message
   ])
+
+  if (process.env.FIREBASE_CI_DEBUG || settings.debug) {
+    deployArgs.concat(['--debug'])
+  }
   // Run deploy command
   const [deployErr] = await to(
     runCommand({
