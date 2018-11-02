@@ -51,7 +51,6 @@ export default function createConfigFile(config) {
 
   // Check for ci section of settings file
   if (!settings.ci || !settings.ci.createConfig) {
-    warn('Create config settings needed in .firebaserc!')
     return
   }
 
