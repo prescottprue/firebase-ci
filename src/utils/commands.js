@@ -61,7 +61,7 @@ export function runCommand({
         if (output && output.indexOf('npm WARN') !== -1) {
           return resolve(successMsg || output)
         }
-        reject(errorMsg || error)
+        reject(error || output)
       } else {
         // resolve(null, stdout)
         if (successMsg) info(successMsg)

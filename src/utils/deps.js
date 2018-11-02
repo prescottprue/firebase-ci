@@ -1,6 +1,12 @@
 import { functionsExists, functionsNodeModulesExist } from './files'
 import { runCommand } from './commands'
+import { to } from './async'
+import commandExists from 'command-exists'
 import { info as logInfo, error } from './logger'
+
+export function getNpxExists() {
+  return commandExists.sync('npx')
+}
 
 /**
  * Install Firebase tools and run npm install in functions folder
@@ -10,15 +16,24 @@ export async function installDeps(opts = {}, settings = {}) {
   const { info } = opts
   const { toolsVersion } = settings
   const versionSuffix = toolsVersion ? `@${toolsVersion}` : ''
+  const npxExists = getNpxExists()
   // Check version of firebase tools using npx (to allow for locally and
-  // globally installed versions of firebase-tools)
-  const fbVersion = await runCommand({
-    command: 'npx',
-    args: ['firebase', '--version'],
-    pipeOutput: false,
-    beforeMsg: 'Checking to see if firebase-tools is installed...',
-    errorMsg: 'Error checking for firebase-tools.'
-  })
+  // globally installed versions of firebase-tools) falling back to npm bin
+  const [versionErr, fbVersion] = await to(
+    runCommand({
+      command: npxExists ? 'npx' : '$(npm bin)/firebase',
+      args: npxExists ? ['firebase', '--version'] : ['--version'],
+      pipeOutput: false,
+      beforeMsg: 'Checking to see if firebase-tools is installed...',
+      errorMsg: 'Error checking for firebase-tools.'
+    })
+  )
+  if (versionErr) {
+    const getVersionErrMsg =
+      'Error attempting to check for firebase-tools version.'
+    error(getVersionErrMsg)
+    throw new Error(getVersionErrMsg)
+  }
   const promises = []
   // Skip installing firebase-tools if specified by config
   if (settings.skipToolsInstall) {

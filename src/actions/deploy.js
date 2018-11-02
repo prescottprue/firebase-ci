@@ -4,7 +4,7 @@ import mapEnv from './mapEnv'
 import { getFile, functionsExists } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 import { runCommand } from '../utils/commands'
-import { installDeps } from '../utils/deps'
+import { installDeps, getNpxExists } from '../utils/deps'
 import {
   getBranch,
   isPullRequest,
@@ -121,22 +121,26 @@ export default async function deploy(opts) {
   } else {
     info('Simple mode enabled. Skipping CI actions')
   }
+  const npxExists = getNpxExists()
+  const deployArgs = compact([
+    'deploy',
+    onlyString,
+    '--token',
+    FIREBASE_TOKEN || 'Invalid.Token',
+    '--project',
+    projectKey,
+    '--message',
+    message
+  ])
 
+  if (process.env.FIREBASE_CI_DEBUG || settings.debug) {
+    deployArgs.concat(['--debug'])
+  }
   // Run deploy command
   const [deployErr] = await to(
     runCommand({
-      command: 'npx',
-      args: compact([
-        'firebase',
-        'deploy',
-        onlyString,
-        '--token',
-        FIREBASE_TOKEN || 'Invalid.Token',
-        '--project',
-        projectKey,
-        '--message',
-        message
-      ]),
+      command: npxExists ? 'npx' : '$(npm bin)/firebase',
+      args: npxExists ? ['firebase'].concat(deployArgs) : deployArgs,
       beforeMsg: `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`,
       errorMsg: 'Error deploying to firebase.',
       successMsg: `Successfully Deployed ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
