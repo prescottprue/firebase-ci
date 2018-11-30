@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import chalk from 'chalk'
 import { reduce, template, mapValues, get, isString } from 'lodash'
 import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
@@ -12,12 +13,25 @@ const {
   CI_ENVIRONMENT_SLUG
 } = process.env
 
+function formattedErrorMessage(err) {
+  const errMessage = get(err, 'message', 'Issue templating config file')
+  if (!errMessage.includes('is not defined')) {
+    return errMessage
+  }
+  const splitMessage = err.message.split(' is not defined')
+  return `${chalk.cyan(splitMessage[0])} is not defined in environment`
+}
+
 function tryTemplating(str, name) {
   try {
     return template(str)(process.env)
   } catch (err) {
-    warn(`Warning: ${err.message || 'Issue templating config file'}`)
-    warn(`Setting "${name}" to an empty string`)
+    const errMsg = formattedErrorMessage(err)
+    warn(
+      `${chalk.yellow('Warning:')} ${errMsg}. Setting ${chalk.cyan(
+        name
+      )} to an empty string.`
+    )
     return ''
   }
 }
@@ -77,16 +91,6 @@ export default function createConfigFile(config) {
   const fallBackConfigName =
     CI_ENVIRONMENT_SLUG || (createConfig.master ? 'master' : 'default')
 
-  info(`Attempting to load config for project: "${opts.project}"`)
-
-  if (!createConfig[opts.project]) {
-    info(
-      `Project named "${
-        opts.project
-      }" does not exist in create config settings, falling back to ${fallBackConfigName}`
-    )
-  }
-
   const envConfig = createConfig[opts.project]
     ? createConfig[opts.project]
     : createConfig[fallBackConfigName]
@@ -97,7 +101,7 @@ export default function createConfigFile(config) {
     throw new Error(msg)
   }
 
-  info(`Creating config file at path: ${opts.path}`)
+  info(`Creating config file at path: ${chalk.cyan(opts.path)}`)
 
   // template data based on environment variables
   const templatedData = mapValues(
