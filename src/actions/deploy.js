@@ -1,4 +1,5 @@
 import { isUndefined, compact, get } from 'lodash'
+import chalk from 'chalk'
 import copyVersion from './copyVersion'
 import mapEnv from './mapEnv'
 import { getFile, functionsExists } from '../utils/files'
@@ -50,13 +51,17 @@ export default async function deploy(opts) {
   const firebaseJson = getFile('firebase.json')
   const branchName = getBranch()
   if (isUndefined(branchName) || (opts && opts.test)) {
-    const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
+    const nonCiMessage = `${chalk.cyan(
+      skipPrefix
+    )} - Not a supported CI environment`
     warn(nonCiMessage)
     return nonCiMessage
   }
 
   if (isPullRequest()) {
-    const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
+    const pullRequestMessage = `${chalk.cyan(
+      skipPrefix
+    )} - Build is a Pull Request`
     info(pullRequestMessage)
     return pullRequestMessage
   }
@@ -84,10 +89,14 @@ export default async function deploy(opts) {
 
   // Handle project option
   if (!projectName) {
-    const nonProjectBranch = `${skipPrefix} - Project "${projectKey}" is not an alias, checking for fallback...`
+    const nonProjectBranch = `${skipPrefix} - Project ${chalk.cyan(
+      projectKey
+    )} is not an alias, checking for fallback...`
     info(nonProjectBranch)
     if (!fallbackProjectSetting) {
-      const nonFallbackBranch = `${skipPrefix} - Fallback Project: "${fallbackProjectName}" is a not an alias, exiting...`
+      const nonFallbackBranch = `${skipPrefix} - Fallback Project: ${chalk.cyan(
+        fallbackProjectName
+      )} is a not an alias, exiting...`
       info(nonFallbackBranch)
       return nonProjectBranch
     }
@@ -99,7 +108,9 @@ export default async function deploy(opts) {
   if (!FIREBASE_TOKEN) {
     error('Error: FIREBASE_TOKEN env variable not found.')
     info(
-      'Run firebase login:ci (from  firebase-tools) to generate a token' +
+      `Run ${chalk.cyan(
+        'firebase login:ci'
+      )} (from  firebase-tools) to generate a token` +
         'and place it travis environment variables as FIREBASE_TOKEN'
     )
     throw new Error('Error: FIREBASE_TOKEN env variable not found.')
