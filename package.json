@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "clean": "rimraf lib coverage",
-    "lint": "eslint src cmds bin test",
+    "lint": "eslint src cmds test bin/firebase-ci",
     "lint:fix": "npm run lint -- --fix",
     "test": "env-cmd ./test/.env mocha ./test/**/*.spec.js",
     "test:cov": "env-cmd ./test/.env istanbul cover  $(npm bin)/_mocha -- ./test/unit/**/*.spec.js",

@@ -100,14 +100,12 @@ export default function createConfigFile(config) {
   info(`Creating config file at path: ${chalk.cyan(opts.path)}`)
 
   // template data based on environment variables
-  const templatedData = mapValues(
-    envConfig,
-    (parent, parentName) =>
-      isString(parent)
-        ? tryTemplating(parent, parentName)
-        : mapValues(parent, (data, childKey) =>
-            tryTemplating(data, `${parentName}.${childKey}`)
-          )
+  const templatedData = mapValues(envConfig, (parent, parentName) =>
+    isString(parent)
+      ? tryTemplating(parent, parentName)
+      : mapValues(parent, (data, childKey) =>
+          tryTemplating(data, `${parentName}.${childKey}`)
+        )
   )
   // convert object into formatted object string
   const parentAsString = parent =>
