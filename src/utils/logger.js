@@ -2,7 +2,6 @@ import chalk from 'chalk'
 import fig from 'figures'
 
 const colorMapping = {
-  info: 'blue',
   warn: 'yellow',
   success: 'green',
   error: 'red'
@@ -15,10 +14,30 @@ const iconMapping = {
   error: '✖'
 }
 
-const logType = (type, message, other) => {
-  const icon = iconMapping[type]
+const prefixMapping = {
+  warn: 'Warning: ',
+  error: 'Error: '
+}
+
+function colorLogger(type) {
   const color = colorMapping[type]
-  console.log(`${icon ? chalk[color](fig(icon)) : ''} ${message}`) // eslint-disable-line no-console
+  return text => {
+    const chalkColor = chalk[color]
+    return chalkColor ? chalkColor(text) : text
+  }
+}
+
+function logType(type, message, other) {
+  const icon = iconMapping[type]
+  const prefix = prefixMapping[type]
+  const colorLog = colorLogger(type)
+  /* eslint-disable no-console */
+  console.log(
+    `${icon ? colorLog(fig(icon)) : ''} ${
+      prefix ? colorLog(prefix) : ''
+    }${message}`
+  )
+  /* eslint-enable no-console */
   if (other) {
     console.log('\n', other) // eslint-disable-line no-console
   }

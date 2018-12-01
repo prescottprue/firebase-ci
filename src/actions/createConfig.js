@@ -27,11 +27,7 @@ function tryTemplating(str, name) {
     return template(str)(process.env)
   } catch (err) {
     const errMsg = formattedErrorMessage(err)
-    warn(
-      `${chalk.yellow('Warning:')} ${errMsg}. Setting ${chalk.cyan(
-        name
-      )} to an empty string.`
-    )
+    warn(`${errMsg}. Setting ${chalk.cyan(name)} to an empty string.`)
     return ''
   }
 }
