@@ -1,13 +1,19 @@
-import { isUndefined, compact } from 'lodash'
-import { getFile, functionsExists } from '../utils/files'
-import { error, info, warn } from '../utils/logger'
-import { runCommand, shellescape } from '../utils/commands'
-import { installDeps } from '../utils/deps'
-import { getBranch, isPullRequest, getCommitMessage } from '../utils/ci'
+import { isUndefined, compact, get } from 'lodash'
+import chalk from 'chalk'
 import copyVersion from './copyVersion'
 import mapEnv from './mapEnv'
-
-const {FIREBASE_TOKEN} = process.env
+import { getFile, functionsExists } from '../utils/files'
+import { error, info, warn } from '../utils/logger'
+import { runCommand } from '../utils/commands'
+import { installDeps, getNpxExists } from '../utils/deps'
+import {
+  getBranch,
+  isPullRequest,
+  getDeployMessage,
+  getProjectKey,
+  getFallbackProjectKey
+} from '../utils/ci'
+import { to } from '../utils/async'
 
 const skipPrefix = 'Skipping Firebase Deploy'
 
@@ -17,17 +23,19 @@ const skipPrefix = 'Skipping Firebase Deploy'
  * @return {Promise}
  * @private
  */
-export const runActions = () => {
+export function runActions() {
   copyVersion()
   const settings = getFile('.firebaserc')
   if (functionsExists() && settings.ci && settings.ci.mapEnv) {
-    return mapEnv()
-      .catch((err) => {
-        error('Error mapping CI environment variables to Functions environment: ', err)
-        return Promise.reject(err)
-      })
+    return mapEnv().catch(err => {
+      error(
+        'Error mapping CI environment variables to Functions environment: ',
+        err
+      )
+      return Promise.reject(err)
+    })
   }
-  info('No ci action settings found in .firebaserc. Skipping actions.')
+  info('No ci action settings found in .firebaserc. Skipping action phase.')
   return Promise.resolve({})
 }
 
@@ -38,88 +46,123 @@ export const runActions = () => {
  * to deploy (hosting, functions, database)
  * @param {Function} cb - Callback called when complete (err, stdout)
  */
-export default (opts) => {
+export default async function deploy(opts) {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
   const branchName = getBranch()
   if (isUndefined(branchName) || (opts && opts.test)) {
-    const nonCiMessage = `${skipPrefix} - Not a supported CI environment`
+    const nonCiMessage = `${chalk.cyan(
+      skipPrefix
+    )} - Not a supported CI environment`
     warn(nonCiMessage)
-    return Promise.resolve(nonCiMessage)
+    return nonCiMessage
   }
 
   if (isPullRequest()) {
-    const pullRequestMessage = `${skipPrefix} - Build is a Pull Request`
+    const pullRequestMessage = `${chalk.cyan(
+      skipPrefix
+    )} - Build is a Pull Request`
     info(pullRequestMessage)
-    return Promise.resolve(pullRequestMessage)
+    return pullRequestMessage
   }
 
   if (!settings) {
     error('.firebaserc file is required')
-    return Promise.reject(new Error('.firebaserc file is required'))
+    throw new Error('.firebaserc file is required')
   }
 
   if (!firebaseJson) {
     error('firebase.json file is required')
-    return Promise.reject(new Error('firebase.json file is required'))
+    throw new Error('firebase.json file is required')
   }
 
-  if (settings.projects && !settings.projects[branchName]) {
-    const nonBuildBranch = `${skipPrefix} - Branch is not a project alias - Branch: ${(branchName)}`
-    info(nonBuildBranch)
-    return Promise.resolve(nonBuildBranch)
-  }
+  const fallbackProjectName = getFallbackProjectKey()
+  // Get project from passed options, falling back to branch name
+  const projectKey = getProjectKey(opts)
+  // Get project setting from settings file based on branchName falling back
+  // to fallbackProjectName
+  const projectName = get(settings, `projects.${projectKey}`)
+  const fallbackProjectSetting = get(
+    settings,
+    `projects.${fallbackProjectName}`
+  )
 
   // Handle project option
-  if (opts && opts.project && settings.projects && !settings.projects[opts.project]) {
-    const nonProjectBranch = `${skipPrefix} - Project is a not an Alias - Project: ${opts.project}`
+  if (!projectName) {
+    const nonProjectBranch = `${skipPrefix} - Project ${chalk.cyan(
+      projectKey
+    )} is not an alias, checking for fallback...`
     info(nonProjectBranch)
-    return Promise.resolve(nonProjectBranch)
+    if (!fallbackProjectSetting) {
+      const nonFallbackBranch = `${skipPrefix} - Fallback Project: ${chalk.cyan(
+        fallbackProjectName
+      )} is a not an alias, exiting...`
+      info(nonFallbackBranch)
+      return nonProjectBranch
+    }
+    return nonProjectBranch
   }
 
+  // Handle FIREBASE_TOKEN not existing within environment variables
+  const { FIREBASE_TOKEN } = process.env
   if (!FIREBASE_TOKEN) {
     error('Error: FIREBASE_TOKEN env variable not found.')
     info(
-      'Run firebase login:ci (from  firebase-tools) to generate a token' +
-      'and place it travis environment variables as FIREBASE_TOKEN'
+      `Run ${chalk.cyan(
+        'firebase login:ci'
+      )} (from  firebase-tools) to generate a token` +
+        'and place it travis environment variables as FIREBASE_TOKEN'
     )
-    return Promise.reject(new Error('Error: FIREBASE_TOKEN env variable not found.'))
+    throw new Error('Error: FIREBASE_TOKEN env variable not found.')
   }
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
-  const project = branchName || settings.projects.default
-  // // First 300 characters of travis commit message or "Update"
-  const message = getCommitMessage()
-  info('Installing dependencies...')
-  return installDeps(opts, settings)
-    .then(() => {
-      if (opts.simple) {
-        info('Simple mode enabled. Skipping CI actions')
-        return {}
-      }
-      return runActions(opts.actions)
+  const message = getDeployMessage()
+
+  // Install firebase-tools and functions dependencies unless skipped by config
+  if (!settings.skipDependencyInstall) {
+    await installDeps(opts, settings)
+  } else {
+    info('firebase-tools and functions dependencies installs skipped')
+  }
+
+  // Run CI actions if enabled (i.e. copyVersion, createConfig)
+  if (!opts.simple) {
+    runActions(opts.actions)
+  } else {
+    info('Simple mode enabled. Skipping CI actions')
+  }
+  const npxExists = getNpxExists()
+  const deployArgs = compact([
+    'deploy',
+    onlyString,
+    '--token',
+    FIREBASE_TOKEN || 'Invalid.Token',
+    '--project',
+    projectKey,
+    '--message',
+    message
+  ])
+
+  if (process.env.FIREBASE_CI_DEBUG || settings.debug) {
+    deployArgs.concat(['--debug'])
+  }
+  // Run deploy command
+  const [deployErr] = await to(
+    runCommand({
+      command: npxExists ? 'npx' : '$(npm bin)/firebase',
+      args: npxExists ? ['firebase'].concat(deployArgs) : deployArgs,
+      beforeMsg: `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`,
+      errorMsg: 'Error deploying to firebase.',
+      successMsg: `Successfully Deployed ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
     })
-    .then(() =>
-      // Wait until all other commands are complete before calling deploy
-      runCommand({
-        command: 'firebase',
-        args: compact([
-          'deploy',
-          onlyString,
-          '--token',
-          FIREBASE_TOKEN || 'Invalid Token',
-          '--project',
-          project,
-          '--message',
-          shellescape([message])
-        ]),
-        beforeMsg: 'Deploying to Firebase...',
-        errorMsg: 'Error deploying to firebase.',
-        successMsg: `Successfully Deployed to ${project}`
-      })
-    )
-    .catch((err) => {
-      error('Error in firebase-ci:\n ', err)
-      return Promise.reject(err)
-    })
+  )
+
+  // Handle errors within the deploy command
+  if (deployErr) {
+    error('Error in firebase-ci:\n ', deployErr)
+    throw deployErr
+  }
+
+  return null
 }

@@ -10,14 +10,18 @@ describe('firebase-ci Library', () => {
     it('exits with message if not in a CI environment', () => {
       deploy({ test: true }, (err, msg) => {
         expect(msg).to.exist
-        expect(msg).to.equal('Skipping Firebase Deploy - Not a supported CI environment')
+        expect(msg).to.equal(
+          'Skipping Firebase Deploy - Not a supported CI environment'
+        )
         expect(err).to.be.null
       })
     })
     it('accepts project option', () => {
       deploy({ project: 'test' }, (err, msg) => {
         expect(msg).to.exist
-        expect(msg).to.equal('Skipping Firebase Deploy - Branch is not a project alias - Branch: test')
+        expect(msg).to.equal(
+          'Skipping Firebase Deploy - Branch is not a project alias - Branch: test'
+        )
         expect(err).to.be.null
       })
     })
