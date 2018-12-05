@@ -29,13 +29,17 @@ export function runActions() {
   if (functionsExists() && settings.ci && settings.ci.mapEnv) {
     return mapEnv().catch(err => {
       error(
-        'Error mapping CI environment variables to Functions environment: ',
+        'Could not map CI environment variables to Functions environment: ',
         err
       )
       return Promise.reject(err)
     })
   }
-  info('No ci action settings found in .firebaserc. Skipping action phase.')
+  info(
+    `No ci action settings found in ${chalk.cyan(
+      '.firebaserc'
+    )}. Skipping action phase.`
+  )
   return Promise.resolve({})
 }
 
@@ -106,14 +110,15 @@ export default async function deploy(opts) {
   // Handle FIREBASE_TOKEN not existing within environment variables
   const { FIREBASE_TOKEN } = process.env
   if (!FIREBASE_TOKEN) {
-    error('Error: FIREBASE_TOKEN env variable not found.')
+    error(`${chalk.cyan('FIREBASE_TOKEN')} environment variable not found`)
     info(
-      `Run ${chalk.cyan(
+      `To Fix: Run ${chalk.cyan(
         'firebase login:ci'
-      )} (from  firebase-tools) to generate a token` +
-        'and place it travis environment variables as FIREBASE_TOKEN'
+      )} (from firebase-tools) to generate a token then place it CI environment variables as ${chalk.cyan(
+        'FIREBASE_TOKEN'
+      )}`
     )
-    throw new Error('Error: FIREBASE_TOKEN env variable not found.')
+    throw new Error('FIREBASE_TOKEN env variable not found.')
   }
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''

@@ -10,6 +10,7 @@
 [![Code Style][code-style-image]][code-style-url]
 
 ## Features
+
 * Skip For Pull Requests
 * Deploy to Different Firebase Instances based on Branch
 * Mapping of CI environment variables to Firebase Functions Config
@@ -20,23 +21,31 @@
 
 1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
 1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
-1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci`. You can also install `firebase-tools` locally so that the version is stored within your package file.
+1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci firebase-tools`. If you don't want `firebase-tools` as a dev dependency, it can be left out as it is installed automatically if it doesn't exist.
+1. Add the following npm scripts:
+    ```json
+    "build:config": "firebase-ci createConfig",
+    "deploy": "firebase-ci deploy"
+    ```
+
 1. Add the following scripts to your CI config:
 
     ```bash
-    npm i firebase-tools  # install firebase-ci tool and firebase-tools
     firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
     ```
 
     For instance within a `travis.yml`:
 
       ```yaml
-      after_success:
-        - npm i firebase-tools
-        - $(npm bin)/firebase-ci deploy
+      script:
+        - npm run build:config # Build src/config.js
+        - npm run lint # Check for lint
+        - npm run deploy # Deploy to Firebase
       ```
 
-    **NOTE**: `firebase-ci` can be used through the nodejs `bin` instead of being installed globally
+    **NOTES**:
+    * `firebase-ci` can be used through the nodejs `bin` **OR** installed globally
+    * `firebase-tools` will be installed (from `@latest`) if it is not already installed locally or globally
 
 1. Set different Firebase instances names to `.firebaserc` like so:
     ```json
