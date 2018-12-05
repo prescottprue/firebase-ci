@@ -6,13 +6,7 @@ import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 import { getProjectKey } from '../utils/ci'
 
-const {
-  FIREBASE_CI_PROJECT,
-  TRAVIS_BRANCH,
-  CIRCLE_BRANCH,
-  CI_COMMIT_REF_SLUG,
-  CI_ENVIRONMENT_SLUG
-} = process.env
+const { CI_ENVIRONMENT_SLUG } = process.env
 
 function formattedErrorMessage(err) {
   const errMessage = get(err, 'message', 'Issue templating config file')
@@ -23,19 +17,9 @@ function formattedErrorMessage(err) {
   return `${chalk.cyan(splitMessage[0])} is not defined in environment`
 }
 
-function getProjectPackageFile() {
-  const packageFilePath = path.join(process.cwd(), 'package.json')
-  try {
-    const fileStr = fs.readFileSync(packageFilePath)
-    return JSON.parse(fileStr)
-  } catch (err) {
-    error('Unable to load project package.json file', err)
-    return null
-  }
-}
-
 function tryTemplating(str, name) {
-  const { version } = getProjectPackageFile() || {}
+  const packageFilePath = path.join(process.cwd(), 'package.json')
+  const { version } = getFile(packageFilePath)
   try {
     return template(str)({ ...process.env, version })
   } catch (err) {

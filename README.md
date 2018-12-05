@@ -58,8 +58,8 @@
     }
     ```
 
-
 ## Setting Project
+
 There are a number of ways to set which Firebase project within `.firebaserc` is being used when running actions. Below is the order of for how the project is determined (default at bottom):
 
 * `FIREBASE_CI_PROJECT` environment variable (overrides all)
@@ -86,27 +86,30 @@ Default installation uses `@latest` tag, but there are also others:
 * [Basic](/examples/basic) - Basic html file upload to Firebase hosting of different projects (or "environments")
 
 ## Why?
+
 Advanced configuration of Firebase deployment is often necessary when deploying through continuous integration environment. Instead of having to write and invoke your own scripts, `firebase-ci` provides an easy way to  create/modify advanced configurations.
 
-### What about [Travis's `firebase`](https://docs.travis-ci.com/user/deployment/firebase/) deploy option?
+## FAQ
 
-Using the built in [travis firebase deploy tool](https://docs.travis-ci.com/user/deployment/firebase/) is actually a perfect solution if you want to do general deployment. You can even include the following to install stuff functions dependencies on Travis:
+1. What about [Travis's `firebase`](https://docs.travis-ci.com/user/deployment/firebase/) deploy option?
 
-```yaml
-after_success:
-  - npm install --prefix ./functions
+    Using the built in [travis firebase deploy tool](https://docs.travis-ci.com/user/deployment/firebase/) is actually a perfect solution if you want to do general deployment. You can even include the following to install stuff functions dependencies on Travis:
 
-deploy:
-  provider: firebase
-  project: $TRAVIS_BRANCH
-  skip_cleanup: true
-  token:
-    secure: $FIREBASE_TOKEN
-```
+    ```yaml
+    after_success:
+      - npm install --prefix ./functions
 
-This lets you deploy to whatever instance you want based on your branch (and config in `.firebaserc`).
+    deploy:
+      provider: firebase
+      project: $TRAVIS_BRANCH
+      skip_cleanup: true
+      token:
+        secure: $FIREBASE_TOKEN
+    ```
 
-`firebase-ci` is for more advanced implementations including only deploying functions, hosting
+    This lets you deploy to whatever instance you want based on your branch (and config in `.firebaserc`).
+
+    `firebase-ci` is for more advanced implementations including only deploying functions, hosting
 
 ## Commands
 
@@ -114,7 +117,7 @@ This lets you deploy to whatever instance you want based on your branch (and con
 * [`createConfig`](#createconfig) - Create a config file based on CI environment variables (defaults to `src/config.js`)
 * [`deploy`](#deploy) - Deploy to Firebase (runs other actions by default)
 * [`mapEnv`](#mapenv) - Map environment variables from CI Environment to Firebase functions environment
-
+* [`project`](#project) - Output project name associated with CI environment (useful for commands that should be run for each environment)
 
 ### copyVersion
 
@@ -217,9 +220,8 @@ Provide extra information from internal actions (including npm install of `fireb
 If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
 
 ```yaml
-after_success:
-  - npm i -g firebase-ci
-  - firebase-ci deploy --only hosting
+script:
+  - $(npm bin)/firebase-ci deploy --only hosting
 ```
 
 ### mapEnv
@@ -250,15 +252,29 @@ CI variable is SOME_TOKEN="asdf" and you would like to set it to `some.token` on
 Internally calls `firebase functions:config:set some.token="asdf"`. This will happen for every variable you provide within mapEnv.
 
 ### skipDependenciesInstall
+
 Skip installing of dependencies including `firebase-tools` and `node_modules` within `functions` folder
 
 ### skipToolsInstall
+
 Skip installing of `firebase-tools` (installed by default when calling `firebase-ci deploy` without simple mode)
 
 ### skipFunctionsInstall
+
 Skip running `npm install` within `functions` folder (`npm install` is called within `functions` folder by default when calling `firebase-ci deploy`).
 
+### project
+
+Get name of project associated with the CI environment
+
+##### Example
+
+```bash
+echo "Project to deploy to $(firebase-ci project)"
+```
+
 ### Roadmap
+
 * `setCORS` option for copying CORS config file to Cloud Storage Bucket
 * only setting non existent env vars with `mapEnv`
 * Support for Continuous Integration Tools other than Travis-CI
