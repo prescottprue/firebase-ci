@@ -18,10 +18,13 @@ function formattedErrorMessage(err) {
 }
 
 function tryTemplating(str, name) {
-  const packageFilePath = path.join(process.cwd(), 'package.json')
-  const { version } = getFile(packageFilePath)
+  const { version } = getFile('package.json')
   try {
-    return template(str)({ ...process.env, version })
+    return template(str)({
+      ...process.env,
+      version,
+      npm_package_version: version
+    })
   } catch (err) {
     const errMsg = formattedErrorMessage(err)
     warn(`${errMsg}. Setting ${chalk.cyan(name)} to an empty string.`)
