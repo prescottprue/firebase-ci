@@ -11,6 +11,7 @@ module.exports = function(client) {
   client.copyVersion = loadCommand('copyVersion')
   client.mapEnv = loadCommand('mapEnv')
   client.run = loadCommand('run')
+  client.project = loadCommand('project')
 
   return client
 }

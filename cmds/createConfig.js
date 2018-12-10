@@ -26,11 +26,11 @@ module.exports = function(program) {
       'Project within .firebaserc to use when creating config file. Defaults to "default" then to "master"'
     )
     .description(
-      'Build configuration file based on settings in .firebaserc. Uses TRAVIS_BRANCH to determine project from .firebaserc to use for config (falls back to "default" then to "master").'
+      'Build configuration file based on settings in .firebaserc. Uses environment variables to determine project from .firebaserc to use for config (falls back to "default" then to "master").'
     )
-    .action((directory, options) => {
+    .action(options => {
       try {
-        createConfig(program.args[0], directory, options)
+        createConfig({ project: typeof options === 'string' ? options : null })
         return process.exit(0)
       } catch (err) {
         return process.exit(1)

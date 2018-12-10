@@ -1,6 +1,7 @@
 import { get } from 'lodash'
 import { shellescape } from './commands'
-import { warn } from '../utils/logger'
+import { warn } from './logger'
+import { getFile } from './files'
 
 /**
  * Get the name of the current branch from environment variables
@@ -37,6 +38,16 @@ export function getProjectKey(opts) {
   return (
     FIREBASE_CI_PROJECT ||
     get(opts, 'project', branchName === 'master' ? 'default' : branchName)
+  )
+}
+
+export function getProjectName(opts) {
+  const projectKey = getProjectKey(opts)
+  const firebaserc = getFile('.firebaserc')
+  return get(
+    firebaserc,
+    `projects.${projectKey}`,
+    get(firebaserc, 'projects.master')
   )
 }
 

@@ -4,14 +4,9 @@ import chalk from 'chalk'
 import { reduce, template, mapValues, get, isString } from 'lodash'
 import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
+import { getProjectKey } from '../utils/ci'
 
-const {
-  FIREBASE_CI_PROJECT,
-  TRAVIS_BRANCH,
-  CIRCLE_BRANCH,
-  CI_COMMIT_REF_SLUG,
-  CI_ENVIRONMENT_SLUG
-} = process.env
+const { CI_ENVIRONMENT_SLUG } = process.env
 
 function formattedErrorMessage(err) {
   const errMessage = get(err, 'message', 'Issue templating config file')
@@ -23,8 +18,13 @@ function formattedErrorMessage(err) {
 }
 
 function tryTemplating(str, name) {
+  const { version } = getFile('package.json')
   try {
-    return template(str)(process.env)
+    return template(str)({
+      ...process.env,
+      version,
+      npm_package_version: version
+    })
   } catch (err) {
     const errMsg = formattedErrorMessage(err)
     warn(`${errMsg}. Setting ${chalk.cyan(name)} to an empty string.`)
@@ -67,14 +67,7 @@ export default function createConfigFile(config) {
   // Set options object for later use (includes path for config file)
   const opts = {
     path: get(config, 'path', './src/config.js'),
-    project: get(
-      config,
-      'project',
-      FIREBASE_CI_PROJECT ||
-        TRAVIS_BRANCH ||
-        CIRCLE_BRANCH ||
-        CI_COMMIT_REF_SLUG
-    )
+    project: getProjectKey(config)
   }
 
   // Get environment config from settings file based on settings or branch
@@ -87,9 +80,8 @@ export default function createConfigFile(config) {
   const fallBackConfigName =
     CI_ENVIRONMENT_SLUG || (createConfig.master ? 'master' : 'default')
 
-  const envConfig = createConfig[opts.project]
-    ? createConfig[opts.project]
-    : createConfig[fallBackConfigName]
+  const envConfig =
+    createConfig[opts.project] || createConfig[fallBackConfigName]
 
   if (!envConfig) {
     const msg = 'Valid create config settings could not be loaded'
@@ -97,7 +89,11 @@ export default function createConfigFile(config) {
     throw new Error(msg)
   }
 
-  info(`Creating config file at path: ${chalk.cyan(opts.path)}`)
+  info(
+    `Creating config file at ${chalk.cyan(opts.path)} for project: ${chalk.cyan(
+      createConfig[opts.project] ? opts.project : fallBackConfigName
+    )}`
+  )
 
   // template data based on environment variables
   const templatedData = mapValues(envConfig, (parent, parentName) =>
