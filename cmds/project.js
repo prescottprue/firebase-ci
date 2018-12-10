@@ -1,20 +1,12 @@
-/* deploy commander component
- * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
- */
 'use strict'
 const getProjectName = require('../lib/utils/ci').getProjectName
 
 /**
- * @name mapEnv
- * @description Map environment variables from CI environment to functions config
+ * @name project
+ * @description Get name of the firebase project associated with the current CI environment.
  * @example <caption>Basic</caption>
- * # make sure you set mapEnv settings in .firebaserc
- * npm i -g firebase-ci
- * firebase-ci mapEnv
- * @example <caption>Travis</caption>
- * after_success:
- *   - npm i -g firebase-ci
- *   - firebase-ci mapEnv
+ * echo "Project to deploy to $(firebase-ci project)"
+ * // => "Project to deploy to my-project"
  */
 module.exports = function(program) {
   program
