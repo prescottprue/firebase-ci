@@ -33,7 +33,8 @@ export function runCommand({
   return new Promise((resolve, reject) => {
     const child = spawn(
       isArray(command) ? command[0] : command.split(' ')[0],
-      args || compact(drop(command.split(' ')))
+      args || compact(drop(command.split(' '))),
+      { env: process.env }
     )
     let output
     let error

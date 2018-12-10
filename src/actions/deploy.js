@@ -152,10 +152,11 @@ export default async function deploy(opts) {
   if (process.env.FIREBASE_CI_DEBUG || settings.debug) {
     deployArgs.concat(['--debug'])
   }
+
   // Run deploy command
   const [deployErr] = await to(
     runCommand({
-      command: npxExists ? 'npx' : '$(npm bin)/firebase',
+      command: npxExists ? 'npx' : 'firebase',
       args: npxExists ? ['firebase'].concat(deployArgs) : deployArgs,
       beforeMsg: `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`,
       errorMsg: 'Error deploying to firebase.',

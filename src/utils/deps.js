@@ -1,7 +1,7 @@
+import commandExists from 'command-exists'
 import { functionsExists, functionsNodeModulesExist } from './files'
 import { runCommand } from './commands'
 import { to } from './async'
-import commandExists from 'command-exists'
 import { info as logInfo, error } from './logger'
 
 export function getNpxExists() {
@@ -21,7 +21,7 @@ export async function installDeps(opts = {}, settings = {}) {
   // globally installed versions of firebase-tools) falling back to npm bin
   const [versionErr, fbVersion] = await to(
     runCommand({
-      command: npxExists ? 'npx' : '$(npm bin)/firebase',
+      command: npxExists ? 'npx' : 'firebase',
       args: npxExists ? ['firebase', '--version'] : ['--version'],
       pipeOutput: false,
       beforeMsg: 'Checking to see if firebase-tools is installed...',
@@ -31,7 +31,7 @@ export async function installDeps(opts = {}, settings = {}) {
   if (versionErr) {
     const getVersionErrMsg =
       'Error attempting to check for firebase-tools version.'
-    error(getVersionErrMsg)
+    error(getVersionErrMsg, versionErr)
     throw new Error(getVersionErrMsg)
   }
   const promises = []
