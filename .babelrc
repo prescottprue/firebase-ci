@@ -12,5 +12,20 @@
   "plugins": [
     "lodash",
     "add-module-exports"
-  ]
+  ],
+  "env": {
+    "es": {
+      "comments": false
+    },
+    "commonjs": {
+      "comments": false
+    },
+    "test": {
+      "plugins": [
+        ["module-resolver", {
+         "root": ["./src"]
+       }]
+      ]
+    }
+  }
 }

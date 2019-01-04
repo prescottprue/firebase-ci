@@ -47,24 +47,23 @@ function createConfigSetString(mapEnvSettings) {
  *   }
  * }
  */
-export default async copySettings => {
+export default async function mapEnv(copySettings) {
+  // Load settings from .firebaserc
   const settings = getFile('.firebaserc')
-  if (!settings) {
-    error('.firebaserc file is required')
-    throw new Error('.firebaserc file is required')
-  }
 
+  // Get mapEnv settings from .firebaserc, falling back to settings passed to cli
   const mapEnvSettings = get(settings, 'ci.mapEnv', copySettings)
 
   if (!mapEnvSettings) {
     const msg = 'mapEnv parameter with settings needed in .firebaserc!'
     warn(msg)
-    throw new Error(msg)
+    return null
   }
 
-  const fallbackProjectName = getFallbackProjectKey()
   // Get project from passed options, falling back to branch name
+  const fallbackProjectName = getFallbackProjectKey()
   const projectKey = getProjectKey(copySettings)
+
   // Get project setting from settings file based on branchName falling back
   // to fallbackProjectName
   const projectName = get(settings, `projects.${projectKey}`)
@@ -78,16 +77,17 @@ export default async copySettings => {
     const nonProjectBranch = `${skipPrefix} - Project ${chalk.cyan(
       projectKey
     )} is not an alias, checking for fallback...`
-    info(nonProjectBranch)
+    warn(nonProjectBranch)
     if (!fallbackProjectSetting) {
       const nonFallbackBranch = `${skipPrefix} - Fallback Project: ${chalk.cyan(
         fallbackProjectName
       )} is a not an alias, exiting...`
-      info(nonFallbackBranch)
+      warn(nonFallbackBranch)
       return nonProjectBranch
     }
-    return nonProjectBranch
+    return null
   }
+
   // Create command string
   const setConfigCommand = createConfigSetString(mapEnvSettings)
   info('Mapping Environment to Firebase Functions...')
@@ -95,6 +95,7 @@ export default async copySettings => {
   // Run command to set functions config
   const [configSetErr] = await to(runCommand(setConfigCommand))
 
+  // Handle errors running functions config
   if (configSetErr) {
     const errMsg = `Error setting Firebase functions config variables from variables CI environment (mapEnv):`
     error(errMsg, configSetErr)
