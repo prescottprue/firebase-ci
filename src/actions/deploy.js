@@ -91,7 +91,7 @@ export default async function deploy(opts) {
     `projects.${fallbackProjectName}`
   )
 
-  // Handle project option
+  // Handle project alias not existing in .firebaserc
   if (!projectName) {
     const nonProjectBranch = `${skipPrefix} - Project ${chalk.cyan(
       projectKey
