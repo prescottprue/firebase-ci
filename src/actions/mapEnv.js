@@ -1,8 +1,39 @@
-import { map, get } from 'lodash'
-import { error, success, info, warn } from '../utils/logger'
+import { map, get, compact } from 'lodash'
+import { error, info, warn } from '../utils/logger'
 import { getFile } from '../utils/files'
 import { to } from '../utils/async'
 import { runCommand } from '../utils/commands'
+import chalk from 'chalk'
+import { getProjectKey, getFallbackProjectKey } from '../utils/ci'
+
+const skipPrefix = 'Skipping firebase-ci mapEnv'
+
+/**
+ * Build a string from mapEnv setting
+ * @param {String} functionsVar - Name of variable within functions
+ * @param {String} envVar - Variable within environment
+ */
+function strFromEnvironmentVarSetting(functionsVar, envVar) {
+  if (!process.env[envVar]) {
+    const msg = `${envVar} does not exist on within environment variables`
+    warn(msg)
+    return ''
+  }
+  return `${functionsVar}="${process.env[envVar]}"`
+}
+
+/**
+ * Combine all functions config sets from mapEnv settings in
+ * .firebaserc to a single functions config set command string.
+ * @param {Object} mapEnvSettings - Settings for mapping environment
+ */
+function createConfigSetString(mapEnvSettings) {
+  const settingsStrsArr = map(mapEnvSettings, strFromEnvironmentVarSetting)
+  const settingsStr = compact(settingsStrsArr).join(' ')
+  // Get project from passed options, falling back to branch name
+  const projectKey = getProjectKey(mapEnvSettings)
+  return `firebase functions:config:set ${settingsStr} -P ${projectKey}`
+}
 
 /**
  * Map CI environment variables to Firebase functions config variables
@@ -16,46 +47,60 @@ import { runCommand } from '../utils/commands'
  *   }
  * }
  */
-export default async copySettings => {
+export default async function mapEnv(copySettings) {
+  // Load settings from .firebaserc
   const settings = getFile('.firebaserc')
-  if (!settings) {
-    error('.firebaserc file is required')
-    return Promise.reject(new Error('.firebaserc file is required'))
-  }
 
+  // Get mapEnv settings from .firebaserc, falling back to settings passed to cli
   const mapEnvSettings = get(settings, 'ci.mapEnv', copySettings)
 
   if (!mapEnvSettings) {
     const msg = 'mapEnv parameter with settings needed in .firebaserc!'
     warn(msg)
-    throw new Error(msg)
+    return null
   }
 
+  // Get project from passed options, falling back to branch name
+  const fallbackProjectName = getFallbackProjectKey()
+  const projectKey = getProjectKey(copySettings)
+
+  // Get project setting from settings file based on branchName falling back
+  // to fallbackProjectName
+  const projectName = get(settings, `projects.${projectKey}`)
+  const fallbackProjectSetting = get(
+    settings,
+    `projects.${fallbackProjectName}`
+  )
+
+  // Handle project option
+  if (!projectName) {
+    const nonProjectBranch = `${skipPrefix} - Project ${chalk.cyan(
+      projectKey
+    )} is not an alias, checking for fallback...`
+    warn(nonProjectBranch)
+    if (!fallbackProjectSetting) {
+      const nonFallbackBranch = `${skipPrefix} - Fallback Project: ${chalk.cyan(
+        fallbackProjectName
+      )} is a not an alias, exiting...`
+      warn(nonFallbackBranch)
+      return nonProjectBranch
+    }
+    return null
+  }
+
+  // Create command string
+  const setConfigCommand = createConfigSetString(mapEnvSettings)
   info('Mapping Environment to Firebase Functions...')
 
-  return Promise.all(map(mapEnvSettings, setEnvVarInFunctions))
-}
-
-async function setEnvVarInFunctions(functionsVar, travisVar) {
-  if (!process.env[travisVar]) {
-    const msg = `${travisVar} does not exist on within Travis-CI environment variables`
-    success(msg)
-    throw new Error(msg)
-  }
-  info(
-    `Setting ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`
-  )
-  // TODO: Check for not allowed characters in functionsVar (camelcase not allowed?)
-  const setConfigCommand = `firebase functions:config:set ${functionsVar}="${
-    process.env[travisVar]
-  }"`
+  // Run command to set functions config
   const [configSetErr] = await to(runCommand(setConfigCommand))
+
+  // Handle errors running functions config
   if (configSetErr) {
-    const errMsg = `Error setting Firebase functions config variable: ${functionsVar} from ${travisVar} variable on Travis-CI.`
-    error(errMsg)
+    const errMsg = `Error setting Firebase functions config variables from variables CI environment (mapEnv):`
+    error(errMsg, configSetErr)
     throw new Error(errMsg)
   }
-  info(
-    `Successfully set ${functionsVar} within Firebase config from ${travisVar} variable on Travis-CI.`
-  )
+
+  info('Successfully set functions config from variables in CI environment')
 }
