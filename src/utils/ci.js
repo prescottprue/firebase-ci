@@ -90,7 +90,10 @@ export function getCommitMessage() {
  * running shellescape. If commit message is not found then "Update" is returned
  * @return {String}
  */
-export function getDeployMessage() {
+export function getDeployMessage(opts) {
+  if (opts && opts.message) {
+    return opts.message
+  }
   const originalMessage = getCommitMessage()
   const DEFAULT_DEPLOY_MESSAGE = 'Update'
   // Return "Update" (default message) if no message is gathered from env vars

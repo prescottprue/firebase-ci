@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { log, info, success, error, warn } from '../utils/logger'
+import { log, info, success, error } from '../utils/logger'
 import { functionsExists } from '../utils/files'
 
 function createPath(filePath) {
@@ -17,7 +17,7 @@ export default function copyVersion(config = { silence: false }) {
     if (config.silence) {
       return
     }
-    warn('Functions folder does not exist. Exiting...')
+    info('Functions folder does not exist - skipping version copy')
     return
   }
   info('Copying version from package.json to functions/package.json...')

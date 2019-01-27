@@ -1,11 +1,11 @@
-import { isUndefined, compact, get } from 'lodash'
+import { isUndefined, get } from 'lodash'
 import chalk from 'chalk'
+import firebaseCli from 'firebase-tools'
 import copyVersion from './copyVersion'
 import mapEnv from './mapEnv'
 import { getFile, functionsExists } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
-import { runCommand } from '../utils/commands'
-import { installDeps, getNpxExists } from '../utils/deps'
+import { installDeps } from '../utils/deps'
 import {
   getBranch,
   isPullRequest,
@@ -108,21 +108,27 @@ export default async function deploy(opts) {
   }
 
   // Handle FIREBASE_TOKEN not existing within environment variables
-  const { FIREBASE_TOKEN } = process.env
+  const { FIREBASE_TOKEN, CI } = process.env
   if (!FIREBASE_TOKEN) {
-    error(`${chalk.cyan('FIREBASE_TOKEN')} environment variable not found`)
-    info(
-      `To Fix: Run ${chalk.cyan(
-        'firebase login:ci'
-      )} (from firebase-tools) to generate a token then place it CI environment variables as ${chalk.cyan(
+    if (CI) {
+      error(`${chalk.cyan('FIREBASE_TOKEN')} environment variable not found`)
+      info(
+        `To Fix: Run ${chalk.cyan(
+          'firebase login:ci'
+        )} (from firebase-tools) to generate a token then place it CI environment variables as ${chalk.cyan(
+          'FIREBASE_TOKEN'
+        )}`
+      )
+      throw new Error('FIREBASE_TOKEN env variable not found.')
+    }
+    warn(
+      `${chalk.cyan(
         'FIREBASE_TOKEN'
-      )}`
+      )} environment variable not found, falling back to current firebase-tools auth...`
     )
-    throw new Error('FIREBASE_TOKEN env variable not found.')
   }
 
-  const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
-  const message = getDeployMessage()
+  const message = getDeployMessage(opts)
 
   // Install firebase-tools and functions dependencies unless skipped by config
   if (!settings.skipDependencyInstall) {
@@ -137,38 +143,26 @@ export default async function deploy(opts) {
   } else {
     info('Simple mode enabled. Skipping CI actions')
   }
-  const npxExists = getNpxExists()
-  const deployArgs = compact([
-    'deploy',
-    onlyString,
-    '--token',
-    FIREBASE_TOKEN || 'Invalid.Token',
-    '--project',
-    projectKey,
-    '--message',
-    message
-  ])
+  info(
+    `Deploying ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
+  )
 
-  if (process.env.FIREBASE_CI_DEBUG || settings.debug) {
-    deployArgs.concat(['--debug'])
-  }
-
-  // Run deploy command
   const [deployErr] = await to(
-    runCommand({
-      command: npxExists ? 'npx' : 'firebase',
-      args: npxExists ? ['firebase'].concat(deployArgs) : deployArgs,
-      beforeMsg: `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`,
-      errorMsg: 'Error deploying to firebase.',
-      successMsg: `Successfully Deployed ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
+    await firebaseCli.deploy({
+      project: projectKey,
+      token: process.env.FIREBASE_TOKEN,
+      only: opts.only,
+      message
     })
   )
 
-  // Handle errors within the deploy command
   if (deployErr) {
     error('Error in firebase-ci:\n ', deployErr)
-    throw deployErr
   }
+
+  info(
+    `Successfully Deployed ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
+  )
 
   return null
 }
