@@ -25,16 +25,21 @@ module.exports = function(program) {
       'Deploy to Firebase only on build branches (master, stage, prod)'
     )
     // .option('-d --debug', 'Enable extra logging') // taken by autocmdr
-    .option('-i --info', 'Extra Info from installs')
     .option(
-      '-o --only <targets>',
-      'Only deploy to specified, comma-seperated targets (e.g "hosting, storage")',
-      /^(hosting|functions|small)$/i
+      '-o, --only <targets>',
+      'Only deploy to specified, comma-seperated targets (e.g "hosting, storage")'
+      // /^(hosting|functions|small)$/i
     )
     .option('-s --simple', 'Skip CI actions, and only run deployment')
+    .option('-m --message', 'Deploy message')
+    .option(
+      '-a --actions',
+      'Run all CI action which have settings in ci section of .firebaserc'
+    )
     // .option('-a --actions <actions>', 'Only run certain CI actions (e.g "mapEnv", "createConfig")', /^(mapEnv|createConfig|copyVersion)$/i)
-    .action(() => {
-      return deployToFirebase(program.args[0])
+    .action((res, cmd) => {
+      const { only, simple, message } = res
+      return deployToFirebase({ only, simple: simple || true, message })
         .then(() => process.exit(0))
         .catch(() => process.exit(1))
     })
