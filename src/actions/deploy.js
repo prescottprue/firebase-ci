@@ -107,18 +107,14 @@ export default async function deploy(opts) {
     return nonProjectBranch
   }
 
-  // Handle FIREBASE_TOKEN not existing within environment variables
+  // Warn if FIREBASE_TOKEN does not exist within environment variables
   const { FIREBASE_TOKEN } = process.env
   if (!FIREBASE_TOKEN) {
-    error(`${chalk.cyan('FIREBASE_TOKEN')} environment variable not found`)
-    info(
-      `To Fix: Run ${chalk.cyan(
-        'firebase login:ci'
-      )} (from firebase-tools) to generate a token then place it CI environment variables as ${chalk.cyan(
+    warn(
+      `${chalk.cyan(
         'FIREBASE_TOKEN'
-      )}`
+      )} environment variable not found, falling back to current Firebase auth`
     )
-    throw new Error('FIREBASE_TOKEN env variable not found.')
   }
 
   const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
@@ -137,12 +133,12 @@ export default async function deploy(opts) {
   } else {
     info('Simple mode enabled. Skipping CI actions')
   }
+  const firebaseTokenStr = FIREBASE_TOKEN ? `--token ${FIREBASE_TOKEN}` : null
   const npxExists = getNpxExists()
   const deployArgs = compact([
     'deploy',
     onlyString,
-    '--token',
-    FIREBASE_TOKEN || 'Invalid.Token',
+    firebaseTokenStr,
     '--project',
     projectKey,
     '--message',
