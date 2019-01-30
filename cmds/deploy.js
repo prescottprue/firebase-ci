@@ -24,7 +24,7 @@ module.exports = function(program) {
     .description(
       'Deploy to Firebase only on build branches (master, stage, prod)'
     )
-    // .option('-d --debug', 'Enable extra logging') // taken by autocmdr
+    .option('-d --debug', 'Enable extra logging') // taken by autocmdr
     .option('-i --info', 'Extra Info from installs')
     .option(
       '-o --only <targets>',

@@ -133,12 +133,12 @@ export default async function deploy(opts) {
   } else {
     info('Simple mode enabled. Skipping CI actions')
   }
-  const firebaseTokenStr = FIREBASE_TOKEN ? `--token ${FIREBASE_TOKEN}` : null
+  const firebaseTokenStr = FIREBASE_TOKEN ? `--token ${FIREBASE_TOKEN}` : ''
   const npxExists = getNpxExists()
   const deployArgs = compact([
     'deploy',
-    onlyString,
-    firebaseTokenStr,
+    ...onlyString.split(' '),
+    ...firebaseTokenStr.split(' '),
     '--project',
     projectKey,
     '--message',
