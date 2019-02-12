@@ -131,7 +131,7 @@ It can be convenient for the version within the `functions/package.json` file to
 
 ### createConfig
 
-Create a config file based on CI environment variables (defaults to `src/config.js`)
+Create a config file based on CI environment variables (defaults to `src/config.js`). Allows for creating files of different types based on the extension passed.
 
 With the following environment variables:
 `GA_TRACKINGID` - Your google analytics tracking id
@@ -185,6 +185,12 @@ export const firebase = {
 
 export default { version, gaTrackingId, firebase }
 ```
+
+#### Options
+Options can be passed as flags or within an options object if calling action as a function
+
+`--project` - Project within .firebaserc to use when creating config file. Defaults to `"default"` then to `"master"`
+`--path` - Path to save the config file. Defaults to src/config.js
 
 ### deploy
 
