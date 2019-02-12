@@ -61,6 +61,7 @@ export default function createConfigFile(config) {
 
   // Check for ci section of settings file
   if (!settings.ci || !settings.ci.createConfig) {
+    error('no createConfig settings found')
     return
   }
 

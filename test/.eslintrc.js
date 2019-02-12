@@ -8,6 +8,7 @@ module.exports = {
 		beforeEach: true,
 		it: true,
 		describe: true,
+		sinon: true, // sinon
 		file: true, // chai-files
 		dir: true // chai-files
 	},
