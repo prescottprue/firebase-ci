@@ -12,9 +12,7 @@ branches:
     - master
     - next
 
-cache:
-  directories:
-    - $HOME/.npm
+cache: npm
 
 script:
   - npm run lint
