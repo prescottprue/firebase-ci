@@ -1,6 +1,6 @@
 {
   "name": "firebase-ci",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "Simplified Firebase interaction for continuous integration including deploying hosting, functions, and database/storage rules.",
   "main": "lib/index.js",
   "bin": {
@@ -81,12 +81,12 @@
     "chai": "^4.2.0",
     "codecov": "^3.1.0",
     "cross-env": "^5.2.0",
-    "env-cmd": "^5.0.0",
-    "eslint": "^5.9.0",
-    "eslint-config-prettier": "^3.3.0",
+    "env-cmd": "^8.0.2",
+    "eslint": "^5.13.0",
+    "eslint-config-prettier": "^4.0.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-node": "^8.0.0",
     "eslint-plugin-prettier": "^3.0.0",
     "eslint-plugin-promise": "^4.0.1",
@@ -94,7 +94,7 @@
     "husky": "^1.3.1",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^5.2.0",
-    "prettier": "^1.15.3",
+    "prettier": "^1.16.4",
     "rimraf": "^2.6.2"
   }
 }
