@@ -21,16 +21,25 @@ const createConfig = require('../lib/index').createConfig
 module.exports = function(program) {
   program
     .command('createConfig')
-    .option(
-      '-p --project',
-      'Project within .firebaserc to use when creating config file. Defaults to "default" then to "master"'
-    )
     .description(
       'Build configuration file based on settings in .firebaserc. Uses environment variables to determine project from .firebaserc to use for config (falls back to "default" then to "master").'
     )
-    .action(options => {
+    .option(
+      '-p, --project [projectName]',
+      'Project within .firebaserc to use when creating config file. Defaults to "default" then to "master"',
+      'default'
+    )
+    .option(
+      '--path [pathToConfigFile]',
+      'Path to save the config file. Defaults to src/config.js',
+      './src/config.js'
+    )
+    .action(({ path, project }) => {
       try {
-        createConfig({ project: typeof options === 'string' ? options : null })
+        createConfig({
+          project: typeof project === 'string' ? project : null,
+          path: typeof path === 'string' ? path : null
+        })
         return process.exit(0)
       } catch (err) {
         return process.exit(1)

@@ -113,18 +113,21 @@ export default function createConfigFile(config) {
     )
 
   // combine all stringified vars and attach default export
-  const exportString = reduce(
-    templatedData,
-    (acc, parent, parentName) =>
-      acc
-        .concat(`export const ${parentName} = `)
-        .concat(
-          isString(parent)
-            ? `"${parent}";\n\n`
-            : `{\n${parentAsString(parent)}};\n\n`
-        ),
-    ''
-  ).concat(`export default { ${Object.keys(templatedData).join(', ')} }`)
+  const exportString =
+    path.extname(opts.path) === '.json'
+      ? JSON.stringify(templatedData, null, 2)
+      : reduce(
+          templatedData,
+          (acc, parent, parentName) =>
+            acc
+              .concat(`export const ${parentName} = `)
+              .concat(
+                isString(parent)
+                  ? `"${parent}";\n\n`
+                  : `{\n${parentAsString(parent)}};\n\n`
+              ),
+          ''
+        ).concat(`export default { ${Object.keys(templatedData).join(', ')} }`)
 
   const folderName = path.basename(path.dirname(opts.path))
 
