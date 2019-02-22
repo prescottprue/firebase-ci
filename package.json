@@ -13,15 +13,16 @@
     "cmds"
   ],
   "scripts": {
-    "clean": "rimraf lib coverage",
+    "clean:app": "rimraf lib",
+    "clean:test": "rimraf coverage",
     "lint": "eslint src cmds test bin/firebase-ci",
     "lint:fix": "npm run lint -- --fix",
     "test": "env-cmd ./test/.env mocha ./test/**/**/*.spec.js",
-    "test:cov": "env-cmd ./test/.env istanbul cover  $(npm bin)/_mocha -- ./test/unit/**/**/*.spec.js",
+    "test:cov": "npm run clean:test && env-cmd ./test/.env istanbul cover  $(npm bin)/_mocha -- ./test/unit/**/**/*.spec.js",
     "build:lib": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
-    "build": "npm run clean && npm run build:lib",
+    "build": "npm run clean:app && npm run build:lib",
     "watch": "npm run build:lib -- --stats --progress --colors --watch",
-    "prepare": "npm run clean && npm run build",
+    "prepare": "npm run clean:app && npm run build",
     "pre-push": "npm run lint",
     "codecov": "cat coverage/lcov.info | codecov"
   },
