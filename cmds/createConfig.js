@@ -40,9 +40,9 @@ module.exports = function(program) {
           project: typeof project === 'string' ? project : null,
           path: typeof path === 'string' ? path : null
         })
-        return process.exit(0)
+        process.exit(0)
       } catch (err) {
-        return process.exit(1)
+        process.exit(1)
       }
     })
 }

@@ -23,22 +23,16 @@
 1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
 1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci firebase-tools`. If you don't want `firebase-tools` as a dev dependency, it can be left out as it is installed automatically if it doesn't exist.
 1. Add the following npm scripts:
+
     ```json
     "build:config": "firebase-ci createConfig",
     "deploy": "firebase-ci deploy"
     ```
-
-1. Add the following scripts to your CI config:
-
-    ```bash
-    firebase-ci deploy # deploys only on branches that have a matching project name in .firebaserc
-    ```
-
-    For instance within a `travis.yml`:
+1. Add the following scripts to your CI config, for instance within a `travis.yml`:
 
       ```yaml
       script:
-        - npm run build:config # Build src/config.js
+        - npm run build:config # Build src/config.js (environment specific client config)
         - npm run lint # Check for lint
         - npm run deploy # Deploy to Firebase
       ```
