@@ -1,6 +1,6 @@
 {
   "name": "firebase-ci",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "Simplified Firebase interaction for continuous integration including deploying hosting, functions, and database/storage rules.",
   "main": "lib/index.js",
   "bin": {
@@ -23,7 +23,7 @@
     "watch": "npm run build:lib -- --stats --progress --colors --watch",
     "prepare": "npm run clean && npm run build",
     "pre-push": "npm run lint",
-    "codecov": "cat coverage/*/lcov.info | codecov"
+    "codecov": "cat coverage/lcov.info | codecov"
   },
   "repository": {
     "type": "git",
@@ -33,10 +33,10 @@
     "firebase",
     "firebase ci",
     "firebase-tools",
-    "firebase-functions",
-    "deploy",
     "ci",
+    "deploy",
     "gitlab",
+    "firebase-functions",
     "travis-ci",
     "circle-ci"
   ],

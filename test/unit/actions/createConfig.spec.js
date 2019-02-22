@@ -15,7 +15,7 @@ const testConfigRf = {
   }
 }
 
-describe.only('createConfig action', () => {
+describe('createConfig action', () => {
   let logSpy
   beforeEach(() => {
     logSpy = sinon.spy(console, 'log')
