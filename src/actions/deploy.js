@@ -17,6 +17,18 @@ import { to } from '../utils/async'
 
 const skipPrefix = 'Skipping Firebase Deploy'
 
+function getFirebaseTokenStr() {
+  const { FIREBASE_TOKEN, FIREBASE_CI_WRAP_TOKEN } = process.env
+  if (!FIREBASE_TOKEN) {
+    return ''
+  }
+  if (FIREBASE_CI_WRAP_TOKEN) {
+    info('Wrapping token in quotes')
+    return `--token "${FIREBASE_TOKEN}"`
+  }
+  return `--token ${FIREBASE_TOKEN}`
+}
+
 /**
  * Run firebase-ci actions
  * @param  {String} project - name of project
@@ -133,7 +145,8 @@ export default async function deploy(opts) {
   } else {
     info('Simple mode enabled. Skipping CI actions')
   }
-  const firebaseTokenStr = FIREBASE_TOKEN ? `--token ${FIREBASE_TOKEN}` : ''
+
+  const firebaseTokenStr = getFirebaseTokenStr()
   const npxExists = getNpxExists()
   const deployArgs = compact([
     'deploy',
@@ -146,6 +159,7 @@ export default async function deploy(opts) {
   ])
 
   if (process.env.FIREBASE_CI_DEBUG || settings.debug) {
+    info(`Calling deploy with: ${deployArgs.join(' ')}`)
     deployArgs.concat(['--debug'])
   }
 
