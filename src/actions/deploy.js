@@ -148,10 +148,11 @@ export default async function deploy(opts) {
 
   const firebaseTokenStr = getFirebaseTokenStr()
   const npxExists = getNpxExists()
-  const deployArgs = compact([
+  let deployArgs = compact([
     'deploy',
     ...onlyString.split(' '),
     ...firebaseTokenStr.split(' '),
+    '--non-interactive',
     '--project',
     projectKey,
     '--message',
@@ -159,8 +160,8 @@ export default async function deploy(opts) {
   ])
 
   if (process.env.FIREBASE_CI_DEBUG || settings.debug) {
+    deployArgs = deployArgs.concat(['--debug'])
     info(`Calling deploy with: ${deployArgs.join(' ')}`)
-    deployArgs.concat(['--debug'])
   }
 
   // Run deploy command

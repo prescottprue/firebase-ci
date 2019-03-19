@@ -102,6 +102,8 @@ export function getDeployMessage() {
     const cleanedMessage = originalMessage
       .replace(/"/g, "'")
       .replace(/`/g, '')
+      .replace(/\n/g, '')
+      .replace(/\t/g, '')
       .substring(0, 150)
     // Shellescape to catch any other abnormal characters
     return shellescape([cleanedMessage])
