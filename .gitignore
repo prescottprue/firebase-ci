@@ -8,3 +8,4 @@ _book
 .DS_Store
 # IDE
 .idea
+.nyc_output
