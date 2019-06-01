@@ -26,8 +26,7 @@ module.exports = function(program) {
     )
     .option(
       '-p, --project [projectName]',
-      'Project within .firebaserc to use when creating config file. Defaults to "default" then to "master"',
-      'default'
+      'Project within .firebaserc to use when creating config file. Defaults to "default" then to "master"'
     )
     .option(
       '--path [pathToConfigFile]',
@@ -36,10 +35,7 @@ module.exports = function(program) {
     )
     .action(({ path, project }) => {
       try {
-        createConfig({
-          project: typeof project === 'string' ? project : null,
-          path: typeof path === 'string' ? path : null
-        })
+        createConfig({ project, path })
         process.exit(0)
       } catch (err) {
         process.exit(1)
