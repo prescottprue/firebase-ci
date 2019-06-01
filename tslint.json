@@ -1,0 +1,15 @@
+{
+  "extends": [
+    "tslint:latest",
+    "tslint-config-prettier",
+    "tslint-config-standard"
+  ],
+  "rules": {
+    "experimentalDecorators": false,
+    "import-name": false,
+    "no-submodule-imports": false,
+    "no-boolean-literal-compare": false,
+    "prefer-array-literal": false,
+    "interface-name": [true, "never-prefix"]
+  }
+}

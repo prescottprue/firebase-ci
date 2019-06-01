@@ -7,7 +7,6 @@
     "firebase-ci": "./bin/firebase-ci"
   },
   "files": [
-    "src",
     "lib",
     "bin",
     "cmds"
@@ -19,7 +18,7 @@
     "lint:fix": "npm run lint -- --fix",
     "test": "env-cmd ./test/.env mocha ./test/**/**/*.spec.js",
     "test:cov": "npm run clean:test && nyc npm run test",
-    "build:lib": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
+    "build:lib": "tsc src/**/* --outDir lib",
     "build": "npm run clean:app && npm run build:lib",
     "watch": "npm run build:lib -- --stats --progress --colors --watch",
     "prepare": "npm run clean:app && npm run build",
@@ -71,35 +70,27 @@
     "lodash": "^4.17.11"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "^7.4.5",
-    "@babel/plugin-transform-modules-commonjs": "^7.4.4",
-    "@babel/preset-env": "^7.4.5",
-    "@babel/register": "^7.4.4",
-    "babel-eslint": "^10.0.1",
-    "babel-plugin-add-module-exports": "^1.0.0",
-    "babel-plugin-lodash": "^3.3.4",
-    "babel-plugin-module-resolver": "^3.1.1",
     "chai": "^4.2.0",
     "chai-files": "^1.4.0",
     "codecov": "^3.5.0",
     "cross-env": "^5.2.0",
     "env-cmd": "^8.0.2",
-    "eslint": "^5.16.0",
-    "eslint-config-prettier": "^4.3.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-import": "^2.17.3",
-    "eslint-plugin-node": "^9.1.0",
-    "eslint-plugin-prettier": "^3.1.0",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0",
     "husky": "^2.3.0",
     "mocha": "^6.1.4",
     "nyc": "^14.1.1",
     "prettier": "^1.17.1",
     "rimraf": "^2.6.2",
     "sinon": "^7.3.2",
-    "sinon-chai": "^3.3.0"
+    "sinon-chai": "^3.3.0",
+    "ts-node": "^8.0.3",
+    "tslib": "^1.9.3",
+    "tslint": "5.12.0",
+    "tslint-config-prettier": "^1.17.0",
+    "tslint-config-standard": "8.0.1",
+    "tslint-etc": "1.2.12",
+    "tslint-react": "3.6.0",
+    "typedoc": "0.14.0",
+    "typescript": "3.2.2",
+    "typescript-tslint-plugin": "0.2.1"
   }
 }
