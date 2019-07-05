@@ -1,9 +1,9 @@
 import { map, get, compact } from 'lodash'
+import chalk from 'chalk'
 import { error, info, warn } from '../utils/logger'
 import { getFile } from '../utils/files'
 import { to } from '../utils/async'
 import { runCommand } from '../utils/commands'
-import chalk from 'chalk'
 import { getProjectKey, getFallbackProjectKey } from '../utils/ci'
 
 const skipPrefix = 'Skipping firebase-ci mapEnv'
@@ -15,7 +15,9 @@ const skipPrefix = 'Skipping firebase-ci mapEnv'
  */
 function strFromEnvironmentVarSetting(functionsVar, envVar) {
   if (!process.env[envVar]) {
-    const msg = `${envVar} does not exist on within environment variables`
+    const msg = `${chalk.cyan(
+      envVar
+    )} does not exist on within environment variables`
     warn(msg)
     return ''
   }
@@ -27,12 +29,16 @@ function strFromEnvironmentVarSetting(functionsVar, envVar) {
  * .firebaserc to a single functions config set command string.
  * @param {Object} mapEnvSettings - Settings for mapping environment
  */
-function createConfigSetString(mapEnvSettings) {
-  const settingsStrsArr = map(mapEnvSettings, strFromEnvironmentVarSetting)
-  const settingsStr = compact(settingsStrsArr).join(' ')
+function buildConfigSetArgs(mapEnvSettings) {
+  const settingsStrsArr = compact(
+    map(mapEnvSettings, strFromEnvironmentVarSetting)
+  )
+  if (!settingsStrsArr.length) {
+    return null
+  }
   // Get project from passed options, falling back to branch name
   const projectKey = getProjectKey(mapEnvSettings)
-  return `firebase functions:config:set ${settingsStr} -P ${projectKey}`
+  return ['functions:config:set', ...settingsStrsArr, '-P', projectKey]
 }
 
 /**
@@ -88,12 +94,26 @@ export default async function mapEnv(copySettings) {
     return null
   }
 
-  // Create command string
-  const setConfigCommand = createConfigSetString(mapEnvSettings)
+  // Create command arguments
+  const setConfigArgs = buildConfigSetArgs(mapEnvSettings)
+  if (!setConfigArgs) {
+    warn(
+      `No variables from ${chalk.cyan(
+        'mapEnv'
+      )} settings found in environment, skipping mapping of environment variables`
+    )
+    return null
+  }
+
   info('Mapping Environment to Firebase Functions...')
 
   // Run command to set functions config
-  const [configSetErr] = await to(runCommand(setConfigCommand))
+  const [configSetErr] = await to(
+    runCommand({
+      command: 'firebase',
+      args: setConfigArgs
+    })
+  )
 
   // Handle errors running functions config
   if (configSetErr) {

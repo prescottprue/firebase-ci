@@ -2,7 +2,7 @@
  * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
  */
 'use strict'
-const copyVersion = require('../lib/index').copyVersion
+const copyVersion = require('../lib/actions/copyVersion').default
 
 /**
  * @name copyVersion

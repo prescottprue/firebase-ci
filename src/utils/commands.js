@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import { drop, compact, isArray } from 'lodash'
 import stream from 'stream'
 import { info } from '../utils/logger'
 const { spawn } = require('child_process')
@@ -31,11 +30,7 @@ export function runCommand({
 }) {
   if (beforeMsg) info(beforeMsg)
   return new Promise((resolve, reject) => {
-    const child = spawn(
-      isArray(command) ? command[0] : command.split(' ')[0],
-      args || compact(drop(command.split(' '))),
-      { env: process.env }
-    )
+    const child = spawn(command, args, { env: process.env, shell: true })
     let output
     let error
     const customStream = new stream.Writable()

@@ -10,8 +10,7 @@
     ]
   ],
   "plugins": [
-    "lodash",
-    "add-module-exports"
+    "lodash"
   ],
   "env": {
     "es": {
