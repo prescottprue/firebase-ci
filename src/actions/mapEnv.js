@@ -45,7 +45,7 @@ function buildConfigSetArgs(mapEnvSettings) {
  * Map CI environment variables to Firebase functions config variables
  * @param {Object} copySettings - Settings for how environment variables should
  * be copied from CI environment to Firebase Functions Environment
- * @return {Promise} Resolves with undefined (result of functions config set)
+ * @returns {Promise} Resolves with undefined (result of functions config set)
  * @example
  * "ci": {
  *   "mapEnv": {

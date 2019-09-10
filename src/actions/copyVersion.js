@@ -9,8 +9,8 @@ function createPath(filePath) {
 
 /**
  * Copy version from main package file into functions package file
- * @param  {String} opts - name of project
- * @param  {Boolean} opts.silent - Whether or not to warn
+ * @param {String} opts - name of project
+ * @param {Boolean} opts.silent - Whether or not to warn
  */
 export default function copyVersion(config = { silence: false }) {
   if (!functionsExists()) {

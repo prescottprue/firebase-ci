@@ -19,21 +19,23 @@ export async function installDeps(opts = {}, settings = {}) {
   const npxExists = getNpxExists()
   // Check version of firebase tools using npx (to allow for locally and
   // globally installed versions of firebase-tools) falling back to npm bin
+  logInfo('Checking to see if firebase-tools is installed...')
   const [versionErr, fbVersion] = await to(
     runCommand({
       command: npxExists ? 'npx' : 'firebase',
       args: npxExists ? ['firebase', '--version'] : ['--version'],
-      pipeOutput: false,
-      beforeMsg: 'Checking to see if firebase-tools is installed...',
-      errorMsg: 'Error checking for firebase-tools.'
+      pipeOutput: false
     })
   )
+
+  // Handle errors getting firebase-tools version
   if (versionErr) {
     const getVersionErrMsg =
       'Error attempting to check for firebase-tools version.'
     error(getVersionErrMsg, versionErr)
     throw new Error(getVersionErrMsg)
   }
+
   const promises = []
   // Skip installing firebase-tools if specified by config
   if (settings.skipToolsInstall) {
@@ -62,6 +64,7 @@ export async function installDeps(opts = {}, settings = {}) {
       )
     }
   }
+
   // Call npm install in functions folder if it exists and does
   // not already contain node_modules
   if (
@@ -79,6 +82,7 @@ export async function installDeps(opts = {}, settings = {}) {
       })
     )
   }
+
   // Run installs in parallel for quickest completion
   return Promise.all(promises)
 }
