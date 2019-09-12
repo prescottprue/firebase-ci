@@ -1,6 +1,6 @@
 import stream from 'stream'
-import { info } from '../utils/logger'
 import { spawn } from 'child_process'
+import { info } from '../utils/logger'
 
 process.env.FORCE_COLOR = true
 
