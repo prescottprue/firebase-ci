@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "experimentalDecorators": true,
     "lib": ["es6"],
     "target": "es5",
     "module": "commonjs",
@@ -17,6 +16,11 @@
     // "declarationDir": "types",
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
+  "typeRoots": [
+    "./node_modules/@types"
+  ],
   "exclude": ["node_modules"]
 }

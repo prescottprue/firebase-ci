@@ -1,20 +1,20 @@
 /**
  * Async await wrapper for easy error handling
- * @param  {Promise} promise - Promise to wrap responses of
- * @return {Promise} Resolves and rejects with an array
- * @example
- * async function asyncFunctionWithThrow() {
- *  const [err, snap] = await to(
- *    admin.database().ref('some').once('value')
- *  );
- *  if (err) {
- *    console.error('Error getting data:', err.message || err)
- *    throw err
- *  }
- *  if (!snap.val()) throw new Error('Data not found');
- *  console.log('Data found:', snap.val())
- * }
+ * @param promise - Promise to wrap responses of in array
+ * @param errorExt - Extension of error object
+ * @returns Resolves and rejects with an array
  */
-export function to(promise) {
-  return promise.then(data => [null, data]).catch(err => [err])
+export function to<T, U = Error>(
+  promise: Promise<T>,
+  errorExt?: object,
+): Promise<[U | null, T | undefined]> {
+  return promise
+    .then<[null, T]>((data: T) => [null, data])
+    .catch<[U, undefined]>((err: U) => {
+      if (errorExt) {
+        Object.assign(err, errorExt);
+      }
+
+      return [err, undefined];
+    });
 }

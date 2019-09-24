@@ -1,14 +1,9 @@
-/* deploy commander component
- * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
- */
-'use strict'
-const createConfig = require('../lib/index').createConfig
+const createConfig = require('../lib/index').createConfig;
 
 /**
  * @name deploy
- * @description Deploy to Firebase only on build branches (master, stage, prod)
- * @param {String} only - Only flag can be passed to deploy only specified
- * targets (e.g hosting, storage)
+ * Deploy to Firebase only on build branches (master, stage, prod)
+ * @param {object} program - Commander program
  * @example <caption>Basic</caption>
  * # make sure FIREBASE_TOKEN env variable is set
  * npm i -g firebase-ci
@@ -18,7 +13,7 @@ const createConfig = require('../lib/index').createConfig
  *   - npm i -g firebase-ci
  *   - firebase-ci deploy
  */
-module.exports = function(program) {
+module.exports = function createConfigCommand(program) {
   program
     .command('createConfig')
     .description(
@@ -35,10 +30,10 @@ module.exports = function(program) {
     )
     .action(({ path, project }) => {
       try {
-        createConfig({ project, path })
-        process.exit(0)
+        createConfig({ project, path });
+        process.exit(0);
       } catch (err) {
-        process.exit(1)
+        process.exit(1);
       }
-    })
-}
+    });
+};

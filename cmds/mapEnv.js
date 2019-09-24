@@ -1,12 +1,9 @@
-/* deploy commander component
- * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
- */
-'use strict'
-const mapEnv = require('../lib/index').mapEnv
+const mapEnv = require('../lib/index').mapEnv;
 
 /**
  * @name mapEnv
- * @description Map environment variables from CI environment to functions config
+ * Map environment variables from CI environment to functions config
+ * @param {object} program - Commander program
  * @example <caption>Basic</caption>
  * # make sure you set mapEnv settings in .firebaserc
  * npm i -g firebase-ci
@@ -16,13 +13,13 @@ const mapEnv = require('../lib/index').mapEnv
  *   - npm i -g firebase-ci
  *   - firebase-ci mapEnv
  */
-module.exports = function(program) {
+module.exports = function mapEnvCommand(program) {
   program
     .command('mapEnv')
     .description('Copy version from outer folder into functions folder')
     .action((directory, options) => {
       return mapEnv(program.args[0])
         .then(() => process.exit(0))
-        .catch(() => process.exit(1))
-    })
-}
+        .catch(() => process.exit(1));
+    });
+};

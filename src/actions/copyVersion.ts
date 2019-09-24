@@ -1,40 +1,31 @@
-import fs from 'fs'
-import path from 'path'
-import { log, info, success, error, warn } from '../utils/logger'
-import { functionsExists } from '../utils/files'
-
-function createPath(filePath) {
-  return path.join(process.cwd(), filePath)
-}
+import { log, info, success, error, warn } from '../utils/logger';
+import { functionsExists, readJsonFile, writeJsonFile } from '../utils/files';
+import { FirebaseCiOptions } from '../index';
 
 /**
  * Copy version from main package file into functions package file
- * @param  {String} opts - name of project
- * @param  {Boolean} opts.silent - Whether or not to warn
+ * @param config - Options object
+ * @param config.silent - Whether or not to warn
  */
-export default function copyVersion(config = { silence: false }) {
+export default async function copyVersion(
+  config?: FirebaseCiOptions,
+): Promise<any> {
   if (!functionsExists()) {
-    if (config.silence) {
-      return
+    if (config && config.silence) {
+      return;
     }
-    warn('Functions folder does not exist. Exiting...')
-    return
+    warn('Functions folder does not exist. Exiting...');
+    return;
   }
-  info('Copying version from package.json to functions/package.json...')
-  const pkg = JSON.parse(fs.readFileSync(createPath('package.json')))
-  const functionsPkg = JSON.parse(
-    fs.readFileSync(createPath(`functions/package.json`))
-  )
-  functionsPkg.version = pkg.version
+  info('Copying version from package.json to functions/package.json...');
+  const pkg = await readJsonFile('package.json');
+  const functionsPkg = await readJsonFile('functions/package.json');
+  functionsPkg.version = pkg.version;
   try {
-    fs.writeFileSync(
-      createPath(`functions/package.json`),
-      JSON.stringify(functionsPkg, null, 2),
-      'utf8'
-    )
-    success('Version copied successfully')
+    await writeJsonFile(`functions/package.json`, functionsPkg);
+    success('Version copied successfully');
   } catch (err) {
-    error('Error copying version to functions folder')
-    log(error)
+    error('Error copying version to functions folder');
+    log(error);
   }
 }
