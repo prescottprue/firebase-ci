@@ -2,7 +2,7 @@
  * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
  */
 'use strict'
-const createConfig = require('../lib/index').createConfig
+const createConfig = require('../lib/actions/createConfig').default
 
 /**
  * @name deploy

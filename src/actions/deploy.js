@@ -163,21 +163,21 @@ export default async function deploy(opts) {
     deployArgs = deployArgs.concat(['--debug'])
     info(`Calling deploy with: ${deployArgs.join(' ')}`)
   }
-
+  info(
+    `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
+  )
   // Run deploy command
   const [deployErr] = await to(
     runCommand({
       command: npxExists ? 'npx' : 'firebase',
       args: npxExists ? ['firebase'].concat(deployArgs) : deployArgs,
-      beforeMsg: `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`,
-      errorMsg: 'Error deploying to firebase.',
       successMsg: `Successfully Deployed ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
     })
   )
 
   // Handle errors within the deploy command
   if (deployErr) {
-    error('Error in firebase-ci:\n ', deployErr)
+    error('Error in deploying to firebase:\n ', deployErr)
     throw deployErr
   }
 

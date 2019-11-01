@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
-import { reduce, template, mapValues, get, isString } from 'lodash'
+import { reduce, template, mapValues, get } from 'lodash'
 import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 import { getProjectKey } from '../utils/ci'
@@ -17,6 +17,12 @@ function formattedErrorMessage(err) {
   return `${chalk.cyan(splitMessage[0])} is not defined in environment`
 }
 
+/**
+ * Try templating a string with the current node environment.
+ * Used to convert environment variables within createConfig settings.
+ * @param {string} str - String to try templating
+ * @param {string} name - Name of variable (used for warning log)
+ */
 function tryTemplating(str, name) {
   const { version } = getFile('package.json')
   try {
@@ -37,7 +43,7 @@ function tryTemplating(str, name) {
  * @param {Object} settings - Settings for how environment variables should
  * be copied from Travis-CI to Firebase Functions Config
  * @param {String} settings.path - Path where config file should be written
- * @return {Promise} Resolves with undefined (result of functions config set)
+ * @returns {Promise} Resolves with undefined (result of functions config set)
  * @example
  * "ci": {
  *   "createConfig": {
@@ -98,7 +104,7 @@ export default function createConfigFile(config) {
 
   // template data based on environment variables
   const templatedData = mapValues(envConfig, (parent, parentName) =>
-    isString(parent)
+    typeof parent === 'string'
       ? tryTemplating(parent, parentName)
       : mapValues(parent, (data, childKey) =>
           tryTemplating(data, `${parentName}.${childKey}`)
@@ -123,7 +129,7 @@ export default function createConfigFile(config) {
             acc
               .concat(`export const ${parentName} = `)
               .concat(
-                isString(parent)
+                typeof parent === 'string'
                   ? `"${parent}";\n\n`
                   : `{\n${parentAsString(parent)}};\n\n`
               ),

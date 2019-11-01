@@ -5,7 +5,7 @@ import { getFile } from './files'
 
 /**
  * Get the name of the current branch from environment variables
- * @return {String} Name of branch
+ * @returns {String} Name of branch
  */
 export function getBranch() {
   const {
@@ -27,9 +27,9 @@ export function getBranch() {
  * Get the key of the project matching the branch name which is gathered from
  * from environment variables. This key is used to get the project settings
  * from .firebaserc.
- * @param  {Object} opts - Options object
- * @param  {Object} opts.project - Project name from options
- * @return {String} Name of project
+ * @param {Object} opts - Options object
+ * @param {Object} opts.project - Project name from options
+ * @returns {String} Name of project
  */
 export function getProjectKey(opts) {
   const branchName = getBranch()
@@ -54,7 +54,7 @@ export function getProjectName(opts) {
 /**
  * Get the key of the fallback project from environment variables. This key
  * is used to get the project settings from .firebaserc.
- * @return {String} Name of fallback Project
+ * @returns {String} Name of fallback Project
  */
 export function getFallbackProjectKey() {
   const { CI_ENVIRONMENT_SLUG } = process.env
@@ -64,7 +64,7 @@ export function getFallbackProjectKey() {
 /**
  * Get whether or not the current ref is a pull request from environment
  * variables
- * @return {Boolean} Whether or not the current ref is a pull request
+ * @returns {Boolean} Whether or not the current ref is a pull request
  */
 export function isPullRequest() {
   // Currently Bitbucket pipeline doesn't support build for PR. So doesn't include in this function.
@@ -77,7 +77,7 @@ export function isPullRequest() {
 
 /**
  * Get commit message from environment variables
- * @return {String} Commit message for current ref
+ * @returns {String} Commit message for current ref
  */
 export function getCommitMessage() {
   const { TRAVIS_COMMIT_MESSAGE, CIRCLE_SHA1, CI_COMMIT_MESSAGE } = process.env
@@ -88,7 +88,7 @@ export function getCommitMessage() {
  * Clean deploy message for use in Firebase deploy command. Cleaning involves
  * stripping commit message to the first 150 characters, removing "`", """, and
  * running shellescape. If commit message is not found then "Update" is returned
- * @return {String}
+ * @returns {String} Message for deploy
  */
 export function getDeployMessage() {
   const originalMessage = getCommitMessage()

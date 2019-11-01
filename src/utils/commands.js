@@ -1,14 +1,12 @@
-/* eslint-disable no-console */
-import { drop, compact, isArray } from 'lodash'
 import stream from 'stream'
+import { spawn } from 'child_process'
 import { info } from '../utils/logger'
-const { spawn } = require('child_process')
 
 process.env.FORCE_COLOR = true
 
 /**
  * Check to see if the provided value is a promise object
- * @param  {Any}  valToCheck - Value to be checked for Promise qualities
+ * @param {Any}  valToCheck - Value to be checked for Promise qualities
  * @return {Boolean} Whether or not provided value is a promise
  */
 export function isPromise(valToCheck) {
@@ -16,9 +14,10 @@ export function isPromise(valToCheck) {
 }
 
 /**
- * @description Run a bash command using spawn pipeing the results to the main
+ * Run a bash command using spawn pipeing the results to the main
  * process
  * @param {String} command - Command to be executed
+ * @returns {Promise} Resolves with results of running command
  * @private
  */
 export function runCommand({
@@ -31,11 +30,7 @@ export function runCommand({
 }) {
   if (beforeMsg) info(beforeMsg)
   return new Promise((resolve, reject) => {
-    const child = spawn(
-      isArray(command) ? command[0] : command.split(' ')[0],
-      args || compact(drop(command.split(' '))),
-      { env: process.env }
-    )
+    const child = spawn(command, args, { env: process.env, shell: true })
     let output
     let error
     const customStream = new stream.Writable()
@@ -70,7 +65,6 @@ export function runCommand({
         if (output && output.indexOf('undefined') === 0) {
           resolve(successMsg || output.replace('undefined', ''))
         } else {
-          console.log('output: ', output)
           resolve(successMsg || output)
         }
       }
@@ -80,11 +74,11 @@ export function runCommand({
 
 /**
  * Escape shell command arguments and join them to a single string
- * @param  {Array} a - List of arguments to escape
- * @return {String} Command string with arguments escaped
+ * @param {Array} a - List of arguments to escape
+ * @returns {String} Command string with arguments escaped
  */
 export function shellescape(a) {
-  let ret = []
+  const ret = []
 
   a.forEach(s => {
     if (/[^A-Za-z0-9_/:=-]/.test(s)) {
