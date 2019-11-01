@@ -6,7 +6,6 @@ import { FirebaseCiOptions } from '../index';
 
 /**
  * Get the name of the current branch from environment variables
- *
  * @returns Name of branch
  */
 export function getBranch(): string {
@@ -29,7 +28,6 @@ export function getBranch(): string {
  * Get the key of the project matching the branch name which is gathered from
  * from environment variables. This key is used to get the project settings
  * from .firebaserc.
- *
  * @param opts - Options object
  * @param opts.project - Project name from options
  * @returns Key for current project
@@ -46,7 +44,6 @@ export function getProjectKey(opts: FirebaseCiOptions): string | undefined {
 
 /**
  * Get name of curent project from .firebaserc
- *
  * @param opts - Options object
  * @param opts.project - Project name from options
  * @returns Name of project
@@ -64,7 +61,6 @@ export function getProjectName(opts: FirebaseCiOptions): string | undefined {
 /**
  * Get the key of the fallback project from environment variables. This key
  * is used to get the project settings from .firebaserc.
- *
  * @returns Name of fallback Project
  */
 export function getFallbackProjectKey(): string | undefined {
@@ -88,7 +84,6 @@ export function isPullRequest(): boolean {
 
 /**
  * Get commit message from environment variables
- *
  * @returns Commit message for current ref
  */
 export function getCommitMessage(): string | undefined {
@@ -100,7 +95,6 @@ export function getCommitMessage(): string | undefined {
  * Clean deploy message for use in Firebase deploy command. Cleaning involves
  * stripping commit message to the first 150 characters, removing "`", """, and
  * running shellescape. If commit message is not found then "Update" is returned
- *
  * @returns Deploy message
  */
 export function getDeployMessage(): string | undefined {

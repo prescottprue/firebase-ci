@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
-import { reduce, template, mapValues, get, isString } from 'lodash';
+import { reduce, template, mapValues, get } from 'lodash';
 import { getFile } from '../utils/files';
 import { error, info, warn } from '../utils/logger';
 import { getProjectKey } from '../utils/ci';
@@ -46,6 +46,16 @@ function tryTemplating(str: string, name: string): string {
     return '';
   }
 }
+
+  // convert object into formatted object string
+  function parentAsString(parent: any): string {
+    return reduce(
+      parent,
+      (acc, child, childKey) =>
+        acc.concat(`  ${childKey}: ${JSON.stringify(child, null, 2)},\n`),
+      '',
+    );
+  }
 
 /**
  * Create config file based on CI environment variables
@@ -121,14 +131,6 @@ export default function createConfigFile(config?: any): void {
           tryTemplating(data, `${parentName}.${childKey}`),
         ),
   );
-  // convert object into formatted object string
-  const parentAsString = (parent: any): string =>
-    reduce(
-      parent,
-      (acc, child, childKey) =>
-        acc.concat(`  ${childKey}: ${JSON.stringify(child, null, 2)},\n`),
-      '',
-    );
 
   // combine all stringified vars and attach default export
   const exportString =
@@ -140,7 +142,7 @@ export default function createConfigFile(config?: any): void {
             acc
               .concat(`export const ${parentName} = `)
               .concat(
-                isString(parent)
+                typeof parent === 'string' || (parent as any) instanceof String
                   ? `"${parent}";\n\n`
                   : `{\n${parentAsString(parent)}};\n\n`,
               ),
