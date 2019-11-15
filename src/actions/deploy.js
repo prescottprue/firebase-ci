@@ -17,6 +17,10 @@ import { to } from '../utils/async'
 
 const skipPrefix = 'Skipping Firebase Deploy'
 
+/**
+ * Get string including token flag and FIREBASE_TOKEN
+ * @returns {string} Token argument string
+ */
 function getFirebaseTokenStr() {
   const { FIREBASE_TOKEN, FIREBASE_CI_WRAP_TOKEN } = process.env
   if (!FIREBASE_TOKEN) {
@@ -31,8 +35,7 @@ function getFirebaseTokenStr() {
 
 /**
  * Run firebase-ci actions
- * @param  {String} project - name of project
- * @return {Promise}
+ * @returns {Promise} Resolves after actions are run
  * @private
  */
 export function runActions() {
@@ -56,11 +59,11 @@ export function runActions() {
 }
 
 /**
- * @description Deploy to Firebase under specific conditions
- * @param {Object} opts - Options object
- * @param {String} opts.only - String corresponding to list of entities
+ * Deploy to Firebase under specific conditions
+ * @param {object} opts - Options object
+ * @param {string} opts.only - String corresponding to list of entities
  * to deploy (hosting, functions, database)
- * @param {Function} cb - Callback called when complete (err, stdout)
+ * @returns {Promise} Resolves after attempting to deploy
  */
 export default async function deploy(opts) {
   const settings = getFile('.firebaserc')

@@ -4,11 +4,13 @@ module.exports = {
   extends: [
     'standard',
     'prettier',
-    'prettier/react'
+    'prettier/react',
+    'plugin:jsdoc/recommended'
   ],
   plugins: [
     'babel',
-    'prettier'
+    'prettier',
+    'jsdoc'
   ],
   env: {
     node: true
@@ -16,6 +18,7 @@ module.exports = {
   rules: {
     semi: [2,'never'],
     'no-console': 'error',
+    'jsdoc/newline-after-description': 0,
     'prettier/prettier': ['error', {
       singleQuote: true,
       trailingComma: 'none',

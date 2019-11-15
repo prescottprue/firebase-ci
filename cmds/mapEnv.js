@@ -6,15 +6,11 @@ const mapEnv = require('../lib/actions/mapEnv').default
 
 /**
  * @name mapEnv
- * @description Map environment variables from CI environment to functions config
+ * Map environment variables from CI environment to functions config
+ * @param {object} program - Commander program object
  * @example <caption>Basic</caption>
  * # make sure you set mapEnv settings in .firebaserc
- * npm i -g firebase-ci
  * firebase-ci mapEnv
- * @example <caption>Travis</caption>
- * after_success:
- *   - npm i -g firebase-ci
- *   - firebase-ci mapEnv
  */
 module.exports = function(program) {
   program

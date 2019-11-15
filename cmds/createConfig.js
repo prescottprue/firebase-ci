@@ -7,8 +7,7 @@ const createConfig = require('../lib/actions/createConfig').default
 /**
  * @name deploy
  * @description Deploy to Firebase only on build branches (master, stage, prod)
- * @param {String} only - Only flag can be passed to deploy only specified
- * targets (e.g hosting, storage)
+ * @param {object} program - Commander program object
  * @example <caption>Basic</caption>
  * # make sure FIREBASE_TOKEN env variable is set
  * npm i -g firebase-ci

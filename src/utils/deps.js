@@ -4,19 +4,18 @@ import { runCommand } from './commands'
 import { to } from './async'
 import { info as logInfo, error } from './logger'
 
-export function getNpxExists() {
-  return commandExists.sync('npx')
-}
-
 /**
  * Install Firebase tools and run npm install in functions folder
- * @return {Promise} Resolves when dependencies have been installed
+ * @param {object} opts - Options
+ * @param {object} settings - Extra settings
+ * @param {object} settings.toolsVersion - Version of firebase-tools to install
+ * @returns {Promise} Resolves when dependencies have been installed
  */
 export async function installDeps(opts = {}, settings = {}) {
   const { info } = opts
   const { toolsVersion } = settings
   const versionSuffix = toolsVersion ? `@${toolsVersion}` : ''
-  const npxExists = getNpxExists()
+  const npxExists = commandExists.sync('npx')
   // Check version of firebase tools using npx (to allow for locally and
   // globally installed versions of firebase-tools) falling back to npm bin
   logInfo('Checking to see if firebase-tools is installed...')

@@ -3,7 +3,8 @@ const getProjectName = require('../lib/utils/ci').getProjectName
 
 /**
  * @name project
- * @description Get name of the firebase project associated with the current CI environment.
+ * Get name of the firebase project associated with the current CI environment.
+ * @param {object} program - Commander program object
  * @example <caption>Basic</caption>
  * echo "Project to deploy to $(firebase-ci project)"
  * // => "Project to deploy to my-project"

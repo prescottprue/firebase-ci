@@ -19,6 +19,11 @@ const prefixMapping = {
   error: 'Error: '
 }
 
+/**
+ * Create a colorized logger
+ * @param {string} type - Type of logger
+ * @returns {Function} Colorized logger function
+ */
 function colorLogger(type) {
   const color = colorMapping[type]
   return text => {
@@ -27,6 +32,12 @@ function colorLogger(type) {
   }
 }
 
+/**
+ * Log a colorized log based on passed type
+ * @param {string} type - Type of log
+ * @param {string} message - Log message
+ * @param {any} other - Other value
+ */
 function logType(type, message, other) {
   const icon = iconMapping[type]
   const prefix = prefixMapping[type]

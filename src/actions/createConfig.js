@@ -8,6 +8,11 @@ import { getProjectKey } from '../utils/ci'
 
 const { CI_ENVIRONMENT_SLUG } = process.env
 
+/**
+ * Format message from error object
+ * @param {Error} err - Error for which to create formatted message
+ * @returns {string} Error message string
+ */
 function formattedErrorMessage(err) {
   const errMessage = get(err, 'message', 'Issue templating config file')
   if (!errMessage.includes('is not defined')) {
@@ -22,6 +27,7 @@ function formattedErrorMessage(err) {
  * Used to convert environment variables within createConfig settings.
  * @param {string} str - String to try templating
  * @param {string} name - Name of variable (used for warning log)
+ * @returns {string} Templated string
  */
 function tryTemplating(str, name) {
   const { version } = getFile('package.json')
@@ -40,10 +46,9 @@ function tryTemplating(str, name) {
 
 /**
  * Create config file based on CI environment variables
- * @param {Object} settings - Settings for how environment variables should
+ * @param {object} config - Settings for how environment variables should
  * be copied from Travis-CI to Firebase Functions Config
- * @param {String} settings.path - Path where config file should be written
- * @returns {Promise} Resolves with undefined (result of functions config set)
+ * @param {string} config.path - Path where config file should be written
  * @example
  * "ci": {
  *   "createConfig": {

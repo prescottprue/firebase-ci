@@ -2,7 +2,7 @@
  * Async await wrapper for easy error handling
  * @param {Promise} promise - Promise to wrap responses of
  * @returns {Promise} Resolves and rejects with an array
- * @example
+ * @example <caption>Usage In Async Function</caption>
  * async function asyncFunctionWithThrow() {
  *  const [err, snap] = await to(
  *    admin.database().ref('some').once('value')
