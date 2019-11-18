@@ -26,7 +26,7 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('../**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
 
@@ -79,7 +79,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
 
       # - name: Do something when a new release published
       #   if: steps.semantic.outputs.new_release_published == 'true'
