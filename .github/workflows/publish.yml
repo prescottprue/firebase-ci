@@ -37,6 +37,9 @@ jobs:
           yarn install --frozen-lockfile
 
       - name: Run Unit Tests + Coverage
+        env:
+          CI: true
+          CODE_CLIMATE: ${{ secrets.CODE_CLIMATE }}
         run: yarn test:cov && yarn codecov
 
       - name: Build
