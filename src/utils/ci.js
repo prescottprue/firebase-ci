@@ -8,10 +8,15 @@ import { getFile } from './files'
  * available in Github Actions environment.
  * @returns {string|undefined} Branch name if environment variable exists
  */
-function branchFromGithubRef() {
-  const { GITHUB_REF } = process.env
+function branchNameForGithubAction() {
+  const { GITHUB_HEAD_REF, GITHUB_REF } = process.env
+  // GITHUB_HEAD_REF for pull requests
+  if (GITHUB_HEAD_REF) {
+    return GITHUB_HEAD_REF
+  }
+  // GITHUB_REF for commits (i.e. refs/heads/master)
   if (GITHUB_REF) {
-    return GITHUB_REF.replace('refs/heads/', '')
+    return GITHUB_REF.split('/')[2]
   }
 }
 
@@ -20,18 +25,15 @@ function branchFromGithubRef() {
  * @returns {string} Name of branch
  */
 export function getBranch() {
-  const {
-    TRAVIS_BRANCH,
-    CIRCLE_BRANCH,
-    BITBUCKET_BRANCH,
-    CI_COMMIT_REF_SLUG
-  } = process.env
   return (
-    TRAVIS_BRANCH ||
-    CIRCLE_BRANCH ||
-    BITBUCKET_BRANCH ||
-    CI_COMMIT_REF_SLUG ||
-    branchFromGithubRef() ||
+    branchNameForGithubAction() || // github actions
+    process.env.CI_COMMIT_REF_SLUG || // gitlab-ci
+    process.env.TRAVIS_BRANCH || // travis-ci
+    process.env.CIRCLE_BRANCH || // circle-ci
+    process.env.WERCKER_GIT_BRANCH || // wercker
+    process.env.DRONE_BRANCH || // drone-ci
+    process.env.CI_BRANCH || // codeship
+    process.env.BITBUCKET_BRANCH || // bitbucket
     'master'
   )
 }
@@ -46,10 +48,9 @@ export function getBranch() {
  */
 export function getProjectKey(opts) {
   const branchName = getBranch()
-  const { FIREBASE_CI_PROJECT } = process.env
-  // Get project from passed options, falling back to branch name
   return (
-    FIREBASE_CI_PROJECT ||
+    process.env.FIREBASE_CI_PROJECT ||
+    // Get project from passed options, falling back to branch name
     get(opts, 'project', branchName === 'master' ? 'default' : branchName)
   )
 }
@@ -76,8 +77,7 @@ export function getProjectName(opts) {
  * @returns {string} Name of fallback Project
  */
 export function getFallbackProjectKey() {
-  const { CI_ENVIRONMENT_SLUG } = process.env
-  return CI_ENVIRONMENT_SLUG
+  return process.env.CI_ENVIRONMENT_SLUG
 }
 
 /**
@@ -98,9 +98,12 @@ export function isPullRequest() {
  * Get commit message from environment variables
  * @returns {string} Commit message for current ref
  */
-export function getCommitMessage() {
-  const { TRAVIS_COMMIT_MESSAGE, CIRCLE_SHA1, CI_COMMIT_MESSAGE } = process.env
-  return TRAVIS_COMMIT_MESSAGE || CIRCLE_SHA1 || CI_COMMIT_MESSAGE
+function getCommitMessage() {
+  return (
+    process.env.TRAVIS_COMMIT_MESSAGE ||
+    process.env.CI_COMMIT_MESSAGE ||
+    process.env.CI_MESSAGE
+  )
 }
 
 /**
