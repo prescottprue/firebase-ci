@@ -3,9 +3,9 @@
 > Simplified Firebase interaction for continuous integration
 
 [![NPM version][npm-image]][npm-url]
-[![Build Status][build-status-image-next]][build-status-url]
+[![Build Status][build-status-image]][build-status-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
-[![Code Coverage][coverage-image-next]][coverage-url]
+[![Code Coverage][coverage-image]][coverage-url]
 
 [![License][license-image]][license-url]
 [![semantic-release][semantic-release-icon]][semantic-release-url]
