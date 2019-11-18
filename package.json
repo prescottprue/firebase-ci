@@ -24,7 +24,8 @@
     "watch": "npm run build:lib -- --stats --progress --colors --watch",
     "prepare": "npm run clean:app && npm run build",
     "pre-push": "npm run lint",
-    "codecov": "cat coverage/lcov.info | codecov"
+    "codecov": "cat coverage/lcov.info | codecov",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
@@ -76,6 +77,9 @@
     "@babel/plugin-transform-modules-commonjs": "^7.6.0",
     "@babel/preset-env": "^7.6.3",
     "@babel/register": "^7.6.2",
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
+    "@jedmao/semantic-release-npm-github-config": "^1.0.8",
     "babel-eslint": "^10.0.3",
     "babel-plugin-lodash": "^3.3.4",
     "babel-plugin-module-resolver": "^3.2.0",
@@ -98,7 +102,13 @@
     "nyc": "^14.1.1",
     "prettier": "^1.18.2",
     "rimraf": "^3.0.0",
+    "semantic-release": "^15.13.31",
     "sinon": "^7.5.0",
     "sinon-chai": "^3.3.0"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   }
 }

@@ -11,6 +11,9 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
@@ -28,21 +31,30 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install Dependencies
-        run: |
-          yarn install --frozen-lockfile
+        env:
+          CI: true
+        run: yarn install --frozen-lockfile
 
-      - name: Run Unit Tests + coverage
-        run: yarn test:cov
+      - name: Run Unit Tests + Coverage
+        run: yarn test:cov && yarn codecov
 
-      - name: Upload Coverage
-        run: |
-          yarn codecov
+      - name: Build
+        if: success()
+        run: npm run build
+
+      - name: Archive Build Artifact
+        uses: actions/upload-artifact@master
+        if: success()
+        with:
+          name: firebase-ci-build
+          path: lib
 
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout code
+        uses: actions/checkout@v1
 
       - name: Check package version
         uses: technote-space/package-version-check-action@v1
@@ -55,52 +67,37 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
 
-      - name: Publish To NPM
-        run: npm publish $(if [ ${{github.ref}} == 'refs/heads/master' ]; then echo '--tag next';fi;)
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v1
-
-      - name: Setup Node
-        uses: actions/setup-node@v1
+      - name: Download Build Artifact
+        uses: actions/download-artifact@master
         with:
-          node-version: 12
-          registry-url: https://registry.npmjs.org/
+          name: firebase-ci-build
 
-      - name: Publish To Github
-        run: npm publish $(if [ ${{github.ref}} == 'refs/heads/master' ]; then echo '--tag next';fi;)
+      - name: Semantic Release
+        id: semantic   # Need an `id` for output variables
+        uses: cycjimmy/semantic-release-action@v2
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
 
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v1
+      # - name: Do something when a new release published
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   run: ...
+  # publish-gpr:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v1
 
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: 12
+  #         registry-url: https://registry.npmjs.org/
 
-      - name: Get package info
-        id: package-info
-        run: echo "::set-output name=version::$(node -pe "require('./package.json').version")"
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: v${{ steps.package-info.outputs.version }}
-          release_name: v${{ steps.package-info.outputs.version }}
-          draft: false
-          prerelease: ${{ github.ref == 'refs/heads/next' }}
+  #     - name: Publish To Github
+  #       run: npm publish $(if [ ${{github.ref}} == 'refs/heads/master' ]; then echo '--tag next';fi;)
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
