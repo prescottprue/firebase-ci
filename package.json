@@ -18,7 +18,7 @@
     "lint": "eslint src cmds test bin/firebase-ci",
     "lint:fix": "npm run lint -- --fix",
     "test": "env-cmd -f ./test/.env mocha ./test/**/**/*.spec.js",
-    "test:cov": "npm run clean:test && nyc npm run test",
+    "test:cov": "npm run clean:test && nyc --reporter=lcov npm run test",
     "build:lib": "cross-env BABEL_ENV=commonjs babel src --out-dir lib",
     "build": "npm run clean:app && npm run build:lib",
     "watch": "npm run build:lib -- --stats --progress --colors --watch",

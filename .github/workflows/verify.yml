@@ -40,11 +40,16 @@ jobs:
         run: yarn build
 
       - name: Upload Coverage
+        uses: codecov/codecov-action@v1.0.3
+        if: success()
+        with:
+          token: ${{secrets.CODECOV_TOKEN}} #required
+
+      - name: Upload Code Climate
         if: success()
         env:
           CI: true
           CODE_CLIMATE: ${{ secrets.CODE_CLIMATE }}
         run: |
-          yarn codecov
           npm install -g codeclimate-test-reporter
           codeclimate-test-reporter < coverage/lcov.info
