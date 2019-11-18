@@ -19,6 +19,7 @@ jobs:
         id: yarn-cache
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
+      # Setup dependency caching
       - uses: actions/cache@v1
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
@@ -35,21 +36,16 @@ jobs:
       - name: Run Unit Tests + Coverage
         run: yarn test:cov
 
-      - name: Build
-        if: success()
-        run: yarn build
-
-      - name: Upload Coverage
-        uses: codecov/codecov-action@v1.0.3
-        if: success()
-        with:
-          token: ${{secrets.CODECOV_TOKEN}} #required
-
-      - name: Upload Code Climate
+      - name: Upload Coverage + Climate
         if: success()
         env:
           CI: true
+          CODE_COV: ${{ secrets.CODE_COV }}
           CODECLIMATE_REPO_TOKEN: ${{ secrets.CODE_CLIMATE }}
         run: |
+          # Upload to Code Cover. Curl used in place of codecov/codecov-action
+          # due to long build time. See https://github.com/codecov/codecov-action/issues/21
+          curl -s https://codecov.io/bash | bash -s -- -t $CODE_COV
+          # Install codeclimate tool and upload
           npm install -g codeclimate-test-reporter
           codeclimate-test-reporter < coverage/lcov.info
