@@ -32,7 +32,7 @@ jobs:
         run: |
           yarn install --frozen-lockfile
 
-      - name: Run Unit Tests + coverage
+      - name: Run Unit Tests + Coverage
         run: yarn test:cov
 
       - name: Build
@@ -40,6 +40,10 @@ jobs:
         run: yarn build
 
       - name: Upload Coverage
+        if: success()
+        env:
+          CI: true
+          CODE_CLIMATE: ${{ secrets.CODE_CLIMATE }}
         run: |
           yarn codecov
           npm install -g codeclimate-test-reporter
