@@ -10,8 +10,9 @@ const skipPrefix = 'Skipping firebase-ci mapEnv'
 
 /**
  * Build a string from mapEnv setting
- * @param {String} functionsVar - Name of variable within functions
- * @param {String} envVar - Variable within environment
+ * @param {string} functionsVar - Name of variable within functions
+ * @param {string} envVar - Variable within environment
+ * @returns {string} Environment variable set string
  */
 function strFromEnvironmentVarSetting(functionsVar, envVar) {
   if (!process.env[envVar]) {
@@ -27,7 +28,8 @@ function strFromEnvironmentVarSetting(functionsVar, envVar) {
 /**
  * Combine all functions config sets from mapEnv settings in
  * .firebaserc to a single functions config set command string.
- * @param {Object} mapEnvSettings - Settings for mapping environment
+ * @param {object} mapEnvSettings - Settings for mapping environment
+ * @returns {Array} List of arguments for setting functions config
  */
 function buildConfigSetArgs(mapEnvSettings) {
   const settingsStrsArr = compact(
@@ -43,7 +45,7 @@ function buildConfigSetArgs(mapEnvSettings) {
 
 /**
  * Map CI environment variables to Firebase functions config variables
- * @param {Object} copySettings - Settings for how environment variables should
+ * @param {object} copySettings - Settings for how environment variables should
  * be copied from CI environment to Firebase Functions Environment
  * @returns {Promise} Resolves with undefined (result of functions config set)
  * @example

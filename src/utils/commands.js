@@ -6,8 +6,8 @@ process.env.FORCE_COLOR = true
 
 /**
  * Check to see if the provided value is a promise object
- * @param {Any}  valToCheck - Value to be checked for Promise qualities
- * @return {Boolean} Whether or not provided value is a promise
+ * @param {any} valToCheck - Value to be checked for Promise qualities
+ * @returns {boolean} Whether or not provided value is a promise
  */
 export function isPromise(valToCheck) {
   return valToCheck && typeof valToCheck.then === 'function'
@@ -16,7 +16,7 @@ export function isPromise(valToCheck) {
 /**
  * Run a bash command using spawn pipeing the results to the main
  * process
- * @param {String} command - Command to be executed
+ * @param {string} command - Command to be executed
  * @returns {Promise} Resolves with results of running command
  * @private
  */
@@ -75,7 +75,7 @@ export function runCommand({
 /**
  * Escape shell command arguments and join them to a single string
  * @param {Array} a - List of arguments to escape
- * @returns {String} Command string with arguments escaped
+ * @returns {string} Command string with arguments escaped
  */
 export function shellescape(a) {
   const ret = []

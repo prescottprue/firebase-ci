@@ -4,21 +4,36 @@ import { warn } from './logger'
 import { getFile } from './files'
 
 /**
+ * Get branch name from GITHUB_REF environment variable which is
+ * available in Github Actions environment.
+ * @returns {string|undefined} Branch name if environment variable exists
+ */
+function branchNameForGithubAction() {
+  const { GITHUB_HEAD_REF, GITHUB_REF } = process.env
+  // GITHUB_HEAD_REF for pull requests
+  if (GITHUB_HEAD_REF) {
+    return GITHUB_HEAD_REF
+  }
+  // GITHUB_REF for commits (i.e. refs/heads/master)
+  if (GITHUB_REF) {
+    return GITHUB_REF.split('/')[2]
+  }
+}
+
+/**
  * Get the name of the current branch from environment variables
- * @returns {String} Name of branch
+ * @returns {string} Name of branch
  */
 export function getBranch() {
-  const {
-    TRAVIS_BRANCH,
-    CIRCLE_BRANCH,
-    BITBUCKET_BRANCH,
-    CI_COMMIT_REF_SLUG
-  } = process.env
   return (
-    TRAVIS_BRANCH ||
-    CIRCLE_BRANCH ||
-    BITBUCKET_BRANCH ||
-    CI_COMMIT_REF_SLUG ||
+    branchNameForGithubAction() || // github actions
+    process.env.CI_COMMIT_REF_SLUG || // gitlab-ci
+    process.env.TRAVIS_BRANCH || // travis-ci
+    process.env.CIRCLE_BRANCH || // circle-ci
+    process.env.WERCKER_GIT_BRANCH || // wercker
+    process.env.DRONE_BRANCH || // drone-ci
+    process.env.CI_BRANCH || // codeship
+    process.env.BITBUCKET_BRANCH || // bitbucket
     'master'
   )
 }
@@ -27,20 +42,25 @@ export function getBranch() {
  * Get the key of the project matching the branch name which is gathered from
  * from environment variables. This key is used to get the project settings
  * from .firebaserc.
- * @param {Object} opts - Options object
- * @param {Object} opts.project - Project name from options
- * @returns {String} Name of project
+ * @param {object} opts - Options object
+ * @param {object} opts.project - Project name from options
+ * @returns {string} Name of project
  */
 export function getProjectKey(opts) {
   const branchName = getBranch()
-  const { FIREBASE_CI_PROJECT } = process.env
-  // Get project from passed options, falling back to branch name
   return (
-    FIREBASE_CI_PROJECT ||
+    process.env.FIREBASE_CI_PROJECT ||
+    // Get project from passed options, falling back to branch name
     get(opts, 'project', branchName === 'master' ? 'default' : branchName)
   )
 }
 
+/**
+ * Get name of project from .firebaserc based on branch name
+ * @param {object} opts - Options object
+ * @param {object} opts.project - Project name from options
+ * @returns {string} Name of project
+ */
 export function getProjectName(opts) {
   const projectKey = getProjectKey(opts)
   const firebaserc = getFile('.firebaserc')
@@ -54,17 +74,16 @@ export function getProjectName(opts) {
 /**
  * Get the key of the fallback project from environment variables. This key
  * is used to get the project settings from .firebaserc.
- * @returns {String} Name of fallback Project
+ * @returns {string} Name of fallback Project
  */
 export function getFallbackProjectKey() {
-  const { CI_ENVIRONMENT_SLUG } = process.env
-  return CI_ENVIRONMENT_SLUG
+  return process.env.CI_ENVIRONMENT_SLUG
 }
 
 /**
  * Get whether or not the current ref is a pull request from environment
  * variables
- * @returns {Boolean} Whether or not the current ref is a pull request
+ * @returns {boolean} Whether or not the current ref is a pull request
  */
 export function isPullRequest() {
   // Currently Bitbucket pipeline doesn't support build for PR. So doesn't include in this function.
@@ -77,18 +96,21 @@ export function isPullRequest() {
 
 /**
  * Get commit message from environment variables
- * @returns {String} Commit message for current ref
+ * @returns {string} Commit message for current ref
  */
-export function getCommitMessage() {
-  const { TRAVIS_COMMIT_MESSAGE, CIRCLE_SHA1, CI_COMMIT_MESSAGE } = process.env
-  return TRAVIS_COMMIT_MESSAGE || CIRCLE_SHA1 || CI_COMMIT_MESSAGE
+function getCommitMessage() {
+  return (
+    process.env.TRAVIS_COMMIT_MESSAGE ||
+    process.env.CI_COMMIT_MESSAGE ||
+    process.env.CI_MESSAGE
+  )
 }
 
 /**
  * Clean deploy message for use in Firebase deploy command. Cleaning involves
  * stripping commit message to the first 150 characters, removing "`", """, and
  * running shellescape. If commit message is not found then "Update" is returned
- * @returns {String} Message for deploy
+ * @returns {string} Message for deploy
  */
 export function getDeployMessage() {
   const originalMessage = getCommitMessage()

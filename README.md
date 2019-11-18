@@ -3,10 +3,12 @@
 > Simplified Firebase interaction for continuous integration
 
 [![NPM version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
+[![Build Status][build-status-image]][build-status-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
 [![Code Coverage][coverage-image]][coverage-url]
+
 [![License][license-image]][license-url]
+[![semantic-release][semantic-release-icon]][semantic-release-url]
 [![Code Style][code-style-image]][code-style-url]
 
 ## Features
@@ -288,8 +290,15 @@ echo "Project to deploy to $(firebase-ci project)"
 [climate-image]: https://img.shields.io/codeclimate/github/prescottprue/firebase-ci.svg?style=flat-square
 [climate-url]: https://codeclimate.com/github/prescottprue/firebase-ci
 [coverage-image]: https://img.shields.io/codecov/c/github/prescottprue/firebase-ci.svg?style=flat-square
+[coverage-image-next]: https://img.shields.io/codecov/c/github/prescottprue/firebase-ci/next.svg?style=flat-square
 [coverage-url]: https://codecov.io/gh/prescottprue/firebase-ci
 [license-image]: https://img.shields.io/npm/l/firebase-ci.svg?style=flat-square
 [license-url]: https://github.com/prescottprue/firebase-ci/blob/master/LICENSE
 [code-style-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
 [code-style-url]: http://standardjs.com/
+[semantic-release-icon]: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square
+[semantic-release-url]: https://github.com/semantic-release/semantic-release
+[build-status-image-og]: https://github.com/prescottprue/firebase-ci/workflows/NPM%20Package%20Publish/badge.svg?style=flat-square
+[build-status-image]: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fprescottprue%2Ffirebase-ci%2Fbadge&label=build&style=flat-square
+[build-status-image-next]: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fprescottprue%2Ffirebase-ci%2Fbadge%3Fref%3Dnext&label=build&style=flat-square
+[build-status-url]: https://github.com/prescottprue/firebase-ci/workflows/publish.yml/badge.svg?branch=next

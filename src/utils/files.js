@@ -6,7 +6,8 @@ import { error } from './logger'
 /**
  * Get settings from firebaserc file. Returns empty object if file
  * is not found and throws error if file can not be parsed as JSON.
- * @returns {Object} Firebase settings object
+ * @param {string} filePath - Path of file to get
+ * @returns {object} Firebase settings object
  */
 export function getFile(filePath) {
   const localPath = path.join(process.cwd(), filePath)
@@ -28,7 +29,7 @@ export function getFile(filePath) {
 
 /**
  * Check for existence of functions folder
- * @returns {Boolean} Whether or not functions folder exists
+ * @returns {boolean} Whether or not functions folder exists
  */
 export function functionsExists() {
   return fs.existsSync(path.join(process.cwd(), 'functions'))
@@ -36,7 +37,7 @@ export function functionsExists() {
 
 /**
  * Check for existence of node_modules folder within functions folder.
- * @returns {Boolean} Whether or not functions/node_modules folder exists
+ * @returns {boolean} Whether or not functions/node_modules folder exists
  */
 export function functionsNodeModulesExist() {
   return fs.existsSync(path.join(process.cwd(), 'functions', 'node_modules'))

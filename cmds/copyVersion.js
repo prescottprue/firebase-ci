@@ -6,7 +6,8 @@ const copyVersion = require('../lib/actions/copyVersion').default
 
 /**
  * @name copyVersion
- * @description Copy version from main package.json into functions folder package.json
+ * Copy version from main package.json into functions folder package.json
+ * @param {object} program - Commander program object
  * @example <caption>Basic</caption>
  * # make sure FIREBASE_TOKEN env variable is set
  * npm i -g firebase-ci

@@ -6,17 +6,11 @@ const runActions = require('../lib/actions/deploy').runActions
 
 /**
  * @name deploy
- * @description Deploy to Firebase only on build branches (master, stage, prod)
- * @param {String} only - Only flag can be passed to deploy only specified
- * targets (e.g hosting, storage)
+ * Deploy to Firebase only on build branches (master, stage, prod)
+ * @param {object} program - Commander program object
  * @example <caption>Basic</caption>
  * # make sure FIREBASE_TOKEN env variable is set
- * npm i -g firebase-ci
  * firebase-ci deploy
- * @example <caption>Travis</caption>
- * after_success:
- *   - npm i -g firebase-ci
- *   - firebase-ci deploy
  */
 module.exports = function(program) {
   program

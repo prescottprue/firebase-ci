@@ -3,14 +3,19 @@ import path from 'path'
 import { log, info, success, error, warn } from '../utils/logger'
 import { functionsExists } from '../utils/files'
 
+/**
+ * Create local path for file
+ * @param {string} filePath - Path of file
+ * @returns {string} File path
+ */
 function createPath(filePath) {
   return path.join(process.cwd(), filePath)
 }
 
 /**
  * Copy version from main package file into functions package file
- * @param {String} opts - name of project
- * @param {Boolean} opts.silent - Whether or not to warn
+ * @param {string} config - name of project
+ * @param {boolean} config.silence - Whether or not to warn
  */
 export default function copyVersion(config = { silence: false }) {
   if (!functionsExists()) {
