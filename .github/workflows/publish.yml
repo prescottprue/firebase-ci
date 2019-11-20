@@ -93,8 +93,9 @@ jobs:
       - name: Semantic Release
         id: semantic   # Need an `id` for output variables
         uses: cycjimmy/semantic-release-action@v2
-        extra_plugins: |
-          @jedmao/semantic-release-npm-github-config
+        with:
+          extra_plugins: |
+            @jedmao/semantic-release-npm-github-config
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

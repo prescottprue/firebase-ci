@@ -67,7 +67,7 @@ export function getProjectName(opts) {
   return get(
     firebaserc,
     `projects.${projectKey}`,
-    get(firebaserc, 'projects.master')
+    get(firebaserc, 'projects.default')
   )
 }
 
