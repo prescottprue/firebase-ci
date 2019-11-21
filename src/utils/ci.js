@@ -16,7 +16,8 @@ function branchNameForGithubAction() {
   }
   // GITHUB_REF for commits (i.e. refs/heads/master)
   if (GITHUB_REF) {
-    return GITHUB_REF.split('/')[2]
+    // replace is used in-case the value is passed and does not contain refs/heads/
+    return GITHUB_REF.replace('refs/heads/', '')
   }
 }
 
@@ -67,7 +68,7 @@ export function getProjectName(opts) {
   return get(
     firebaserc,
     `projects.${projectKey}`,
-    get(firebaserc, 'projects.default')
+    get(firebaserc, 'projects.master', get(firebaserc, 'projects.default'))
   )
 }
 
