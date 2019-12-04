@@ -6,7 +6,6 @@
 [![Build Status][build-status-image]][build-status-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
 [![Code Coverage][coverage-image]][coverage-url]
-
 [![License][license-image]][license-url]
 [![semantic-release][semantic-release-icon]][semantic-release-url]
 [![Code Style][code-style-image]][code-style-url]
