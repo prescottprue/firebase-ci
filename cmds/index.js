@@ -12,6 +12,7 @@ module.exports = function(client) {
   client.mapEnv = loadCommand('mapEnv')
   client.run = loadCommand('run')
   client.project = loadCommand('project')
+  client.serve = loadCommand('serve')
 
   return client
 }
