@@ -1,4 +1,4 @@
-import { map, get, compact } from 'lodash'
+import { map, get } from 'lodash'
 import chalk from 'chalk'
 import { error, info, warn } from '../utils/logger'
 import { getFile } from '../utils/files'
@@ -32,9 +32,10 @@ function strFromEnvironmentVarSetting(functionsVar, envVar) {
  * @returns {Array} List of arguments for setting functions config
  */
 function buildConfigSetArgs(mapEnvSettings) {
-  const settingsStrsArr = compact(
-    map(mapEnvSettings, strFromEnvironmentVarSetting)
-  )
+  const settingsStrsArr = map(
+    mapEnvSettings,
+    strFromEnvironmentVarSetting
+  ).filter(Boolean)
   if (!settingsStrsArr.length) {
     return null
   }

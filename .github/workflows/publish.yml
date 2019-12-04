@@ -90,16 +90,22 @@ jobs:
         with:
           name: firebase-ci-build
 
-      - name: Semantic Release
-        id: semantic   # Need an `id` for output variables
-        uses: cycjimmy/semantic-release-action@v2
-        with:
-          extra_plugins: |
-            @jedmao/semantic-release-npm-github-config
+      - name: Publish To NPM
+        run: npm publish $(if [ ${{github.ref}} == 'refs/heads/next' ]; then echo '--tag next';fi;)
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # - name: Semantic Release
+      #   id: semantic   # Need an `id` for output variables
+      #   uses: cycjimmy/semantic-release-action@v2
+      #   with:
+      #     extra_plugins: |
+      #       @jedmao/semantic-release-npm-github-config
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # - name: Do something when a new release published
       #   if: steps.semantic.outputs.new_release_published == 'true'

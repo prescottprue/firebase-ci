@@ -1,11 +1,12 @@
-import { isUndefined, compact, get } from 'lodash'
+import commandExists from 'command-exists'
+import { get } from 'lodash'
 import chalk from 'chalk'
 import copyVersion from './copyVersion'
 import mapEnv from './mapEnv'
 import { getFile, functionsExists } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 import { runCommand } from '../utils/commands'
-import { installDeps, getNpxExists } from '../utils/deps'
+import { installDeps } from '../utils/deps'
 import {
   getBranch,
   isPullRequest,
@@ -38,24 +39,27 @@ function getFirebaseTokenStr() {
  * @returns {Promise} Resolves after actions are run
  * @private
  */
-export function runActions() {
+export async function runActions() {
   copyVersion()
   const settings = getFile('.firebaserc')
+
   if (functionsExists() && settings.ci && settings.ci.mapEnv) {
-    return mapEnv().catch(err => {
+    // Run map env
+    const [mapEnvErr] = await to(mapEnv())
+    if (mapEnvErr) {
       error(
         'Could not map CI environment variables to Functions environment: ',
-        err
+        mapEnvErr
       )
-      return Promise.reject(err)
-    })
+      throw mapEnvErr
+    }
   }
+
   info(
     `No ci action settings found in ${chalk.cyan(
       '.firebaserc'
     )}. Skipping action phase.`
   )
-  return Promise.resolve({})
 }
 
 /**
@@ -69,7 +73,7 @@ export default async function deploy(opts) {
   const settings = getFile('.firebaserc')
   const firebaseJson = getFile('firebase.json')
   const branchName = getBranch()
-  if (isUndefined(branchName) || (opts && opts.test)) {
+  if (typeof branchName === 'undefined' || (opts && opts.test)) {
     const nonCiMessage = `${chalk.cyan(
       skipPrefix
     )} - Not a supported CI environment`
@@ -144,14 +148,15 @@ export default async function deploy(opts) {
 
   // Run CI actions if enabled (i.e. copyVersion, createConfig)
   if (!opts.simple) {
-    runActions(opts.actions)
+    await runActions(opts.actions)
   } else {
     info('Simple mode enabled. Skipping CI actions')
   }
 
   const firebaseTokenStr = getFirebaseTokenStr()
-  const npxExists = getNpxExists()
-  let deployArgs = compact([
+  const npxExists = commandExists.sync('npx')
+
+  const deployArgs = [
     'deploy',
     ...onlyString.split(' '),
     ...firebaseTokenStr.split(' '),
@@ -160,15 +165,17 @@ export default async function deploy(opts) {
     projectKey,
     '--message',
     message
-  ])
+  ].filter(Boolean)
 
   if (process.env.FIREBASE_CI_DEBUG || settings.debug) {
-    deployArgs = deployArgs.concat(['--debug'])
+    deployArgs.push('--debug')
     info(`Calling deploy with: ${deployArgs.join(' ')}`)
   }
+
   info(
     `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`
   )
+
   // Run deploy command
   const [deployErr] = await to(
     runCommand({
@@ -183,6 +190,4 @@ export default async function deploy(opts) {
     error('Error in deploying to firebase:\n ', deployErr)
     throw deployErr
   }
-
-  return null
 }
