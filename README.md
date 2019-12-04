@@ -111,7 +111,8 @@ Advanced configuration of Firebase deployment is often necessary when deploying 
 
 * [`copyVersion`](#createversion) - Copy version from `package.json` to `functions/package.json`
 * [`createConfig`](#createconfig) - Create a config file based on CI environment variables (defaults to `src/config.js`)
-* [`deploy`](#deploy) - Deploy to Firebase (runs other actions by default)
+* [`deploy`](#deploy) - Deploy to Firebase project matching branch name in `.firebaserc` (runs other `firebase-ci` actions by default unless `-s` is passed)
+* [`serve`](#serve) - Serve a the Firebase project matching branch name in `.firebaserc` using `firebase serve`
 * [`mapEnv`](#mapenv) - Map environment variables from CI Environment to Firebase functions environment
 * [`project`](#project) - Output project name associated with CI environment (useful for commands that should be run for each environment)
 
@@ -195,10 +196,12 @@ Options can be passed as flags or within an options object if calling action as 
 **Options:**
 * [Simple mode](#simple-mode)
 * [Info](#info-option)
+* [Only](#only-option)
 
 Deploy to Firebase. Following the API of `firebase-tools`, specific targets (i.e. `functions, hosting`) can be specified for deployment.
 
 #### Default
+
 * Everything skipped on Pull Requests
 * Deployment goes to default project
 * If you have a `functions` folder, `npm install` will be run for you within your `functions` folder
@@ -206,18 +209,27 @@ Deploy to Firebase. Following the API of `firebase-tools`, specific targets (i.e
 * [`mapEnv`](#mapenv) is called before deployment based on settings in `.firebaserc`, if you don't want this to happen, use simple mode.
 
 #### Simple Mode
+
 Option: `--simple`
 Flag: `-s`
 
 Skip all `firebase-ci` actions and only run Firebase deployment
 
 #### Info Option
+
 Option : `--info`
 Flag: `-i`
 
 Provide extra information from internal actions (including npm install of `firebase-tools`).
 
-#### Skipping Deploying Functions
+#### Only Option
+
+Option : `--only`
+Flag: `-o`
+
+Firebase targets to include (passed directly to firebase-tools)
+
+##### Skipping Deploying Functions
 
 If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
 
@@ -225,6 +237,27 @@ If you have a functions folder, your functions will automatically deploy as part
 script:
   - $(npm bin)/firebase-ci deploy --only hosting
 ```
+
+### serve
+
+`firebase-ci serve`
+
+**Options:**
+* [only](#only-option)
+
+Serve using to `firebase serve`. Following the API of `firebase-tools`, specific targets (i.e. `functions, hosting`) can be specified for serving.
+
+#### Default
+
+* Project alias matching branch name is served
+* If there is no matching alias, `default` project is used
+
+#### Only Option
+
+Option : `--only`
+Flag: `-o`
+
+Firebase targets to include (passed directly to firebase-tools)
 
 ### mapEnv
 

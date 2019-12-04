@@ -16,7 +16,7 @@ module.exports = function(program) {
   program
     .command('deploy')
     .description(
-      'Deploy to Firebase only on build branches (master, stage, prod)'
+      'Deploy to Firebase only on build branches with matching project settings in .firebaserc'
     )
     .option('-d --debug', 'Enable extra logging') // taken by autocmdr
     .option('-i --info', 'Extra Info from installs')
