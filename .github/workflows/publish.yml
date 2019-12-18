@@ -7,12 +7,11 @@ on:
       - next
 
 jobs:
-  publish-npm:
-    needs: build
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Check package version
         uses: technote-space/package-version-check-action@v1
@@ -32,8 +31,6 @@ jobs:
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
 
       - name: Install Dependencies
         env:
@@ -77,36 +74,3 @@ jobs:
           # Install codeclimate tool and upload
           npm install -g codeclimate-test-reporter
           codeclimate-test-reporter < coverage/lcov.info
-
-
-      # - name: Semantic Release
-      #   id: semantic   # Need an `id` for output variables
-      #   uses: cycjimmy/semantic-release-action@v2
-      #   with:
-      #     extra_plugins: |
-      #       @jedmao/semantic-release-npm-github-config
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      # - name: Do something when a new release published
-      #   if: steps.semantic.outputs.new_release_published == 'true'
-      #   run: ...
-  # publish-gpr:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v1
-
-  #     - name: Setup Node
-  #       uses: actions/setup-node@v1
-  #       with:
-  #         node-version: 12
-  #         registry-url: https://registry.npmjs.org/
-
-  #     - name: Publish To Github
-  #       run: npm publish $(if [ ${{github.ref}} == 'refs/heads/master' ]; then echo '--tag next';fi;)
-  #       env:
-  #         NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
