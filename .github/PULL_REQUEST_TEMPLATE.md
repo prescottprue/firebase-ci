@@ -3,4 +3,4 @@
 ### Check List
 
 - [ ] All test passed
-- [ ] Docs updated where nessesary
+- [ ] Docs updated where necessary
