@@ -73,6 +73,23 @@ export function getProjectName(opts) {
 }
 
 /**
+ * Get name of project from .firebaserc based on branch name
+ * @param {object} opts - Options object
+ * @param {object} opts.project - Project name from options
+ * @returns {string} Name of project
+ */
+export function getProjectId(opts) {
+  const projectKey = getProjectKey(opts)
+  const firebaserc = getFile('.firebaserc')
+  return (
+    process.env.FIREBASE_CI_PROJECT ||
+    get(firebaserc, `ci.createConfig.${projectKey}.firebase.projectId`) ||
+    get(firebaserc, `ci.createConfig.master.firebase.projectId`) ||
+    getProjectName(opts)
+  )
+}
+
+/**
  * Get the key of the fallback project from environment variables. This key
  * is used to get the project settings from .firebaserc.
  * @returns {string} Name of fallback Project

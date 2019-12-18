@@ -183,6 +183,7 @@ export default { version, gaTrackingId, firebase }
 ```
 
 #### Options
+
 Options can be passed as flags or within an options object if calling action as a function
 
 `--project` - Project within .firebaserc to use when creating config file. Defaults to `"default"` then to `"master"`
@@ -305,6 +306,26 @@ Get name of project associated with the CI environment
 
 ```bash
 echo "Project to deploy to $(firebase-ci project)"
+```
+
+### projectID
+
+Get the projectId associated with the CI environment. Initially loaded from `ci.createConfig.${branchName}.firebase.projectId` and falls back to project from `project` command
+
+##### Example
+
+```bash
+echo "Project ID from config $(firebase-ci projectId)"
+```
+
+### branch
+
+Get the branch associated with the CI environment (loaded from environment variables)
+
+##### Example
+
+```bash
+echo "Branch name from ci env $(firebase-ci branch)"
 ```
 
 ### Roadmap
