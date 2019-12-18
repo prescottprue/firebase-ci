@@ -7,12 +7,17 @@ on:
       - next
 
 jobs:
-  build:
-    name: Build
+  publish-npm:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v1
+
+      - name: Check package version
+        uses: technote-space/package-version-check-action@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Setup Node
         uses: actions/setup-node@v1
@@ -53,6 +58,12 @@ jobs:
           name: firebase-ci-build
           path: lib
 
+      - name: Publish To NPM
+        run: npm publish $(if [ ${{github.ref}} == 'refs/heads/next' ]; then echo '--tag next';fi;)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Upload Coverage + Climate
         if: success()
         env:
@@ -67,34 +78,6 @@ jobs:
           npm install -g codeclimate-test-reporter
           codeclimate-test-reporter < coverage/lcov.info
 
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v1
-
-      - name: Check package version
-        uses: technote-space/package-version-check-action@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
-          registry-url: https://registry.npmjs.org/
-
-      - name: Download Build Artifact
-        uses: actions/download-artifact@master
-        with:
-          name: firebase-ci-build
-
-      - name: Publish To NPM
-        run: npm publish $(if [ ${{github.ref}} == 'refs/heads/next' ]; then echo '--tag next';fi;)
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # - name: Semantic Release
       #   id: semantic   # Need an `id` for output variables

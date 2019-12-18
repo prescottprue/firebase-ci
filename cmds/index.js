@@ -12,6 +12,8 @@ module.exports = function(client) {
   client.mapEnv = loadCommand('mapEnv')
   client.run = loadCommand('run')
   client.project = loadCommand('project')
+  client.projectId = loadCommand('projectId')
+  client.branch = loadCommand('branch')
   client.serve = loadCommand('serve')
 
   return client
