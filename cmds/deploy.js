@@ -1,8 +1,4 @@
-/* deploy commander component
- * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
- */
-'use strict'
-const deployToFirebase = require('../lib/actions/deploy').default
+const deployToFirebase = require('../lib/actions/deploy').default;
 
 /**
  * @name deploy
@@ -12,7 +8,7 @@ const deployToFirebase = require('../lib/actions/deploy').default
  * # make sure FIREBASE_TOKEN env variable is set
  * firebase-ci deploy
  */
-module.exports = function(program) {
+module.exports = function deployCommand(program) {
   program
     .command('deploy')
     .description(
@@ -29,6 +25,6 @@ module.exports = function(program) {
     .action(opts => {
       return deployToFirebase(opts)
         .then(() => process.exit(0))
-        .catch(() => process.exit(1))
-    })
-}
+        .catch(() => process.exit(1));
+    });
+};

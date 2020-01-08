@@ -1,8 +1,4 @@
-/* deploy commander component
- * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
- */
-'use strict'
-const createConfig = require('../lib/actions/createConfig').default
+const createConfig = require('../lib/actions/createConfig').default;
 
 /**
  * @name deploy
@@ -17,7 +13,7 @@ const createConfig = require('../lib/actions/createConfig').default
  *   - npm i -g firebase-ci
  *   - firebase-ci deploy
  */
-module.exports = function(program) {
+module.exports = function createConfigCommand(program) {
   program
     .command('createConfig')
     .description(
@@ -34,10 +30,10 @@ module.exports = function(program) {
     )
     .action(({ path, project }) => {
       try {
-        createConfig({ project, path })
-        process.exit(0)
+        createConfig({ project, path });
+        process.exit(0);
       } catch (err) {
-        process.exit(1)
+        process.exit(1);
       }
-    })
-}
+    });
+};
