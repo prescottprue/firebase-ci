@@ -13,8 +13,13 @@ module.exports = function(program) {
   program
     .command('project')
     .description('Get name of project associated with current CI environment')
+    .option(
+      '-d, --default-env <envName>',
+      'Default environment (used in place of master)'
+    )
     .action((directory, options) => {
-      const projectKey = getProjectName()
+      const defaultProject = directory && directory.defaultEnv
+      const projectKey = getProjectName(defaultProject && { defaultProject })
       if (!projectKey) {
         process.exit(1)
       } else {

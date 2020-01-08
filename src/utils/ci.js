@@ -65,10 +65,13 @@ export function getProjectKey(opts) {
 export function getProjectName(opts) {
   const projectKey = getProjectKey(opts)
   const firebaserc = getFile('.firebaserc')
-  return get(
-    firebaserc,
-    `projects.${projectKey}`,
-    get(firebaserc, 'projects.master', get(firebaserc, 'projects.default'))
+  return (
+    get(firebaserc, `projects.${projectKey}`) ||
+    (opts &&
+      opts.defaultProject &&
+      get(firebaserc, `projects.${opts.defaultProject}`)) ||
+    get(firebaserc, 'projects.master') ||
+    get(firebaserc, 'projects.default')
   )
 }
 
@@ -81,9 +84,21 @@ export function getProjectName(opts) {
 export function getProjectId(opts) {
   const projectKey = getProjectKey(opts)
   const firebaserc = getFile('.firebaserc')
+  console.log('project key', projectKey)
   return (
     process.env.FIREBASE_CI_PROJECT ||
-    get(firebaserc, `ci.createConfig.${projectKey}.firebase.projectId`) ||
+    get(
+      firebaserc,
+      `ci.createConfig.${
+        projectKey === 'default' ? 'master' : projectKey
+      }.firebase.projectId`
+    ) ||
+    (opts &&
+      opts.defaultProject &&
+      get(
+        firebaserc,
+        `ci.createConfig.${opts.defaultProject}.firebase.projectId`
+      )) ||
     get(firebaserc, `ci.createConfig.master.firebase.projectId`) ||
     getProjectName(opts)
   )
