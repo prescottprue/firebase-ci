@@ -3,10 +3,11 @@
 > Simplified Firebase interaction for continuous integration
 
 [![NPM version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
+[![Build Status][build-status-image]][build-status-url]
 [![Dependency Status][daviddm-image]][daviddm-url]
 [![Code Coverage][coverage-image]][coverage-url]
 [![License][license-image]][license-url]
+[![semantic-release][semantic-release-icon]][semantic-release-url]
 [![Code Style][code-style-image]][code-style-url]
 
 ## Features
@@ -109,7 +110,8 @@ Advanced configuration of Firebase deployment is often necessary when deploying 
 
 * [`copyVersion`](#createversion) - Copy version from `package.json` to `functions/package.json`
 * [`createConfig`](#createconfig) - Create a config file based on CI environment variables (defaults to `src/config.js`)
-* [`deploy`](#deploy) - Deploy to Firebase (runs other actions by default)
+* [`deploy`](#deploy) - Deploy to Firebase project matching branch name in `.firebaserc` (runs other `firebase-ci` actions by default unless `-s` is passed)
+* [`serve`](#serve) - Serve a the Firebase project matching branch name in `.firebaserc` using `firebase serve`
 * [`mapEnv`](#mapenv) - Map environment variables from CI Environment to Firebase functions environment
 * [`project`](#project) - Output project name associated with CI environment (useful for commands that should be run for each environment)
 
@@ -181,6 +183,7 @@ export default { version, gaTrackingId, firebase }
 ```
 
 #### Options
+
 Options can be passed as flags or within an options object if calling action as a function
 
 `--project` - Project within .firebaserc to use when creating config file. Defaults to `"default"` then to `"master"`
@@ -193,10 +196,12 @@ Options can be passed as flags or within an options object if calling action as 
 **Options:**
 * [Simple mode](#simple-mode)
 * [Info](#info-option)
+* [Only](#only-option)
 
 Deploy to Firebase. Following the API of `firebase-tools`, specific targets (i.e. `functions, hosting`) can be specified for deployment.
 
 #### Default
+
 * Everything skipped on Pull Requests
 * Deployment goes to default project
 * If you have a `functions` folder, `npm install` will be run for you within your `functions` folder
@@ -204,18 +209,27 @@ Deploy to Firebase. Following the API of `firebase-tools`, specific targets (i.e
 * [`mapEnv`](#mapenv) is called before deployment based on settings in `.firebaserc`, if you don't want this to happen, use simple mode.
 
 #### Simple Mode
+
 Option: `--simple`
 Flag: `-s`
 
 Skip all `firebase-ci` actions and only run Firebase deployment
 
 #### Info Option
+
 Option : `--info`
 Flag: `-i`
 
 Provide extra information from internal actions (including npm install of `firebase-tools`).
 
-#### Skipping Deploying Functions
+#### Only Option
+
+Option : `--only`
+Flag: `-o`
+
+Firebase targets to include (passed directly to firebase-tools)
+
+##### Skipping Deploying Functions
 
 If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
 
@@ -223,6 +237,27 @@ If you have a functions folder, your functions will automatically deploy as part
 script:
   - $(npm bin)/firebase-ci deploy --only hosting
 ```
+
+### serve
+
+`firebase-ci serve`
+
+**Options:**
+* [only](#only-option)
+
+Serve using to `firebase serve`. Following the API of `firebase-tools`, specific targets (i.e. `functions, hosting`) can be specified for serving.
+
+#### Default
+
+* Project alias matching branch name is served
+* If there is no matching alias, `default` project is used
+
+#### Only Option
+
+Option : `--only`
+Flag: `-o`
+
+Firebase targets to include (passed directly to firebase-tools)
 
 ### mapEnv
 
@@ -273,6 +308,26 @@ Get name of project associated with the CI environment
 echo "Project to deploy to $(firebase-ci project)"
 ```
 
+### projectID
+
+Get the projectId associated with the CI environment. Initially loaded from `ci.createConfig.${branchName}.firebase.projectId` and falls back to project from `project` command
+
+##### Example
+
+```bash
+echo "Project ID from config $(firebase-ci projectId)"
+```
+
+### branch
+
+Get the branch associated with the CI environment (loaded from environment variables)
+
+##### Example
+
+```bash
+echo "Branch name from ci env $(firebase-ci branch)"
+```
+
 ### Roadmap
 
 * `setCORS` option for copying CORS config file to Cloud Storage Bucket
@@ -288,8 +343,15 @@ echo "Project to deploy to $(firebase-ci project)"
 [climate-image]: https://img.shields.io/codeclimate/github/prescottprue/firebase-ci.svg?style=flat-square
 [climate-url]: https://codeclimate.com/github/prescottprue/firebase-ci
 [coverage-image]: https://img.shields.io/codecov/c/github/prescottprue/firebase-ci.svg?style=flat-square
+[coverage-image-next]: https://img.shields.io/codecov/c/github/prescottprue/firebase-ci/next.svg?style=flat-square
 [coverage-url]: https://codecov.io/gh/prescottprue/firebase-ci
 [license-image]: https://img.shields.io/npm/l/firebase-ci.svg?style=flat-square
 [license-url]: https://github.com/prescottprue/firebase-ci/blob/master/LICENSE
 [code-style-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
 [code-style-url]: http://standardjs.com/
+[semantic-release-icon]: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square
+[semantic-release-url]: https://github.com/semantic-release/semantic-release
+[build-status-image-og]: https://github.com/prescottprue/firebase-ci/workflows/NPM%20Package%20Publish/badge.svg?style=flat-square
+[build-status-image]: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fprescottprue%2Ffirebase-ci%2Fbadge&label=build&style=flat-square
+[build-status-image-next]: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fprescottprue%2Ffirebase-ci%2Fbadge%3Fref%3Dnext&label=build&style=flat-square
+[build-status-url]: https://github.com/prescottprue/firebase-ci/workflows/publish.yml/badge.svg?branch=next

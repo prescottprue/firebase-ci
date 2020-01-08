@@ -1,9 +1,13 @@
-const copyVersion = require('../lib/index').copyVersion;
+/* deploy commander component
+ * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
+ */
+'use strict'
+const copyVersion = require('../lib/actions/copyVersion').default
 
 /**
  * @name copyVersion
  * Copy version from main package.json into functions folder package.json
- * @param {object} program - Commander program
+ * @param {object} program - Commander program object
  * @example <caption>Basic</caption>
  * # make sure FIREBASE_TOKEN env variable is set
  * npm i -g firebase-ci

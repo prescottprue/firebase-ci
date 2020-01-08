@@ -5,6 +5,24 @@ import { getFile } from './files';
 import { FirebaseCiOptions } from '../index';
 
 /**
+ * Get branch name from GITHUB_REF environment variable which is
+ * available in Github Actions environment.
+ * @returns {string|undefined} Branch name if environment variable exists
+ */
+function branchNameForGithubAction() {
+  const { GITHUB_HEAD_REF, GITHUB_REF } = process.env
+  // GITHUB_HEAD_REF for pull requests
+  if (GITHUB_HEAD_REF) {
+    return GITHUB_HEAD_REF
+  }
+  // GITHUB_REF for commits (i.e. refs/heads/master)
+  if (GITHUB_REF) {
+    // replace is used in-case the value is passed and does not contain refs/heads/
+    return GITHUB_REF.replace('refs/heads/', '')
+  }
+}
+
+/**
  * Get the name of the current branch from environment variables
  * @returns Name of branch
  */
@@ -16,10 +34,14 @@ export function getBranch(): string {
     CI_COMMIT_REF_SLUG,
   } = process.env;
   return (
-    TRAVIS_BRANCH ||
-    CIRCLE_BRANCH ||
-    BITBUCKET_BRANCH ||
-    CI_COMMIT_REF_SLUG ||
+    branchNameForGithubAction() || // github actions
+    process.env.CI_COMMIT_REF_SLUG || // gitlab-ci
+    process.env.TRAVIS_BRANCH || // travis-ci
+    process.env.CIRCLE_BRANCH || // circle-ci
+    process.env.WERCKER_GIT_BRANCH || // wercker
+    process.env.DRONE_BRANCH || // drone-ci
+    process.env.CI_BRANCH || // codeship
+    process.env.BITBUCKET_BRANCH || // bitbucket
     'master'
   );
 }
@@ -34,10 +56,10 @@ export function getBranch(): string {
  */
 export function getProjectKey(opts: FirebaseCiOptions): string | undefined {
   const branchName = getBranch();
-  const { FIREBASE_CI_PROJECT } = process.env;
   // Get project from passed options, falling back to branch name
   return (
-    FIREBASE_CI_PROJECT ||
+    process.env.FIREBASE_CI_PROJECT ||
+    // Get project from passed options, falling back to branch name
     get(opts, 'project', branchName === 'master' ? 'default' : branchName)
   );
 }

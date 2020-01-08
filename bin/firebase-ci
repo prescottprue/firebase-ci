@@ -18,8 +18,8 @@ program.on('*', function warnCommandUnknown(name) {
 
 program.parse(process.argv);
 
-if (program.args.length < 1) {
-  console.log("No command specified. See 'firebase-ci --help':"); // eslint-disable-line no-console
-  program.outputHelp();
-  process.exit(1);
+if (program.rawArgs.length < 3) {
+  console.log("No command specified. See 'firebase-ci --help':") // eslint-disable-line no-console
+  program.outputHelp()
+  process.exit(1)
 }

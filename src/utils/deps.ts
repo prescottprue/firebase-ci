@@ -29,6 +29,7 @@ export async function installDeps(
 
   // Check version of firebase tools using npx (to allow for locally and
   // globally installed versions of firebase-tools) falling back to npm bin
+  logInfo('Checking to see if firebase-tools is installed...')
   const [versionErr, fbVersion] = await to(
     runCommand({
       command: npxExists ? 'npx' : 'firebase',
