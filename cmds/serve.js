@@ -1,7 +1,3 @@
-/* deploy commander component
- * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
- */
-
 const serve = require('../lib/actions/serve').default;
 
 /**
