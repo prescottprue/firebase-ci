@@ -1,8 +1,8 @@
 /* deploy commander component
  * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
  */
-'use strict'
-const deployToFirebase = require('../lib/actions/deploy').default
+
+const deployToFirebase = require('../lib/actions/deploy').default;
 
 /**
  * @name deploy

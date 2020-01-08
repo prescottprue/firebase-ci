@@ -7,18 +7,18 @@ import { FirebaseCiOptions } from '../index';
 /**
  * Get branch name from GITHUB_REF environment variable which is
  * available in Github Actions environment.
- * @returns {string|undefined} Branch name if environment variable exists
+ * @returns Branch name if environment variable exists
  */
-function branchNameForGithubAction() {
-  const { GITHUB_HEAD_REF, GITHUB_REF } = process.env
+function branchNameForGithubAction(): string | undefined {
+  const { GITHUB_HEAD_REF, GITHUB_REF } = process.env;
   // GITHUB_HEAD_REF for pull requests
   if (GITHUB_HEAD_REF) {
-    return GITHUB_HEAD_REF
+    return GITHUB_HEAD_REF;
   }
   // GITHUB_REF for commits (i.e. refs/heads/master)
   if (GITHUB_REF) {
     // replace is used in-case the value is passed and does not contain refs/heads/
-    return GITHUB_REF.replace('refs/heads/', '')
+    return GITHUB_REF.replace('refs/heads/', '');
   }
 }
 
@@ -27,12 +27,6 @@ function branchNameForGithubAction() {
  * @returns Name of branch
  */
 export function getBranch(): string {
-  const {
-    TRAVIS_BRANCH,
-    CIRCLE_BRANCH,
-    BITBUCKET_BRANCH,
-    CI_COMMIT_REF_SLUG,
-  } = process.env;
   return (
     branchNameForGithubAction() || // github actions
     process.env.CI_COMMIT_REF_SLUG || // gitlab-ci

@@ -16,7 +16,7 @@ export function isPromise(valToCheck: any): boolean {
 
 export interface RunCommandOptions {
   command: string;
-  args: string[];
+  args: string[] | any;
   beforeMsg?: string;
   successMsg?: string;
   errorMsg?: string;

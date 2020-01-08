@@ -1,5 +1,4 @@
-'use strict'
-const getBranch = require('../lib/utils/ci').getBranch
+const getBranch = require('../lib/utils/ci').getBranch;
 
 /**
  * @name project
@@ -9,19 +8,19 @@ const getBranch = require('../lib/utils/ci').getBranch
  * echo "Project to deploy to $(firebase-ci project)"
  * // => "Project to deploy to my-project"
  */
-module.exports = function(program) {
+module.exports = function branchCommand(program) {
   program
     .command('branch')
     .description(
       'Get name of the branch associated with current CI environment'
     )
     .action((directory, options) => {
-      const projectKey = getBranch()
+      const projectKey = getBranch();
       if (!projectKey) {
-        process.exit(1)
+        process.exit(1);
       } else {
-        console.log(projectKey) // eslint-disable-line no-console
-        process.exit(0)
+        console.log(projectKey); // eslint-disable-line no-console
+        process.exit(0);
       }
-    })
-}
+    });
+};

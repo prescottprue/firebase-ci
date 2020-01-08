@@ -173,7 +173,9 @@ export default async function deploy(opts: FirebaseCiOptions): Promise<any> {
   const [deployErr] = await to(
     runCommand({
       command: npxExists ? 'npx' : 'firebase',
-      args: npxExists ? ['firebase'].concat(deployArgs) : deployArgs,
+      args: npxExists
+        ? ['firebase'].concat(deployArgs as any)
+        : (deployArgs as any),
       beforeMsg: `Deploying to ${branchName} branch to ${projectKey} Firebase project "${projectName}"`,
       errorMsg: 'Error deploying to firebase.',
       successMsg: `Successfully Deployed ${branchName} branch to ${projectKey} Firebase project "${projectName}"`,

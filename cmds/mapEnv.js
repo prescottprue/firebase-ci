@@ -1,8 +1,8 @@
 /* deploy commander component
  * To use add require('../cmds/deploy.js')(program) to your commander.js based node executable before program.parse
  */
-'use strict'
-const mapEnv = require('../lib/actions/mapEnv').default
+
+const mapEnv = require('../lib/actions/mapEnv').default;
 
 /**
  * @name mapEnv

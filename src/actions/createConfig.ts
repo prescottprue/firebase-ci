@@ -47,15 +47,19 @@ function tryTemplating(str: string, name: string): string {
   }
 }
 
-  // convert object into formatted object string
-  function parentAsString(parent: any): string {
-    return reduce(
-      parent,
-      (acc, child, childKey) =>
-        acc.concat(`  ${childKey}: ${JSON.stringify(child, null, 2)},\n`),
-      '',
-    );
-  }
+/**
+ * Convert object into formatted object string
+ * @param parent - Parent variable
+ * @returns Stringified parent variable name and value
+ */
+function parentAsString(parent: any): string {
+  return reduce(
+    parent,
+    (acc, child, childKey) =>
+      acc.concat(`  ${childKey}: ${JSON.stringify(child, null, 2)},\n`),
+    '',
+  );
+}
 
 /**
  * Create config file based on CI environment variables

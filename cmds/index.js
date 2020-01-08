@@ -12,15 +12,15 @@ module.exports = function loadAllCommands(client) {
     return require(`./${name}`)(client); // eslint-disable-line global-require, import/no-dynamic-require
   }
 
-  client.deploy = loadCommand('deploy')
-  client.createConfig = loadCommand('createConfig')
-  client.copyVersion = loadCommand('copyVersion')
-  client.mapEnv = loadCommand('mapEnv')
-  client.run = loadCommand('run')
-  client.project = loadCommand('project')
-  client.projectId = loadCommand('projectId')
-  client.branch = loadCommand('branch')
-  client.serve = loadCommand('serve')
+  client.deploy = loadCommand('deploy');
+  client.createConfig = loadCommand('createConfig');
+  client.copyVersion = loadCommand('copyVersion');
+  client.mapEnv = loadCommand('mapEnv');
+  client.run = loadCommand('run');
+  client.project = loadCommand('project');
+  client.projectId = loadCommand('projectId');
+  client.branch = loadCommand('branch');
+  client.serve = loadCommand('serve');
 
   return client;
 };
