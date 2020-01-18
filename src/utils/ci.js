@@ -84,7 +84,6 @@ export function getProjectName(opts) {
 export function getProjectId(opts) {
   const projectKey = getProjectKey(opts)
   const firebaserc = getFile('.firebaserc')
-  console.log('project key', projectKey)
   return (
     process.env.FIREBASE_CI_PROJECT ||
     get(
