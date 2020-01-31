@@ -139,7 +139,9 @@ export default function createConfigFile(config) {
                   : `{\n${parentAsString(parent)}};\n\n`
               ),
           ''
-        ).concat(`export default { ${Object.keys(templatedData).join(', ')} }`)
+        ).concat(
+          `export default { ${Object.keys(templatedData).join(', ')} };\n`
+        )
 
   const folderName = path.basename(path.dirname(opts.path))
 
