@@ -1,6 +1,6 @@
 import { get } from 'lodash'
-import { shellescape } from './commands'
-import { warn } from './logger'
+import { shellescape, runCommand } from './commands'
+import { warn, log } from './logger'
 import { getFile } from './files'
 
 /**
@@ -130,12 +130,34 @@ export function isPullRequest() {
  * Get commit message from environment variables
  * @returns {string} Commit message for current ref
  */
-function getCommitMessage() {
-  return (
-    process.env.TRAVIS_COMMIT_MESSAGE ||
-    process.env.CI_COMMIT_MESSAGE ||
-    process.env.CI_MESSAGE
-  )
+async function getCommitMessage() {
+  // Load commit message from ENV variables if not using Github Actions
+  if (!process.env.GITHUB_ACTIONS) {
+    return (
+      process.env.TRAVIS_COMMIT_MESSAGE ||
+      process.env.CI_COMMIT_MESSAGE ||
+      process.env.CI_MESSAGE
+    )
+  }
+
+  // Load commit message using GITHUB_SHA on Github Actions
+  try {
+    const commandResults = await runCommand({
+      command: 'git',
+      args: [
+        '--no-pager',
+        'log',
+        '--format=%B',
+        '-n',
+        '1',
+        process.env.GITHUB_SHA
+      ]
+    })
+    return commandResults
+  } catch (err) {
+    error(`Error getting commit message through git log for SHA: ${process.env.GITHUB_SHA}`, err)
+    return null
+  }
 }
 
 /**
@@ -144,8 +166,8 @@ function getCommitMessage() {
  * running shellescape. If commit message is not found then "Update" is returned
  * @returns {string} Message for deploy
  */
-export function getDeployMessage() {
-  const originalMessage = getCommitMessage()
+export async function getDeployMessage() {
+  const originalMessage = await getCommitMessage()
   const DEFAULT_DEPLOY_MESSAGE = 'Update'
   // Return "Update" (default message) if no message is gathered from env vars
   if (!originalMessage) {

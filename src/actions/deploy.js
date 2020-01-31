@@ -16,7 +16,7 @@ import {
 } from '../utils/ci'
 import { to } from '../utils/async'
 
-const skipPrefix = 'Skipping Firebase Deploy'
+const SKIP_PREFIX = 'Skipping Firebase Deploy'
 
 /**
  * Get string including token flag and FIREBASE_TOKEN
@@ -75,7 +75,7 @@ export default async function deploy(opts) {
   const branchName = getBranch()
   if (typeof branchName === 'undefined' || (opts && opts.test)) {
     const nonCiMessage = `${chalk.cyan(
-      skipPrefix
+      SKIP_PREFIX
     )} - Not a supported CI environment`
     warn(nonCiMessage)
     return nonCiMessage
@@ -83,7 +83,7 @@ export default async function deploy(opts) {
 
   if (isPullRequest()) {
     const pullRequestMessage = `${chalk.cyan(
-      skipPrefix
+      SKIP_PREFIX
     )} - Build is a Pull Request`
     info(pullRequestMessage)
     return pullRequestMessage
@@ -112,12 +112,12 @@ export default async function deploy(opts) {
 
   // Handle project alias not existing in .firebaserc
   if (!projectName) {
-    const nonProjectBranch = `${skipPrefix} - Project ${chalk.cyan(
+    const nonProjectBranch = `${SKIP_PREFIX} - Project ${chalk.cyan(
       projectKey
     )} is not an alias, checking for fallback...`
     info(nonProjectBranch)
     if (!fallbackProjectSetting) {
-      const nonFallbackBranch = `${skipPrefix} - Fallback Project: ${chalk.cyan(
+      const nonFallbackBranch = `${SKIP_PREFIX} - Fallback Project: ${chalk.cyan(
         fallbackProjectName
       )} is a not an alias, exiting...`
       info(nonFallbackBranch)
@@ -136,8 +136,7 @@ export default async function deploy(opts) {
     )
   }
 
-  const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
-  const message = getDeployMessage()
+  const message = await getDeployMessage()
 
   // Install firebase-tools and functions dependencies unless skipped by config
   if (!settings.skipDependencyInstall) {
@@ -155,6 +154,7 @@ export default async function deploy(opts) {
 
   const firebaseTokenStr = getFirebaseTokenStr()
   const npxExists = commandExists.sync('npx')
+  const onlyString = opts && opts.only ? `--only ${opts.only}` : ''
 
   const deployArgs = [
     'deploy',
