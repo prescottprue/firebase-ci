@@ -1,6 +1,6 @@
 import { get } from 'lodash'
 import { shellescape, runCommand } from './commands'
-import { warn, log } from './logger'
+import { warn, error } from './logger'
 import { getFile } from './files'
 
 /**
@@ -155,7 +155,10 @@ async function getCommitMessage() {
     })
     return commandResults
   } catch (err) {
-    error(`Error getting commit message through git log for SHA: ${process.env.GITHUB_SHA}`, err)
+    error(
+      `Error getting commit message through git log for SHA: ${process.env.GITHUB_SHA}`,
+      err
+    )
     return null
   }
 }
