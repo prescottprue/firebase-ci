@@ -52,7 +52,8 @@ export function getProjectKey(opts) {
   return (
     process.env.FIREBASE_CI_PROJECT ||
     // Get project from passed options, falling back to branch name
-    get(opts, 'project', branchName === 'master' ? 'default' : branchName)
+    (opts && opts.project) ||
+    branchName
   )
 }
 
