@@ -4,15 +4,15 @@
 
 [![NPM version][npm-image]][npm-url]
 [![Build Status][build-status-image]][build-status-url]
-[![Dependency Status][daviddm-image]][daviddm-url]
 [![Code Coverage][coverage-image]][coverage-url]
 [![License][license-image]][license-url]
-[![semantic-release][semantic-release-icon]][semantic-release-url]
+<!-- [![semantic-release][semantic-release-icon]][semantic-release-url] -->
 [![Code Style][code-style-image]][code-style-url]
 
 ## Features
 
 * Skip For Pull Requests
+* Automatic loading of commit message as deploy message
 * Deploy to Different Firebase Instances based on Branch
 * Mapping of CI environment variables to Firebase Functions Config
 * Create a config file based on CI environment variables
@@ -229,6 +229,19 @@ Flag: `-o`
 
 Firebase targets to include (passed directly to firebase-tools)
 
+#### Except Option
+
+Option : `--except`
+
+Deploy to all targets except specified (e.g. "database")
+
+#### Force Option
+
+Option : `--force`
+Flag: `-f`
+
+Delete Cloud Functions missing from the current working directory without confirmation
+
 ##### Skipping Deploying Functions
 
 If you have a functions folder, your functions will automatically deploy as part of using `firebase-ci`. For skipping this functionality, you may use the only flag, similar to the API of `firebase-tools`.
@@ -336,10 +349,6 @@ echo "Branch name from ci env $(firebase-ci branch)"
 
 [npm-image]: https://img.shields.io/npm/v/firebase-ci.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/firebase-ci
-[travis-image]: https://img.shields.io/travis/prescottprue/firebase-ci/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/prescottprue/firebase-ci
-[daviddm-image]: https://img.shields.io/david/prescottprue/firebase-ci.svg?style=flat-square
-[daviddm-url]: https://david-dm.org/prescottprue/firebase-ci
 [climate-image]: https://img.shields.io/codeclimate/github/prescottprue/firebase-ci.svg?style=flat-square
 [climate-url]: https://codeclimate.com/github/prescottprue/firebase-ci
 [coverage-image]: https://img.shields.io/codecov/c/github/prescottprue/firebase-ci.svg?style=flat-square

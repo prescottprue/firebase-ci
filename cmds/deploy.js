@@ -21,6 +21,14 @@ module.exports = function(program) {
     .option('-d --debug', 'Enable extra logging') // taken by autocmdr
     .option('-i --info', 'Extra Info from installs')
     .option(
+      '-f --force',
+      'delete Cloud Functions missing from the current working directory without confirmation'
+    )
+    .option(
+      '--except <targets>',
+      'deploy to all targets except specified (e.g. "database")'
+    )
+    .option(
       '-o --only <targets>',
       'Only deploy to specified, comma-seperated targets (e.g "hosting, storage")'
     )
