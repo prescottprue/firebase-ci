@@ -1,9 +1,14 @@
-'use strict'
+/* eslint-disable no-param-reassign */
+module.exports = function setupCommands(client) {
+  process.env.FORCE_COLOR = true;
 
-module.exports = function(client) {
-  process.env.FORCE_COLOR = true
-  var loadCommand = function(name) {
-    return require('./' + name)(client)
+  /**
+   * Load command from file by name
+   * @param name - Name of command
+   * @returns {object} Command object
+   */
+  function loadCommand(name) {
+    return require('../lib/commands/' + name).default(client) // eslint-disable-line
   }
 
   client.deploy = loadCommand('deploy')
@@ -16,5 +21,5 @@ module.exports = function(client) {
   client.branch = loadCommand('branch')
   client.serve = loadCommand('serve')
 
-  return client
-}
+  return client;
+};

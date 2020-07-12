@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "dom"],
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": true,
+    "outDir": "lib",
+    "rootDir": "./src",
+    "importHelpers": true,
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true
+  },
+  "typeRoots": ["./types", "./node_modules/@types"],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
