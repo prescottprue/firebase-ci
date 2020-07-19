@@ -51,11 +51,10 @@ jobs:
         env:
           CI: true
           CODE_CLIMATE: ${{ secrets.CODE_CLIMATE }}
-        run: yarn test:cov && yarn codecov
+        run: yarn test:cov
 
       - name: Build
-        if: steps.check.outputs.changed == 'true'
-        if: success()
+        if: steps.check.outputs.changed == 'true' && success()
         run: yarn build
 
       - name: Archive Build Artifact
