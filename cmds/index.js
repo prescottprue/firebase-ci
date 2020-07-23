@@ -1,8 +1,8 @@
 'use strict'
 
-module.exports = function(client) {
+module.exports = function (client) {
   process.env.FORCE_COLOR = true
-  var loadCommand = function(name) {
+  var loadCommand = function (name) {
     return require('./' + name)(client)
   }
 
@@ -10,6 +10,7 @@ module.exports = function(client) {
   client.createConfig = loadCommand('createConfig')
   client.copyVersion = loadCommand('copyVersion')
   client.mapEnv = loadCommand('mapEnv')
+  client.setEnv = loadCommand('setEnv')
   client.run = loadCommand('run')
   client.project = loadCommand('project')
   client.projectId = loadCommand('projectId')
