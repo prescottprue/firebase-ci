@@ -11,38 +11,20 @@
 
 ## Features
 
-* Skip For Pull Requests
-* Automatic loading of commit message as deploy message
-* Deploy to Different Firebase Instances based on Branch
+* Deploy to different Firebase projects based on Git Branch
+* Automatically use commit message as deploy message
+* Expose CI environment variables based on branch name
 * Mapping of CI environment variables to Firebase Functions Config
-* Create a config file based on CI environment variables
 * Optional Deploying of targets Functions, Hosting, Database (rules) and Storage (rules)
+* Skip For Pull Requests
 
 ## Getting Started
 
 1. Generate a CI token through `firebase-tools` by running `firebase login:ci`
 1. Place this token within your CI environment under the variable `FIREBASE_TOKEN`
 1. Install `firebase-ci` into your project (so it is available on your CI): `npm install --save-dev firebase-ci firebase-tools`. If you don't want `firebase-tools` as a dev dependency, it can be left out as it is installed automatically if it doesn't exist.
-1. Add the following npm scripts:
+1. Set different Firebase project names in `projects` parameter of `.firebaserc`. The project aliases should match branch names like so:
 
-    ```json
-    "build:config": "firebase-ci createConfig",
-    "deploy": "firebase-ci deploy"
-    ```
-1. Add the following scripts to your CI config, for instance within a `travis.yml`:
-
-      ```yaml
-      script:
-        - npm run build:config # Build src/config.js (environment specific client config)
-        - npm run lint # Check for lint
-        - npm run deploy # Deploy to Firebase
-      ```
-
-    **NOTES**:
-    * `firebase-ci` can be used through the nodejs `bin` **OR** installed globally
-    * `firebase-tools` will be installed (from `@latest`) if it is not already installed locally or globally
-
-1. Set different Firebase instances names to `.firebaserc` like so:
     ```json
     {
       "projects": {
@@ -53,18 +35,55 @@
     }
     ```
 
+1. Add calls to the scripts within to your CI stages, here are a few example snippets:
+
+      **Github Actions** (*.github/workflows/\*.yml*)
+      ```yaml
+      jobs:
+        deploy:
+          name: ${{ matrix.app }} Deploy
+          runs-on: ubuntu-18.04
+          steps:
+            - name: Checkout Code
+              uses: actions/checkout@v2
+            
+            ## Place other steps for installing deps, building, etc. here
+            ## See the github-actions example for a full workflow
+
+            # Deploy to Firebase project matching branch name in projects parameter of .firebaserc
+            - name: Deploy To Firebase
+              run: |
+                $(npm bin)/firebase-ci deploy
+      ```
+
+      **Travis** (*travis.yml*)
+      ```yaml
+      script:
+        # Deploy to Firebase project matching branch name in projects parameter of .firebaserc
+        - $(npm bin)/firebase-ci deploy
+      ```
+
+    **NOTES**:
+    * `firebase-ci` can be used through the nodejs `bin` **OR** installed globally (npm bin is used here since instructions include adding firebase-ci as a dev dependency)
+    * `firebase-tools` will be installed (from `@latest`) if it is not already installed locally or globally
+
+
 ## Setting Project
 
 There are a number of ways to set which Firebase project within `.firebaserc` is being used when running actions. Below is the order of for how the project is determined (default at bottom):
 
 * `FIREBASE_CI_PROJECT` environment variable (overrides all)
 * branch name (dependent on CI provider):
+  * Github Actions - `GITHUB_HEAD_REF` or `GITHUB_REF` (`refs/heads/` prefix is removed)
   * Travis-CI - `TRAVIS_BRANCH`
   * Gitlab - `CI_COMMIT_REF_SLUG`
   * Circle-CI - `CIRCLE_BRANCH`
+  * wercker - `WERCKER_GIT_BRANCH`
+  * drone-ci - `DRONE_BRANCH`
+  * codeship - `CI_BRANCH`
+  * bitbucket - `BITBUCKET_BRANCH`
 * fallback name (dependent on CI provider)
   * Gitlab - `CI_ENVIRONMENT_SLUG`
-  * Other - `master`
 * `master`
 * `default` (must be set within `.firebaserc`)
 
@@ -78,7 +97,10 @@ Default installation uses `@latest` tag, but there are also others:
 
 ## [Examples](/examples)
 
-* [Basic](/examples/basic) - Basic html file upload to Firebase hosting of different projects (or "environments")
+Examples are the same basic html file upload to Firebase hosting of different projects (or "environments") for different CI providers:
+
+* [Travis](/examples/travis)
+* [Github Actions](/examples/github-actions)
 
 ## Why?
 
@@ -125,7 +147,32 @@ It can be convenient for the version within the `functions/package.json` file to
 }
 ```
 
+### setEnv
+
+Expose environment variables to CI based on current branch.
+
+With a `.firebaserc` that looks like so:
+
+```yaml
+"ci": {
+  "setEnv": {
+    "master": {
+      "SOME_VAR": "some value"
+      "REACT_APP_ENV_VARIABLE": "val passed to react app"
+    },
+    "prod": {
+      "SOME_VAR": "some other value"
+      "REACT_APP_ENV_VARIABLE": "val passed to react app"
+    }
+  }
+}
+```
+
+`SOME_VAR` and `REACT_APP_ENV_VARIABLE` will be exposed to environment variables of your CI based on branch. Meaning that on the master branch `SOME_VAR` will be set to `"some value"`
+
 ### createConfig
+
+**DEPRECATED**
 
 Create a config file based on CI environment variables (defaults to `src/config.js`). Allows for creating files of different types based on the extension passed.
 

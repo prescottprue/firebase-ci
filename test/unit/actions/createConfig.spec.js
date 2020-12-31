@@ -34,7 +34,7 @@ describe('createConfig action', () => {
       const res = createConfig({ project: 'test' })
       expect(res).to.be.undefined
       // '✖ Error: no createConfig settings found'
-      expect(logSpy).to.have.been.calledOnce
+      expect(logSpy).to.have.been.calledTwice
     })
   })
 

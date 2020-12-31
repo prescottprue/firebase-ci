@@ -5,19 +5,11 @@
 const createConfig = require('../lib/actions/createConfig').default
 
 /**
- * @name deploy
- * @description Deploy to Firebase only on build branches (master, stage, prod)
+ * @name createConfig
+ * @description Create src/config.js file (planned to be deprecated)
  * @param {object} program - Commander program object
- * @example <caption>Basic</caption>
- * # make sure FIREBASE_TOKEN env variable is set
- * npm i -g firebase-ci
- * firebase-ci deploy
- * @example <caption>Travis</caption>
- * after_success:
- *   - npm i -g firebase-ci
- *   - firebase-ci deploy
  */
-module.exports = function(program) {
+module.exports = function (program) {
   program
     .command('createConfig')
     .description(

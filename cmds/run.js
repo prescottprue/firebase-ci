@@ -12,7 +12,7 @@ const runActions = require('../lib/actions/deploy').runActions
  * # make sure FIREBASE_TOKEN env variable is set
  * firebase-ci deploy
  */
-module.exports = function(program) {
+module.exports = function (program) {
   program
     .command('run')
     .description(

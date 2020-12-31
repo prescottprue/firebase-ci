@@ -8,7 +8,7 @@ program.version(pkg.version)
 
 require('../cmds')(program)
 
-program.on('*', function(name) {
+program.on('*', function (name) {
   /* eslint-disable no-console */
   console.log(
     "'" + name + "' is not a known command. See 'firebase-ci --help':"

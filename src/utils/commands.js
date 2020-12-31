@@ -80,7 +80,7 @@ export function runCommand({
 export function shellescape(a) {
   const ret = []
 
-  a.forEach(s => {
+  a.forEach((s) => {
     if (/[^A-Za-z0-9_/:=-]/.test(s)) {
       // eslint-disable-line no-useless-escape
       s = "'" + s.replace(/'/g, "'\\''") + "'"

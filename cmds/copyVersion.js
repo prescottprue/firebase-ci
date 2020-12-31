@@ -17,7 +17,7 @@ const copyVersion = require('../lib/actions/copyVersion').default
  *   - npm i -g firebase-ci
  *   - firebase-ci copyVersion
  */
-module.exports = function(program) {
+module.exports = function (program) {
   program
     .command('copyVersion')
     .description('Copy version from outer folder into functions folder')

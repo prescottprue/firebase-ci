@@ -1,6 +1,6 @@
-import path from 'path'
 import chalk from 'chalk'
-import { reduce, template, mapValues, get } from 'lodash'
+import { template, mapValues } from 'lodash'
+import { appendFileSync } from 'fs'
 import { getFile } from '../utils/files'
 import { error, info, warn } from '../utils/logger'
 import { getProjectKey } from '../utils/ci'
@@ -102,7 +102,10 @@ export default async function setEnvConfig(config) {
   Object.keys(templatedData).forEach((currentKey) => {
     process.env[currentKey] = templatedData[currentKey]
     if (process.env.GITHUB_ACTIONS) {
-      console.log(`::set-env name=${currentKey}::${templatedData[currentKey]}`) // eslint-disable-line no-console
+      appendFileSync(
+        process.env.GITHUB_ENV,
+        `${currentKey}=${templatedData[currentKey]}`
+      )
     }
   })
 }

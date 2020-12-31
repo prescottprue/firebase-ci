@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "firebase-1",
+    "master": "firebase-1",
+    "stage": "firebase-2",
+    "prod": "firebase-3"
+  }
+}

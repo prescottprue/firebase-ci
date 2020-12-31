@@ -12,7 +12,7 @@ const serve = require('../lib/actions/serve').default
  * # make sure FIREBASE_TOKEN env variable is set
  * firebase-ci deploy
  */
-module.exports = function(program) {
+module.exports = function (program) {
   program
     .command('serve')
     .description(
@@ -23,7 +23,7 @@ module.exports = function(program) {
       '-o --only <targets>',
       'Only serve specified targets, comma-seperated (e.g "hosting, storage")'
     )
-    .action(opts => {
+    .action((opts) => {
       return serve(opts)
         .then(() => process.exit(0))
         .catch(() => process.exit(1))

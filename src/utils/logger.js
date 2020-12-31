@@ -26,7 +26,7 @@ const prefixMapping = {
  */
 function colorLogger(type) {
   const color = colorMapping[type]
-  return text => {
+  return (text) => {
     const chalkColor = chalk[color]
     return chalkColor ? chalkColor(text) : text
   }
