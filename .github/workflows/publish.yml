@@ -71,7 +71,6 @@ jobs:
       - name: Upload Coverage + Climate
         if: steps.check.outputs.changed == 'true' && success()
         env:
-          CI: true
           CODE_COV: ${{ secrets.CODE_COV }}
           CODECLIMATE_REPO_TOKEN: ${{ secrets.CODE_CLIMATE }}
         # Upload to Code Coverage. Curl used in place of codecov/codecov-action
