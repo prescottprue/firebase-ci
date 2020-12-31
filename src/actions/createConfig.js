@@ -63,7 +63,7 @@ function tryTemplating(str, name) {
  */
 export default function createConfigFile(config) {
   const settings = getFile('.firebaserc')
-
+  warn('createConfig is deprecated and will be removed in a future version')
   // Check for .firebaserc settings file
   if (!settings) {
     error('.firebaserc file is required')
@@ -116,7 +116,7 @@ export default function createConfigFile(config) {
         )
   )
   // convert object into formatted object string
-  const parentAsString = parent =>
+  const parentAsString = (parent) =>
     reduce(
       parent,
       (acc, child, childKey) =>

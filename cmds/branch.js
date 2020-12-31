@@ -9,7 +9,7 @@ const getBranch = require('../lib/utils/ci').getBranch
  * echo "Project to deploy to $(firebase-ci project)"
  * // => "Project to deploy to my-project"
  */
-module.exports = function(program) {
+module.exports = function (program) {
   program
     .command('branch')
     .description(

@@ -1,0 +1,43 @@
+name: Deploy Brawndo
+
+on:
+  push:
+    branches:
+      - master
+      - prod
+
+jobs:
+  deploy:
+    name: Deploy App
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Get Yarn Cache
+        id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache Yarn Dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+
+      - name: Install Dependencies
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Firebase Deploy
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          $(yarn bin)/firebase-ci deploy

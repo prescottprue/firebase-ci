@@ -9,7 +9,7 @@ const getProjectId = require('../lib/utils/ci').getProjectId
  * echo "Project to deploy to $(firebase-ci project)"
  * // => "Project to deploy to my-project"
  */
-module.exports = function(program) {
+module.exports = function (program) {
   program
     .command('projectId')
     .description('Get projectId of associated with current CI environment')

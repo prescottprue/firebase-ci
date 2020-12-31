@@ -12,7 +12,7 @@ const deployToFirebase = require('../lib/actions/deploy').default
  * # make sure FIREBASE_TOKEN env variable is set
  * firebase-ci deploy
  */
-module.exports = function(program) {
+module.exports = function (program) {
   program
     .command('deploy')
     .description(
@@ -34,7 +34,7 @@ module.exports = function(program) {
     )
     .option('-s --simple', 'Skip CI actions, and only run deployment')
     // .option('-a --actions <actions>', 'Only run certain CI actions (e.g "mapEnv", "createConfig")', /^(mapEnv|createConfig|copyVersion)$/i)
-    .action(opts => {
+    .action((opts) => {
       return deployToFirebase(opts)
         .then(() => process.exit(0))
         .catch(() => process.exit(1))

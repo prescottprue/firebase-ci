@@ -12,7 +12,7 @@ const mapEnv = require('../lib/actions/mapEnv').default
  * # make sure you set mapEnv settings in .firebaserc
  * firebase-ci mapEnv
  */
-module.exports = function(program) {
+module.exports = function (program) {
   program
     .command('mapEnv')
     .description('Copy version from outer folder into functions folder')
