@@ -1,6 +1,6 @@
 {
   "name": "firebase-ci",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "description": "Simplified Firebase interaction for continuous integration including deploying hosting, functions, and database/storage rules.",
   "main": "lib/index.js",
   "bin": {
@@ -63,7 +63,7 @@
   },
   "homepage": "https://github.com/prescottprue/firebase-ci",
   "dependencies": {
-    "chalk": "^3.0.0",
+    "chalk": "^4.1.0",
     "command-exists": "^1.2.8",
     "commander": "^4.1.0",
     "figures": "^3.1.0",
