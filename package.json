@@ -94,7 +94,7 @@
     "eslint-plugin-standard": "^5.0.0",
     "husky": "^4.3.6",
     "lint-staged": "^10.5.4",
-    "mocha": "^7.1.2",
+    "mocha": "^8.3.2",
     "nyc": "^15.1.0",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
