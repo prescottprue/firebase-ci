@@ -33,7 +33,7 @@ jobs:
         id: yarn-cache
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
-      - uses: actions/cache@v2.1.5
+      - uses: actions/cache@v3.0.8
         if: steps.check.outputs.changed == 'true'
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
